@@ -1,0 +1,9 @@
+target/*
+
+/target
+prefs.properties*
+/.idea/
+.*path
+.*p*
+.vscode
+.dependency*
