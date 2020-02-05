@@ -1,4 +1,4 @@
-package com.antoniocaccamo.player.rx;
+package me.antoniocaccamo.player.rx;
 
 import io.micronaut.configuration.picocli.PicocliRunner;
 import io.micronaut.context.ApplicationContext;
