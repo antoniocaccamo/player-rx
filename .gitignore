@@ -7,3 +7,7 @@ prefs.properties*
 .*p*
 .vscode
 .dependency*
+bin
+.settings
+dependency-reduced-pom.xml
+*.iml

@@ -13,7 +13,7 @@
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <exec.mainClass>com.antoniocaccamo.player.rx.PlayerRxCommand</exec.mainClass>
+        <exec.mainClass>me.antoniocaccamo.player.rx.PlayerRxCommand</exec.mainClass>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <durian.version>3.3.1</durian.version>
@@ -168,6 +168,10 @@
                     <groupId>org.eclipse.platform</groupId>
                     <artifactId>org.eclipse.jface</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.platform</groupId>
+                    <artifactId>org.eclipse.swt</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -237,7 +241,7 @@
                         <argument>-classpath</argument>
                         <classpath/>
                         <argument>-noverify</argument>
-                        <argument>-XstartOnFirstThread</argument>
+<!--                        <argument>-XstartOnFirstThread</argument>-->
                         <argument>-XX:TieredStopAtLevel=1</argument>
                         <argument>-Dcom.sun.management.jmxremote</argument>
                         <argument>${exec.mainClass}</argument>
@@ -391,7 +395,6 @@
         </profile>
         <profile>
             <id>windows64bit</id>
-
             <activation>
                 <os>
                     <family>windows</family>

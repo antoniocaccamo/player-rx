@@ -1,7 +1,23 @@
 ---
+#micronaut:
+#  application:
+#    name: player-rx
+
 micronaut:
   application:
     name: player-rx
+    pref-file : prefs.yaml
+  server:
+    port: 8080
+    cors:
+      enabled: true
+  router:
+    static-resources:
+      default:
+        enabled : true
+        paths :
+          - "classpath:public"
+          - "file:${user.home}/.at/player/public"
 
 ---
 datasources:
