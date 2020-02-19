@@ -15,6 +15,8 @@ public class MonitorModel extends Model {
 
     private LocationModel location;
 
+    private String name;
+
     private String sequence;
 
 }

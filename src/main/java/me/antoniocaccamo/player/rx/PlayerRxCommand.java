@@ -3,20 +3,21 @@ package me.antoniocaccamo.player.rx;
 import com.diffplug.common.rx.RxBox;
 import com.diffplug.common.swt.Layouts;
 import com.diffplug.common.swt.Shells;
+import com.diffplug.common.swt.SwtMisc;
 import com.diffplug.common.swt.SwtRx;
 import com.diffplug.common.swt.jface.Actions;
 import com.diffplug.common.swt.jface.JFaceRx;
-import com.diffplug.common.swt.widgets.ButtonPanel;
 import io.micronaut.configuration.picocli.PicocliRunner;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.runtime.Micronaut;
+import io.reactivex.Observable;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.model.MainViewModel;
+import me.antoniocaccamo.player.rx.model.MonitorModel;
 import me.antoniocaccamo.player.rx.service.PreferenceService;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.graphics.Point;
@@ -30,19 +31,20 @@ import picocli.CommandLine.Option;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 
-import static org.eclipse.swt.SWT.BAR;
-import static org.eclipse.swt.SWT.getPlatform;
-
 @Command(name = "player-rx", description = "...",
         mixinStandardHelpOptions = true)
 @Slf4j
 public class PlayerRxCommand implements Runnable {
 
-    @Value("${micronaut.application.name}") @NotNull
+    private static ApplicationContext context;
+
+    @Value("${micronaut.application.name}")
+    @NotNull
     private String appname;
 
 
-    @Value("${micronaut.server.port}") @NotNull
+    @Value("${micronaut.server.port}")
+    @NotNull
     private int port;
 
     @Option(names = {"-v", "--verbose"}, description = "...")
@@ -52,12 +54,14 @@ public class PlayerRxCommand implements Runnable {
     private PreferenceService preferenceService;
 
     public static void main(String[] args) throws Exception {
-        try ( ApplicationContext context= Micronaut.run(PlayerRxCommand.class, args) ) {
+        try (ApplicationContext context = Micronaut.run(PlayerRxCommand.class, args)) {
+
             PicocliRunner.run(PlayerRxCommand.class, context, args);
+            PlayerRxCommand.context = context;
         }
     }
 
-    public static Point toPoint(@NotNull  int i1, @NotNull  int i2){
+    public static Point toPoint(@NotNull int i1, @NotNull int i2) {
         return new Point(i1, i2);
     }
 
@@ -71,7 +75,7 @@ public class PlayerRxCommand implements Runnable {
 
         log.info("launching swt .. ");
 
-        Shells shells =  Shells.builder(SWT.RESIZE | SWT.ICON | SWT.CLOSE, cmp -> {
+        Shells shells = Shells.builder(SWT.RESIZE | SWT.ICON | SWT.CLOSE, cmp -> {
             Layouts.setGrid(cmp)
                     .numColumns(1)
                     .columnsEqualWidth(true)
@@ -90,22 +94,38 @@ public class PlayerRxCommand implements Runnable {
                     .subscribe(event -> log.info("event : {} | cmp size : {} location : {}", event, cmp.getSize(), cmp.getLocation()));
 
 
+            menuManager((Shell) cmp);
 
-                menuManager((Shell) cmp);
+            Observable.fromIterable(mainViewModel.getMonitors())
+                    .subscribe(
+                            mnt -> Shells.builder(SWT.RESIZE , bcmp -> {
+                                Layouts.setGrid(bcmp)
+                                        .numColumns(1)
+                                        .columnsEqualWidth(true)
+                                        .horizontalSpacing(0)
+                                        .verticalSpacing(0);
+                                SwtRx.addListener(bcmp, SWT.Resize, SWT.Move)
+                                        .subscribe(event -> log.info("bcmp[{}] size : {} location : {}", mnt, bcmp.getSize(), bcmp.getLocation()));
+                            }).setTitle(mnt.toString())
+                                    .setSize(PlayerRxCommand.toPoint(mnt.getSize().getWidth(), mnt.getSize().getHeight()))
+                                    .setLocation(PlayerRxCommand.toPoint(mnt.getLocation().getLeft(), mnt.getLocation().getTop()))
+                                    .openOn(cmp.getShell()),
+                            throwable -> SwtMisc.blockForError(((Shell) cmp).getText(), throwable.getMessage())
+                    );
 
         })
-                .setTitle(String.format("%s : %s", appname,mainViewModel.getComputer()))
+                .setTitle(String.format("%s : %s", appname, mainViewModel.getComputer()))
 
-                .setSize( PlayerRxCommand.toPoint(  mainViewModel.getSize().getWidth(), mainViewModel.getSize().getHeight()) )
-                .setLocation(PlayerRxCommand.toPoint(  mainViewModel.getLocation().getLeft(), mainViewModel.getLocation().getTop()) );
+                .setSize(PlayerRxCommand.toPoint(mainViewModel.getSize().getWidth(), mainViewModel.getSize().getHeight()))
+                .setLocation(PlayerRxCommand.toPoint(mainViewModel.getLocation().getLeft(), mainViewModel.getLocation().getTop()));
         shells.openOnDisplayBlocking();
 
 
     }
 
-    private void menu(Shell shell){
+    private void menu(Shell shell) {
         // create the menu
-        Menu m = new Menu(shell,SWT.BAR);
+        Menu m = new Menu(shell, SWT.BAR);
 
         // create a File menu and add an Exit item
         final MenuItem file = new MenuItem(m, SWT.CASCADE);
@@ -115,10 +135,10 @@ public class PlayerRxCommand implements Runnable {
         file.setMenu(filemenu);
         final MenuItem openMenuItem = new MenuItem(filemenu, SWT.PUSH);
         openMenuItem.setText("&Open\tCTRL+O");
-        openMenuItem.setAccelerator(SWT.CTRL+'O');
+        openMenuItem.setAccelerator(SWT.CTRL + 'O');
         final MenuItem saveMenuItem = new MenuItem(filemenu, SWT.PUSH);
         saveMenuItem.setText("&Save\tCTRL+S");
-        saveMenuItem.setAccelerator(SWT.CTRL+'S');
+        saveMenuItem.setAccelerator(SWT.CTRL + 'S');
         final MenuItem separator = new MenuItem(filemenu, SWT.SEPARATOR);
         final MenuItem exitMenuItem = new MenuItem(filemenu, SWT.PUSH);
         exitMenuItem.setText("E&xit");
@@ -157,7 +177,7 @@ public class PlayerRxCommand implements Runnable {
     }
 
 
-    private void menuManager(Shell shell){
+    private void menuManager(Shell shell) {
         MenuManager manager = new MenuManager();
 
         MenuManager file_menu = new MenuManager("&File");
@@ -169,7 +189,6 @@ public class PlayerRxCommand implements Runnable {
 
         RxBox<Boolean> selection = JFaceRx.toggle(action);
         file_menu.add(action);
-
 
 
         selection.set(Boolean.TRUE);

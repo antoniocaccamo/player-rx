@@ -9,7 +9,7 @@ location:
 #    latlng: "45.08,7.40"
 #    refresh: 180
 monitors:
-    -   
+    -   name : A
         size:
             width: 368
             height: 276
