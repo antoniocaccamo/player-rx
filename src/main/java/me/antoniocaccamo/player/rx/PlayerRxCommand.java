@@ -13,30 +13,28 @@ import io.micronaut.context.annotation.Value;
 import io.micronaut.runtime.Micronaut;
 import io.reactivex.Observable;
 import lombok.extern.slf4j.Slf4j;
-import me.antoniocaccamo.player.rx.model.MainViewModel;
-import me.antoniocaccamo.player.rx.model.MonitorModel;
+import me.antoniocaccamo.player.rx.model.preference.PreferenceModel;
 import me.antoniocaccamo.player.rx.service.PreferenceService;
+import me.antoniocaccamo.player.rx.service.TranscodeService;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Decorations;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
 
 @Command(name = "player-rx", description = "...",
         mixinStandardHelpOptions = true)
 @Slf4j
 public class PlayerRxCommand implements Runnable {
 
-    private static ApplicationContext context;
+    private static Optional<ApplicationContext> context;
 
     @Value("${micronaut.application.name}")
     @NotNull
@@ -51,19 +49,27 @@ public class PlayerRxCommand implements Runnable {
     boolean verbose;
 
     @Inject
+    private TranscodeService transcodeService;
+
+    @Inject
     private PreferenceService preferenceService;
 
     public static void main(String[] args) throws Exception {
+        Runtime.getRuntime().addShutdownHook( new Thread() {
+            @Override
+            public void run() {
+                log.info("shutdown hook...");
+                PlayerRxCommand.context.ifPresent(cnt -> cnt.close() );
+                System.exit(1);
+            }
+        } );
         try (ApplicationContext context = Micronaut.run(PlayerRxCommand.class, args)) {
-
             PicocliRunner.run(PlayerRxCommand.class, context, args);
-            PlayerRxCommand.context = context;
+            PlayerRxCommand.context = Optional.of(context);
         }
     }
 
-    public static Point toPoint(@NotNull int i1, @NotNull int i2) {
-        return new Point(i1, i2);
-    }
+
 
     public void run() {
         // business logic here
@@ -71,7 +77,7 @@ public class PlayerRxCommand implements Runnable {
             log.info("Hi!");
         }
 
-        MainViewModel mainViewModel = preferenceService.read();
+        PreferenceModel preferenceModel = preferenceService.read();
 
         log.info("launching swt .. ");
 
@@ -82,6 +88,8 @@ public class PlayerRxCommand implements Runnable {
                     .horizontalSpacing(0)
                     .verticalSpacing(0)
             ;
+
+            toolbarManager(cmp);
 
             Browser browser = new Browser(cmp, SWT.NONE);
             Layouts.setGridData(browser)
@@ -96,7 +104,7 @@ public class PlayerRxCommand implements Runnable {
 
             menuManager((Shell) cmp);
 
-            Observable.fromIterable(mainViewModel.getMonitors())
+            Observable.fromIterable(preferenceModel.getMonitors())
                     .subscribe(
                             mnt -> Shells.builder(SWT.RESIZE , bcmp -> {
                                 Layouts.setGrid(bcmp)
@@ -107,19 +115,18 @@ public class PlayerRxCommand implements Runnable {
                                 SwtRx.addListener(bcmp, SWT.Resize, SWT.Move)
                                         .subscribe(event -> log.info("bcmp[{}] size : {} location : {}", mnt, bcmp.getSize(), bcmp.getLocation()));
                             }).setTitle(mnt.toString())
-                                    .setSize(PlayerRxCommand.toPoint(mnt.getSize().getWidth(), mnt.getSize().getHeight()))
-                                    .setLocation(PlayerRxCommand.toPoint(mnt.getLocation().getLeft(), mnt.getLocation().getTop()))
+                                    .setSize(mnt.getSize().toPoint())
+                                    .setLocation(mnt.getLocation().toPoint())
                                     .openOn(cmp.getShell()),
                             throwable -> SwtMisc.blockForError(((Shell) cmp).getText(), throwable.getMessage())
                     );
 
         })
-                .setTitle(String.format("%s : %s", appname, mainViewModel.getComputer()))
-
-                .setSize(PlayerRxCommand.toPoint(mainViewModel.getSize().getWidth(), mainViewModel.getSize().getHeight()))
-                .setLocation(PlayerRxCommand.toPoint(mainViewModel.getLocation().getLeft(), mainViewModel.getLocation().getTop()));
+                .setTitle(String.format("%s : %s", appname,preferenceModel.getComputer()))
+                .setSize( preferenceModel.getSize().toPoint())
+                .setLocation( preferenceModel.getLocation().toPoint() )
+        ;
         shells.openOnDisplayBlocking();
-
 
     }
 
@@ -198,5 +205,25 @@ public class PlayerRxCommand implements Runnable {
         Menu menu = manager.createMenuBar((Decorations) shell);
 
         shell.setMenuBar(menu);
+    }
+
+    private void toolbarManager(Composite cmp) {
+        ToolBarManager manager = new ToolBarManager();
+
+        MenuManager file_menu = new MenuManager("&File");
+        IAction action = Actions.builder()
+                .setText("Action")
+                .setStyle(Actions.Style.CHECK)
+                .setRunnable(() -> log.info("ciao"))
+                .build();
+
+        RxBox<Boolean> selection = JFaceRx.toggle(action);
+
+        selection.set(Boolean.TRUE);
+
+        manager.add(action);
+
+        //manager.createControl(cmp);
+        Layouts.setGridData(manager.createControl(cmp)).grabHorizontal();
     }
 }

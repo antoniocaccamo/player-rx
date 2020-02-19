@@ -2,7 +2,7 @@ package me.antoniocaccamo.player.rx.service.impl;
 
 import io.micronaut.context.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
-import me.antoniocaccamo.player.rx.model.MainViewModel;
+import me.antoniocaccamo.player.rx.model.preference.PreferenceModel;
 import me.antoniocaccamo.player.rx.service.PreferenceService;
 import me.antoniocaccamo.player.rx.service.ResourceService;
 import org.yaml.snakeyaml.Yaml;
@@ -28,7 +28,7 @@ public class PreferenceServiceImpl implements PreferenceService {
     @Value("${micronaut.application.pref-file}") @NotNull
     private String prefFile;
 
-    private MainViewModel mainViewModel;
+    private PreferenceModel mainViewModel;
 
     @PostConstruct
     public void postConstruct() throws FileNotFoundException {
@@ -36,13 +36,12 @@ public class PreferenceServiceImpl implements PreferenceService {
         File f = new File(prefFile);
         log.info("reading file : {}", f.getAbsolutePath());
 
-        mainViewModel = new Yaml(new Constructor(MainViewModel.class))
-                .load(new FileInputStream(f));
+        mainViewModel = new Yaml(new Constructor(PreferenceModel.class)).load(new FileInputStream(f));
     }
 
 
     @Override
-    public MainViewModel read() {
+    public PreferenceModel read() {
         log.info("mainViewModel : {}", mainViewModel);
         return mainViewModel;
     }

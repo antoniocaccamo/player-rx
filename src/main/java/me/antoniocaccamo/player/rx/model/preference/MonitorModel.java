@@ -1,8 +1,9 @@
-package me.antoniocaccamo.player.rx.model;
+package me.antoniocaccamo.player.rx.model.preference;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.model.Model;
 
 /**
  * @author antoniocaccamo on 07/02/2020

@@ -9,7 +9,7 @@ micronaut:
     pref-file : prefs.yaml
     res-library-file  : library.res.yaml
   server:
-    port: 8080
+    port: 9000
     cors:
       enabled: true
   router:
