@@ -9,12 +9,11 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 
 /**
  * @author antoniocaccamo on 07/02/2020
@@ -28,7 +27,9 @@ public class PreferenceServiceImpl implements PreferenceService {
     @Value("${micronaut.application.pref-file}") @NotNull
     private String prefFile;
 
-    private PreferenceModel mainViewModel;
+    private PreferenceModel preferenceModel;
+
+    private Yaml yaml;
 
     @PostConstruct
     public void postConstruct() throws FileNotFoundException {
@@ -36,18 +37,27 @@ public class PreferenceServiceImpl implements PreferenceService {
         File f = new File(prefFile);
         log.info("reading file : {}", f.getAbsolutePath());
 
-        mainViewModel = new Yaml(new Constructor(PreferenceModel.class)).load(new FileInputStream(f));
+        yaml = new Yaml(new Constructor(PreferenceModel.class));
+
+        preferenceModel = yaml.load(new FileInputStream(f));
     }
 
 
     @Override
     public PreferenceModel read() {
-        log.info("mainViewModel : {}", mainViewModel);
-        return mainViewModel;
+        log.info("mainViewModel : {}", preferenceModel);
+        return preferenceModel;
     }
 
-    @Override
-    public void save() {
-        throw new RuntimeException("not yet implemented");
+    @Override @PreDestroy
+    public void save() throws IOException {
+        log.info("saving preferences...");
+        try ( FileWriter fw = new FileWriter(new File(prefFile)) ) {
+            yaml.dump(preferenceModel, fw);
+        } catch (Exception e) {
+            log.error("error occurred", e);
+        }
+
+
     }
 }

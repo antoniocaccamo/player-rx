@@ -1,7 +1,8 @@
-package me.antoniocaccamo.player.rx.ui;
+package me.antoniocaccamo.player.rx.ui.monitor;
 
 import io.micronaut.context.annotation.Factory;
 import me.antoniocaccamo.player.rx.model.resource.AbstractResource;
+import me.antoniocaccamo.player.rx.ui.AbstractUI;
 import org.eclipse.swt.widgets.Composite;
 
 

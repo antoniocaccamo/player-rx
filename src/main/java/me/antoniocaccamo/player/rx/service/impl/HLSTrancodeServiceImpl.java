@@ -7,10 +7,8 @@ import me.antoniocaccamo.player.rx.service.TranscodeService;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author antoniocaccamo on 19/02/2020
@@ -18,6 +16,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Singleton
 @Slf4j
 public class HLSTrancodeServiceImpl implements TranscodeService {
+
+    private final AtomicBoolean running = new AtomicBoolean(Boolean.FALSE);
 
     private BlockingQueue<AbstractResource> trancodingQueue;
 
@@ -28,6 +28,7 @@ public class HLSTrancodeServiceImpl implements TranscodeService {
     @PostConstruct
     public void postConstruct(){
         trancodingQueue = new LinkedBlockingQueue<>();
+        running.set(Boolean.TRUE);
         executorService = Executors.newCachedThreadPool();
         for (int i = 0; i < transcoders; i++  ) {
             executorService.submit( new TrancoderTask(trancodingQueue));
@@ -38,7 +39,18 @@ public class HLSTrancodeServiceImpl implements TranscodeService {
     @PreDestroy
     public void preDestroy() {
         log.info("{} service destroying", getClass().getSimpleName());
-        executorService.shutdownNow();
+        running.set(Boolean.FALSE);
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(2, TimeUnit.SECONDS);
+            executorService.shutdownNow();
+
+        } catch (InterruptedException ex) {
+            log.error("error occurred", ex);
+            executorService.shutdownNow();
+        } finally {
+            log.info("{} stopped" , getClass().getSimpleName());
+        }
     }
 
     @Override
@@ -61,10 +73,12 @@ public class HLSTrancodeServiceImpl implements TranscodeService {
         @Override
         public void run() {
             log.info("{} ready to trancode..", Thread.currentThread().getName());
-            while (true){
-                AbstractResource resource = null;
+            AbstractResource resource = null;
+            while ( running.get() ){
                 try {
-                   resource = trancodingQueue.take();
+                    resource = trancodingQueue.poll(5, TimeUnit.SECONDS);
+                    if ( resource == null)
+                        continue;
                     log.info("{} : video resource to trancode : {}", Thread.currentThread().getName(), resource);
                     Thread.sleep(resource.getDuration().toMillis());
                     log.info("{} :  trancoded : {}", Thread.currentThread().getName(), resource);

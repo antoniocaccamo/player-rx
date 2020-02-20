@@ -1,8 +1,9 @@
-package me.antoniocaccamo.player.rx.ui;
+package me.antoniocaccamo.player.rx.ui.monitor;
 
 import com.diffplug.common.swt.ColorPool;
 import com.diffplug.common.swt.Layouts;
 import lombok.Getter;
+import me.antoniocaccamo.player.rx.ui.AbstractUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Composite;

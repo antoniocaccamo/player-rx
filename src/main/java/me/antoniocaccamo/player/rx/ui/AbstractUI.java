@@ -9,8 +9,8 @@ import org.eclipse.swt.widgets.Composite;
  */
 public abstract class AbstractUI extends Composite {
 
-    public AbstractUI(Composite wrapped) {
-        super(wrapped, SWT.NONE);
+    public AbstractUI(Composite parent) {
+        super(parent, SWT.NONE);
         Layouts.setGrid(this)
                 .margin(0)
                 .numColumns(1)

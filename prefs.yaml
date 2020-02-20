@@ -1,47 +1,21 @@
-﻿computer : antonio
-size:
-    width: 401
-    height: 550
-location:
-    top: 30
-    left: 1025        
-#weather:
-#    latlng: "45.08,7.40"
-#    refresh: 180
+!!me.antoniocaccamo.player.rx.model.preference.PreferenceModel
+computer: antonio
+location: {left: 1025, top: 30}
 monitors:
-    -   name : A
-        size:
-            width: 368
-            height: 276
-        location:
-            top: 50
-            left: 250
-        sequence: "C:\\development\\workspaces\\antoniocaccamo\\AT.Player.ST\\src\\AT.Player\\Resources\\sequence.01.yaml"
-#        activation:
-#            type: ALLDAY
-#            from: 09:30
-#            to: 23:30
-#            whenNotActive: WATCH
-#            image :
-#    -
-#        size:
-#            width: 368
-#            height: 276
-#        location:
-#            top: 50
-#            left: 650
-#        sequence: "C:\\development\\workspaces\\antoniocaccamo\\AT.Player.ST\\src\\AT.Player\\Resources\\sequence.01.yaml"
-#        activation: 
-#            type: ALLDAY            
-#
-#    -
-#        size:
-#            width: 368
-#            height: 276
-#        location:
-#            top: 350
-#            left: 250
-#        sequence: "C:\\development\\workspaces\\antoniocaccamo\\AT.Player.ST\\src\\AT.Player\\Resources\\sequence.01.yaml"
-#        activation: 
-#            type: ALLDAY            
-...
+- location: {left: 250, top: 50}
+  name: A
+  sequence: C:\development\workspaces\antoniocaccamo\AT.Player.ST\src\AT.Player\Resources\sequence.01.yaml
+  size: {height: 276, width: 368}
+- {location: null, name: null, sequence: null, size: null}
+- {location: null, name: null, sequence: null, size: null}
+- {location: null, name: null, sequence: null, size: null}
+- {location: null, name: null, sequence: null, size: null}
+- {location: null, name: null, sequence: null, size: null}
+- {location: null, name: null, sequence: null, size: null}
+- {location: null, name: null, sequence: null, size: null}
+- {location: null, name: null, sequence: null, size: null}
+- {location: null, name: null, sequence: null, size: null}
+- {location: null, name: null, sequence: null, size: null}
+sendAllEmail: null
+size: {height: 550, width: 401}
+uuid: 7b7231bb-e706-4c65-97d3-bc3d6239c6ca
