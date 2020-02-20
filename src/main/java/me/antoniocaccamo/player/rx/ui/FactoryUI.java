@@ -18,7 +18,7 @@ public class FactoryUI {
         switch (type) {
 
             case PHOTO:
-                viewer = new PhotoUI(parent);
+                viewer = new BrowserUI(parent);
                 break;
 
 

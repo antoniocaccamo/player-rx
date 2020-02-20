@@ -44,7 +44,7 @@ public class HLSTrancodeServiceImpl implements TranscodeService {
     @Override
     public void transcode(AbstractResource resource) {
         if ( AbstractResource.TYPE.VIDEO.equals(resource.getType())){
-            log.info("video resource to trancode : {}", resource);
+            log.info("add video resource to trancode : {}", resource);
             trancodingQueue.offer(resource);
         }
     }
@@ -65,6 +65,9 @@ public class HLSTrancodeServiceImpl implements TranscodeService {
                 AbstractResource resource = null;
                 try {
                    resource = trancodingQueue.take();
+                    log.info("{} : video resource to trancode : {}", Thread.currentThread().getName(), resource);
+                    Thread.sleep(resource.getDuration().toMillis());
+                    log.info("{} :  trancoded : {}", Thread.currentThread().getName(), resource);
                 } catch (InterruptedException e) {
                     log.info("{} interrupted" , Thread.currentThread().getName());
                 }
