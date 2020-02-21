@@ -6,13 +6,6 @@ package me.antoniocaccamo.player.rx.model;
  */
 public abstract class Model {
 
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("Model{");
-        sb.append('}');
-        return sb.toString();
-    }
-
     public enum Location {
         LOCAL,
         REMOTE

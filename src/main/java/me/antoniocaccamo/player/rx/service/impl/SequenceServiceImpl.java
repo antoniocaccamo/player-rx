@@ -10,8 +10,10 @@ import java.nio.file.Path;
 
 @Singleton @Slf4j
 public class SequenceServiceImpl implements SequenceService {
+
+
     @Override
-    public Sequence read(String path) {
+    public Sequence read(Path path) {
         return null;
     }
 

@@ -3,19 +3,19 @@ package me.antoniocaccamo.player.rx.ui;
 import com.diffplug.common.rx.RxBox;
 import com.diffplug.common.swt.Layouts;
 import com.diffplug.common.swt.Shells;
-import com.diffplug.common.swt.SwtMisc;
+import com.diffplug.common.swt.SwtExec;
 import com.diffplug.common.swt.SwtRx;
 import com.diffplug.common.swt.jface.Actions;
 import com.diffplug.common.swt.jface.ImageDescriptors;
 import com.diffplug.common.swt.jface.JFaceRx;
 import io.micronaut.context.annotation.Value;
+import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.helper.SWTHelper;
 import me.antoniocaccamo.player.rx.model.preference.MonitorModel;
 import me.antoniocaccamo.player.rx.model.preference.PreferenceModel;
 import me.antoniocaccamo.player.rx.service.PreferenceService;
-import me.antoniocaccamo.player.rx.ui.monitor.BrowserUI;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.ToolBarManager;
@@ -71,16 +71,15 @@ public class MainUI {
             ;
 
             toolbarManager(cmp);
-
             tabFolder = new CTabFolder(cmp, SWT.NONE);
             Layouts.setGrid(tabFolder);
             Layouts.setGridData(tabFolder).grabAll();
-            new TabItemMonitorUI(tabFolder, 0);
 
+            new TabItemMonitorUI(tabFolder, 0);
             new TabItemMonitorUI(tabFolder, 1);
 
             SwtRx.addListener(cmp, SWT.Resize, SWT.Move)
-                    .subscribe(event -> log.info("event : {} | cmp size : {} location : {}", event, cmp.getSize(), cmp.getLocation()));
+                    .subscribe(event -> log.info("event : {} | cmp size : {} location : {}", event, preference.getSize().fromPoint(cmp.getSize()), preference.getLocation().fromPoint(cmp.getLocation())));
             menuManager((Shell) cmp);
             try {
                 ((Shell) cmp).setImage(
@@ -92,42 +91,41 @@ public class MainUI {
                 e.printStackTrace();
             }
         })
-            .setTitle(String.format("%s : %s", appname,preference.getComputer()))
-            .setSize( preference.getSize().toPoint())
-            .setLocation( preference.getLocation().toPoint() )
+        .setTitle(String.format("%s : %s", appname,preference.getComputer()))
+        .setSize( preference.getSize().toPoint())
+        .setLocation( preference.getLocation().toPoint() )
         ;
 
         shells.openOnDisplayBlocking();
-        log.info("shell closed");
+        log.info("shell closed - > preference : {}", preference);
     }
 
     private void toolbarManager(Composite cmp) {
         ToolBarManager manager = new ToolBarManager();
 
         final IAction addMonitor = Actions.builder()
-                //.setImage(ImageDescriptors.createManagedImage(SWTHelper.getImage("images/logo.jpg").getImageData(), cmp).)
-                .setText("Add")
-                .setStyle(Actions.Style.PUSH)
-                .setRunnable(() -> {
-                    MonitorModel mm = new MonitorModel();
-                    preference.getMonitors().add(mm);
-                    monitorPublishSubject.onNext(mm);
-                })
-                .build();
+            //.setImage(ImageDescriptors.createManagedImage(SWTHelper.getImage("images/logo.jpg").getImageData(), cmp).)
+            .setText("Add")
+            .setStyle(Actions.Style.PUSH)
+            .setListener(event -> new TabItemMonitorUI(tabFolder, tabFolder.getItems().length) )
+            .build()
+        ;
 
         final IAction removeMonitor = Actions.builder()
-                //.setImage(ImageDescriptors.createManagedImage(SWTHelper.getImage("images/logo.jpg").getImageData(), cmp).)
-                .setText("Remove")
-                .setStyle(Actions.Style.PUSH)
-                .setRunnable(() -> log.info("remove"))
-                .build();
-
-
+            //.setImage(ImageDescriptors.createManagedImage(SWTHelper.getImage("images/logo.jpg").getImageData(), cmp).)
+            .setText("Remove")
+            .setStyle(Actions.Style.PUSH)
+            .setListener(evt ->
+                Observable.fromArray(tabFolder.getItems())
+                    .count()
+                    .filter(cnt -> cnt > 1)
+                    .subscribe( cnt -> tabFolder.getSelection().dispose())
+            )
+            .build()
+        ;
 
         monitorPublishSubject.count()
                 .subscribe( cnt -> removeMonitor.setEnabled( Boolean.valueOf(cnt > 1)));
-
-
 
         manager.add(addMonitor);
         manager.add(removeMonitor);

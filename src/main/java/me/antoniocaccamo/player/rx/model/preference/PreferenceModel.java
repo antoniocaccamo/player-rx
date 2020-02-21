@@ -7,6 +7,8 @@ import me.antoniocaccamo.player.rx.model.Model;
 
 import java.util.List;
 import java.util.UUID;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * @author antoniocaccamo on 07/02/2020
@@ -27,4 +29,15 @@ public class PreferenceModel extends Model {
 
     private List<MonitorModel> monitors;
 
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
+                .append("uuid", uuid)
+                .append("computer", computer)
+                .append("size", size)
+                .append("location", location)
+                .append("sendAllEmail", sendAllEmail)
+                .append("monitors", monitors)
+                .toString();
+    }
 }

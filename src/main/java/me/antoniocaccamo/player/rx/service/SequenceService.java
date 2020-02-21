@@ -6,7 +6,7 @@ import java.nio.file.Path;
 
 public interface SequenceService {
 
-    Sequence read(String path);
+    Sequence read(Path path);
 
     void save(Sequence sequence, Path path);
 

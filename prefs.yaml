@@ -1,23 +1,11 @@
 !!me.antoniocaccamo.player.rx.model.preference.PreferenceModel
 computer: antonio
-location: {left: 1025, top: 30}
+location: {left: 84, top: 528}
 monitors:
 - location: {left: 250, top: 50}
   name: A
   sequence: C:\development\workspaces\antoniocaccamo\AT.Player.ST\src\AT.Player\Resources\sequence.01.yaml
   size: {height: 276, width: 368}
-- {location: null, name: null, sequence: null, size: null}
-- {location: null, name: null, sequence: null, size: null}
-- {location: null, name: null, sequence: null, size: null}
-- {location: null, name: null, sequence: null, size: null}
-- {location: null, name: null, sequence: null, size: null}
-- {location: null, name: null, sequence: null, size: null}
-- {location: null, name: null, sequence: null, size: null}
-- {location: null, name: null, sequence: null, size: null}
-- {location: null, name: null, sequence: null, size: null}
-- {location: null, name: null, sequence: null, size: null}
-- {location: null, name: null, sequence: null, size: null}
-- {location: null, name: null, sequence: null, size: null}
 sendAllEmail: null
-size: {height: 550, width: 401}
+size: {height: 498, width: 523}
 uuid: 7b7231bb-e706-4c65-97d3-bc3d6239c6ca

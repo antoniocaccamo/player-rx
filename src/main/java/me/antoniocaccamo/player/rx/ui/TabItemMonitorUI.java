@@ -9,6 +9,8 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
+import javax.validation.constraints.NotNull;
+
 
 /**
  * @author antoniocaccamo on 20/02/2020
@@ -21,20 +23,24 @@ public class TabItemMonitorUI extends CTabItem {
         super(tabFolder, SWT.NONE, index);
         setText(String.format("screen %s", index + 1));
         this.index = index;
+
         setControl(new Composite(getParent(), SWT.NONE) );
         Composite composite = (Composite) getControl();
-        Layouts.setGrid(composite).numColumns(2).columnsEqualWidth(true).margin(0);
 
+        Layouts.setGrid(composite)
+                .numColumns(2)
+                .columnsEqualWidth(true)
+                .margin(0)
+        ;
 
         Layouts.setGridData(definePlayerGroup(composite))
                 .grabAll();
 
         Layouts.setGridData(defineSequenceGroup(composite))
                 .grabAll();
-
-
     }
 
+    @NotNull
     private Group definePlayerGroup(Composite composite) {
 
         Group group = new Group(composite, SWT.NONE);
@@ -45,6 +51,7 @@ public class TabItemMonitorUI extends CTabItem {
         return group;
     }
 
+    @NotNull
     private Group defineSequenceGroup(Composite composite) {
 
         Group group = new Group(composite, SWT.NONE);
