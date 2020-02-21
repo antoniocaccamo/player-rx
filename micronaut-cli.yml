@@ -1,5 +1,5 @@
-profile: cli
-defaultPackage: com.antoniocaccamo.player.rx
+profile: service
+defaultPackage: me.antoniocaccamo.player.rx
 ---
 testFramework: spock
 sourceLanguage: java

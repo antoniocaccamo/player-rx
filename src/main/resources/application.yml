@@ -1,36 +1,7 @@
 ---
-#micronaut:
-#  application:
-#    name: player-rx
-
 micronaut:
   application:
     name: player-rx
-    pref-file : prefs.yaml
-    res-library-file  : library.res.yaml
-  server:
-    port: 9000
-    cors:
-      enabled: true
-  router:
-    static-resources:
-      default:
-        enabled : true
-        paths :
-          - "classpath:public"
-          - "file:${user.home}/.at/player/public"
 
 ---
-datasources:
-  default:
-    url: jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
-    driverClassName: org.h2.Driver
-    username: sa
-    password: ''    
-jpa:
-  default:
-    properties:
-      hibernate:
-        hbm2ddl:
-          auto: update
-
+datasources.default: {}

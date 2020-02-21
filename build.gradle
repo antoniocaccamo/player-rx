@@ -1,0 +1,101 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "5.2.0"
+    id "com.diffplug.gradle.eclipse.mavencentral" version "3.21.0"
+    id "application"
+    id "net.ltgt.apt-eclipse" version "0.21"
+    id "groovy"
+}
+
+
+
+version "0.1"
+group "me.antoniocaccamo.player.rx"
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+apply plugin: 'com.diffplug.gradle.eclipse.mavencentral'
+eclipseMavenCentral {
+    release SWT_VERSION, {
+        implementation 'org.eclipse.swt'
+        implementation 'org.eclipse.jface'
+        useNativesForRunningPlatform()
+    }
+}
+
+configurations {
+    // for dependencies that are needed for development only
+    developmentOnly
+}
+
+dependencies {
+    annotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
+    annotationProcessor "io.micronaut:micronaut-inject-java"
+    annotationProcessor "io.micronaut:micronaut-validation"
+    annotationProcessor "org.projectlombok:lombok:1.18.10"
+
+    implementation platform("io.micronaut:micronaut-bom:$micronautVersion")
+    implementation "io.micronaut:micronaut-http-client"
+    implementation "io.micronaut:micronaut-inject"
+    implementation "io.micronaut:micronaut-validation"
+    implementation "io.micronaut:micronaut-runtime"
+    implementation "io.micronaut.configuration:micronaut-jdbc-hikari"
+    implementation "io.micronaut.configuration:micronaut-flyway"
+    implementation "io.micronaut:micronaut-http-server-netty"
+    implementation "io.micronaut:micronaut-management"
+    runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
+    runtimeOnly "com.h2database:h2"
+
+    // This dependency is used by the application.
+    implementation 'com.google.guava:guava:28.1-jre'
+    implementation "com.diffplug.durian:durian-swt:$VER_DURIAN_SWT"
+    implementation "com.diffplug.durian:durian-rx:$VER_DURIAN_RX"
+    implementation "io.reactivex.rxjava2:rxjava:$VER_RXJAVA"
+    implementation "com.diffplug.durian:durian-core:$VER_DURIAN"
+    implementation "com.diffplug.durian:durian-collect:$VER_DURIAN"
+    implementation "com.diffplug.durian:durian-concurrent:$VER_DURIAN"
+
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    compileOnly 'com.google.code.findbugs:annotations:3.0.1'
+    compileOnly    "org.projectlombok:lombok:1.18.10"
+
+
+    testAnnotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
+    testAnnotationProcessor "io.micronaut:micronaut-inject-java"
+    testImplementation platform("io.micronaut:micronaut-bom:$micronautVersion")
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
+    testImplementation "io.micronaut.test:micronaut-test-junit5"
+    testImplementation("org.spockframework:spock-core") {
+        exclude group: "org.codehaus.groovy", module: "groovy-all"
+    }
+
+    testImplementation "io.micronaut:micronaut-inject-groovy"
+    testImplementation "io.micronaut.test:micronaut-test-spock"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+    testRuntimeOnly "org.junit.vintage:junit-vintage-engine:5.5.0"
+    testAnnotationProcessor "org.projectlombok:lombok:1.18.10"
+
+    testImplementation "com.diffplug.durian:durian-debug:$VER_DURIAN_DEBUG"
+}
+
+test.classpath += configurations.developmentOnly
+
+mainClassName = "me.antoniocaccamo.player.rx.Application"
+// use JUnit 5 platform
+test {
+    useJUnitPlatform()
+}
+
+shadowJar {
+    mergeServiceFiles()
+}
+
+run.classpath += configurations.developmentOnly
+run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote', '-XstartOnFirstThread')
+
+tasks.withType(JavaCompile){
+    options.encoding = "UTF-8"
+    options.compilerArgs.add('-parameters')
+}
