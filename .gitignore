@@ -11,3 +11,7 @@ bin
 .settings
 dependency-reduced-pom.xml
 *.iml
+build/*
+gradle/*
+.gradle/*
+gradlew*

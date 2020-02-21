@@ -21,16 +21,15 @@ class TrancodeServiceTest  {
     @Test
     public void testHelloWorldResponse() throws InterruptedException {
 
-        Observable.just(1,2,3,4,5,6,7,8,9,10).subscribe( i ->
-
-        transcodeService.transcode(
-                LocalResource.builder()
-                        .withDuration(Duration.ofSeconds(i))
-                        .withType(AbstractResource.TYPE.VIDEO)
-                        .withPath("XXXX")
-                        .build()
-        ));
-
+        Observable.just(1,2,3,4,5,6,7,8,9,10)
+                .subscribe( i ->
+                        transcodeService.transcode(
+                                LocalResource.builder()
+                                        .withDuration(Duration.ofSeconds(i))
+                                        .withType(AbstractResource.TYPE.VIDEO)
+                                        .withPath("XXXX")
+                                        .build()
+                        ));
         Thread.sleep(20000);
     }
 }

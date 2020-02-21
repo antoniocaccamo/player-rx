@@ -9,33 +9,29 @@ import com.diffplug.common.swt.jface.Actions;
 import com.diffplug.common.swt.jface.ImageDescriptors;
 import com.diffplug.common.swt.jface.JFaceRx;
 import io.micronaut.context.annotation.Value;
-import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.helper.SWTHelper;
 import me.antoniocaccamo.player.rx.model.preference.MonitorModel;
 import me.antoniocaccamo.player.rx.model.preference.PreferenceModel;
 import me.antoniocaccamo.player.rx.service.PreferenceService;
-import me.antoniocaccamo.player.rx.service.TranscodeService;
 import me.antoniocaccamo.player.rx.ui.monitor.BrowserUI;
-import me.antoniocaccamo.player.rx.ui.monitor.MonitorUI;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Decorations;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
-import picocli.CommandLine;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+
+//import picocli.CommandLine;
 
 /**
  * @author antoniocaccamo on 20/02/2020
@@ -54,26 +50,15 @@ public class MainUI {
     @Inject
     private PreferenceService preferenceService;
 
-
-
     private PreferenceModel preference;
-
 
     private PublishSubject<MonitorModel> monitorPublishSubject;
 
+    private CTabFolder tabFolder;
 
     public void show() {
-        // business logic here
-
-
         preference = preferenceService.read();
-
         monitorPublishSubject = PublishSubject.create();
-
-
-
-
-
 
         log.info("launching swt .. ");
 
@@ -87,21 +72,16 @@ public class MainUI {
 
             toolbarManager(cmp);
 
-            BrowserUI browser = new BrowserUI(cmp);
+            tabFolder = new CTabFolder(cmp, SWT.NONE);
+            Layouts.setGrid(tabFolder);
+            Layouts.setGridData(tabFolder).grabAll();
+            new TabItemMonitorUI(tabFolder, 0);
 
-
-            Layouts.setGridData(browser)
-                    .grabHorizontal()
-                    .grabVertical()
-            ;
-            browser.getBrowser().setUrl(String.format("http://localhost:%s/hls", port));
+            new TabItemMonitorUI(tabFolder, 1);
 
             SwtRx.addListener(cmp, SWT.Resize, SWT.Move)
                     .subscribe(event -> log.info("event : {} | cmp size : {} location : {}", event, cmp.getSize(), cmp.getLocation()));
-
-
             menuManager((Shell) cmp);
-
             try {
                 ((Shell) cmp).setImage(
                         ImageDescriptors.createManagedImage(
@@ -111,35 +91,11 @@ public class MainUI {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-
-
-            monitorPublishSubject
-                    .subscribe(
-                            mnt -> Shells.builder(SWT.RESIZE | SWT.READ_ONLY | SWT.ON_TOP, bcmp -> {
-                                Layouts.setGrid(bcmp)
-                                        .numColumns(1)
-                                        .columnsEqualWidth(true)
-                                        .horizontalSpacing(0)
-                                        .verticalSpacing(0);
-                                MonitorUI monitorUI = new MonitorUI(bcmp);
-
-                                SwtRx.addListener(bcmp, SWT.Resize, SWT.Move)
-                                        .subscribe(event -> log.info("bcmp[{}] size : {} location : {}", mnt, bcmp.getSize(), bcmp.getLocation()));
-                            }).setTitle(mnt.toString())
-                                    .setSize(mnt.getSize().toPoint())
-                                    .setLocation(mnt.getLocation().toPoint())
-                                    .openOn(cmp.getShell()),
-                            throwable -> SwtMisc.blockForError(((Shell) cmp).getText(), throwable.getMessage())
-                    );
-
-            preference.getMonitors().stream().forEach(monitorModel -> monitorPublishSubject.onNext(monitorModel));
-
         })
-                .setTitle(String.format("%s : %s", appname,preference.getComputer()))
-                .setSize( preference.getSize().toPoint())
-                .setLocation( preference.getLocation().toPoint() )
-                ;
+            .setTitle(String.format("%s : %s", appname,preference.getComputer()))
+            .setSize( preference.getSize().toPoint())
+            .setLocation( preference.getLocation().toPoint() )
+        ;
 
         shells.openOnDisplayBlocking();
         log.info("shell closed");

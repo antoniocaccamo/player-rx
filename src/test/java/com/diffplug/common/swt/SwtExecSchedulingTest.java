@@ -20,13 +20,14 @@ import com.diffplug.common.base.Box;
 import com.diffplug.common.base.Errors;
 import com.diffplug.common.base.Throwing;
 import com.diffplug.common.primitives.Ints;
+import org.assertj.core.api.Assertions;
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import org.assertj.core.api.Assertions;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class SwtExecSchedulingTest {
 	static void testOffUiThread(Throwing.Runnable test) {

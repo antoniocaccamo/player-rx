@@ -16,6 +16,8 @@ monitors:
 - {location: null, name: null, sequence: null, size: null}
 - {location: null, name: null, sequence: null, size: null}
 - {location: null, name: null, sequence: null, size: null}
+- {location: null, name: null, sequence: null, size: null}
+- {location: null, name: null, sequence: null, size: null}
 sendAllEmail: null
 size: {height: 550, width: 401}
 uuid: 7b7231bb-e706-4c65-97d3-bc3d6239c6ca

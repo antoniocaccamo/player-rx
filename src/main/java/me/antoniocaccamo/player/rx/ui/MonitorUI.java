@@ -1,4 +1,4 @@
-package me.antoniocaccamo.player.rx.ui.monitor;
+package me.antoniocaccamo.player.rx.ui;
 
 import me.antoniocaccamo.player.rx.ui.AbstractUI;
 import org.eclipse.swt.widgets.Composite;

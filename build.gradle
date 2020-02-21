@@ -71,10 +71,14 @@ dependencies {
         exclude group: "org.codehaus.groovy", module: "groovy-all"
     }
 
-    testImplementation "io.micronaut:micronaut-inject-groovy"
-    testImplementation "io.micronaut.test:micronaut-test-spock"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
-    testRuntimeOnly "org.junit.vintage:junit-vintage-engine:5.5.0"
+    testImplementation      "io.micronaut:micronaut-inject-java"
+    testImplementation      "io.micronaut.test:micronaut-test-spock"
+    testRuntimeOnly         "org.junit.jupiter:junit-jupiter-engine"
+    testRuntimeOnly         "org.junit.vintage:junit-vintage-engine:5.5.0"
+    testRuntimeOnly         "org.junit.jupiter:junit-jupiter-engine"
+
+    testImplementation        "org.assertj:assertj-core:3.15.0"
+
     testAnnotationProcessor "org.projectlombok:lombok:1.18.10"
 
     testImplementation "com.diffplug.durian:durian-debug:$VER_DURIAN_DEBUG"
@@ -93,7 +97,9 @@ shadowJar {
 }
 
 run.classpath += configurations.developmentOnly
-run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote', '-XstartOnFirstThread')
+run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote',
+        //'-XstartOnFirstThread'
+        )
 
 tasks.withType(JavaCompile){
     options.encoding = "UTF-8"

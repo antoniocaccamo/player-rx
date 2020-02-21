@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton @Slf4j
 public class ResourceServiceImpl implements ResourceService {
 
-    @Value("${micronaut.application.res-library-file}") @NotNull
+    @Value("${micronaut.application.res-library-file}")
     private String resLibraryFile;
 
     private ConcurrentHashMap<String, Object> resources;
