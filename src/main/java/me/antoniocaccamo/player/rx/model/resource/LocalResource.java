@@ -1,10 +1,7 @@
 package me.antoniocaccamo.player.rx.model.resource;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -64,11 +61,12 @@ public class LocalResource extends AbstractResource {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
-                .append("type", type)
-                .append("location", location)
-                .append("path", path)
-                .append("duration", duration)
-                .toString();
+        final StringBuilder sb = new StringBuilder("LocalResource{");
+        sb.append("type=").append(type);
+        sb.append(", location=").append(location);
+        sb.append(", path='").append(path).append('\'');
+        sb.append(", duration=").append(duration);
+        sb.append('}');
+        return sb.toString();
     }
 }
