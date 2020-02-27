@@ -1,15 +1,25 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "5.2.0"
-    id "com.diffplug.gradle.eclipse.mavencentral" version "3.21.0"
+    id "com.github.johnrengelman.shadow"            version "5.2.0"
+    id "com.diffplug.gradle.eclipse.mavencentral"   version "3.21.0"
     id "application"
-    id "net.ltgt.apt-eclipse" version "0.21"
+    id "net.ltgt.apt-eclipse"                       version "0.21"
     id "groovy"
+    id "org.sonarqube"                              version "2.8"
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey"  , "antoniocaccamo_player-rx"
+        property "sonar.organization", "player-rx"
+        property "sonar.host.url"    , "https://sonarcloud.io"
+        property "sonar.login"       , "936ca790fd66b4f2e2a22ced1088e5c3e1470d1c"
+    }
 }
 
 
 
-version "0.1"
 group "me.antoniocaccamo.player.rx"
+version "0.0.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
