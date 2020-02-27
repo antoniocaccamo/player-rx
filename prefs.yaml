@@ -1,6 +1,6 @@
 !!me.antoniocaccamo.player.rx.model.preference.PreferenceModel
 computer: antonio
-location: {left: 84, top: 528}
+location: {left: 1377, top: 36}
 monitors:
 - location: {left: 250, top: 50}
   name: A
