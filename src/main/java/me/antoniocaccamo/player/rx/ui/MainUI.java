@@ -3,7 +3,6 @@ package me.antoniocaccamo.player.rx.ui;
 import com.diffplug.common.rx.RxBox;
 import com.diffplug.common.swt.Layouts;
 import com.diffplug.common.swt.Shells;
-import com.diffplug.common.swt.SwtExec;
 import com.diffplug.common.swt.SwtRx;
 import com.diffplug.common.swt.jface.Actions;
 import com.diffplug.common.swt.jface.ImageDescriptors;
@@ -30,6 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 //import picocli.CommandLine;
 
@@ -75,8 +75,9 @@ public class MainUI {
             Layouts.setGrid(tabFolder);
             Layouts.setGridData(tabFolder).grabAll();
 
-            new TabItemMonitorUI(tabFolder, 0);
-            new TabItemMonitorUI(tabFolder, 1);
+            AtomicInteger idx = new AtomicInteger(0);
+            preference.getMonitors().stream().forEach( monitorModel -> new TabItemMonitorUI(tabFolder, monitorModel, idx.getAndIncrement()) );
+
 
             SwtRx.addListener(cmp, SWT.Resize, SWT.Move)
                     .subscribe(event -> log.info("event : {} | cmp size : {} location : {}", event, preference.getSize().fromPoint(cmp.getSize()), preference.getLocation().fromPoint(cmp.getLocation())));
@@ -107,7 +108,7 @@ public class MainUI {
             //.setImage(ImageDescriptors.createManagedImage(SWTHelper.getImage("images/logo.jpg").getImageData(), cmp).)
             .setText("Add")
             .setStyle(Actions.Style.PUSH)
-            .setListener(event -> new TabItemMonitorUI(tabFolder, tabFolder.getItems().length) )
+            .setListener(event -> new TabItemMonitorUI(tabFolder, new MonitorModel(), tabFolder.getItems().length) )
             .build()
         ;
 

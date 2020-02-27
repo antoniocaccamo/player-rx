@@ -61,6 +61,48 @@ public class LocaleManager {
 	 * ========================================================================
 	 */
 
+	public static class  Application {
+
+		protected static String DELIMETER = ".";
+
+		public static String Title = "app.title";
+
+		public static class Menu {
+
+			public static String File = "app.menu.file";
+
+			public static class File {
+				public static String Save 	= String.join(Application.DELIMETER, Menu.File, "save");
+				public static String Prefs 	= String.join(Application.DELIMETER, Menu.File, "prefs");
+				public static String Exit 	= String.join(Application.DELIMETER, Menu.File, "exit");
+			}
+		}
+
+		public static class Group {
+
+			public static String Group = "app.group";
+
+			public static class Screen {
+				public static String Screen = String.join(Application.DELIMETER, Application.Group.Group, "screen");
+
+				public static String Lock 	= String.join(Application.DELIMETER, Screen, "lock");
+				public static String Fade 	= String.join(Application.DELIMETER, Screen, "fade");
+				public static String View 	= String.join(Application.DELIMETER, Screen, "view");
+
+
+				public static class Size {
+					public static String Size = String.join(Application.DELIMETER, Application.Group.Screen.Screen, "size");
+
+					public static String Width 	= String.join(Application.DELIMETER, Size, "width");
+					public static String Height = String.join(Application.DELIMETER, Size, "height");
+				}
+
+
+			}
+		}
+	}
+
+
 	public static final String  APP_TITLE                                   = "app.title"; 
     
     
