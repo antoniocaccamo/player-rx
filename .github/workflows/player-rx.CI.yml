@@ -1,26 +1,23 @@
 name: player-rx CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
+
   build:
-
     runs-on: ubuntu-latest
-
+    
     steps:
-    - uses: actions/checkout@v2
+    
+    - name : checkout
+      uses : actions/checkout@master
       
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.8
-        
     - name : gradle build
-      uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
-      with:
+      uses : OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
+      with :
         args: build -x test
 
     - name : gradle sonarqube
-      uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
-      with:
-        args: sonarqube -x test
+      uses : OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
+      with :
+        args: sonarqube -x test         
