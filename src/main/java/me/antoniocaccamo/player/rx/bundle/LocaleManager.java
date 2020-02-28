@@ -61,10 +61,10 @@ public class LocaleManager {
 	 * ========================================================================
 	 */
 
+	protected static String DELIMETER = ".";
+	
 	public static class  Application {
-
-		protected static String DELIMETER = ".";
-
+		
 		public static String Title = "app.title";
 
 		public static class Menu {
@@ -72,33 +72,65 @@ public class LocaleManager {
 			public static String File = "app.menu.file";
 
 			public static class File {
-				public static String Save 	= String.join(Application.DELIMETER, Menu.File, "save");
-				public static String Prefs 	= String.join(Application.DELIMETER, Menu.File, "prefs");
-				public static String Exit 	= String.join(Application.DELIMETER, Menu.File, "exit");
+				public static String Save 	= String.join( DELIMETER, Menu.File, "save");
+				public static String Prefs 	= String.join(DELIMETER, Menu.File, "prefs");
+				public static String Exit 	= String.join(DELIMETER, Menu.File, "exit");
 			}
+		}
+
+		public static class Search {
+
+			public static String Search = "app.search";
+
+			public static String File = String.join(DELIMETER, Application.Search.Search, "file");
 		}
 
 		public static class Group {
 
 			public static String Group = "app.group";
 
-			public static class Screen {
-				public static String Screen = String.join(Application.DELIMETER, Application.Group.Group, "screen");
+			public static class Activation {
+				public static String Activation = String.join(DELIMETER, Application.Group.Group, "activation");
+			}
 
-				public static String Lock 	= String.join(Application.DELIMETER, Screen, "lock");
-				public static String Fade 	= String.join(Application.DELIMETER, Screen, "fade");
-				public static String View 	= String.join(Application.DELIMETER, Screen, "view");
+			public static class Screen {
+				public static String Screen     = String.join(DELIMETER, Application.Group.Group, "screen");
+
+				public static String Lock 	= String.join(DELIMETER, Screen, "lock");
+				public static String Fade 	= String.join(DELIMETER, Screen, "fade");
+				public static String View 	= String.join(DELIMETER, Screen, "view");
 
 
 				public static class Size {
-					public static String Size = String.join(Application.DELIMETER, Application.Group.Screen.Screen, "size");
+					public static String Size = String.join(DELIMETER, Application.Group.Screen.Screen, "size");
 
-					public static String Width 	= String.join(Application.DELIMETER, Size, "width");
-					public static String Height = String.join(Application.DELIMETER, Size, "height");
+					public static String Width 	= String.join(DELIMETER, Size, "width");
+					public static String Height = String.join(DELIMETER, Size, "height");
 				}
 
+				public static class Location {
+					public static String Location = String.join(DELIMETER, Application.Group.Screen.Screen, "location");
 
+					public static String Top 	= String.join(DELIMETER, Location, "top");
+					public static String Left   = String.join(DELIMETER, Location, "left");
+				}
+
+				public static class Watch {
+					public static String Watch = String.join(DELIMETER, Application.Group.Screen.Screen, "watch");
+
+					public static String Background 	= String.join(DELIMETER, Watch, "background");
+					public static String BackgroundImage   = String.join(DELIMETER, Watch, "background", "image");
+
+					public static String Font 	     = String.join(DELIMETER, Watch, "font");
+					public static String FontDate 	= String.join(DELIMETER, Font, "date");
+					public static String FontTime 	= String.join(DELIMETER, Font,  "time");
+				}
 			}
+
+			public static class Sequence {
+				public static String Sequence = String.join(DELIMETER, Application.Group.Group, "sequence");
+			}
+
 		}
 	}
 
@@ -141,9 +173,9 @@ public class LocaleManager {
 	public static final String APP_GROUP_SCREEN_LOCATION_TOP              = "app.group.screen.location.top"              ;
 	public static final String APP_GROUP_SCREEN_APPLY_MODIFIES            = "app.group.screen.apply.modifies";
 	public static final String APP_GROUP_SCREEN_REFER                     = "app.group.screen.refer";
-	public static final String APP_GROUP_SCREEN_FONT                      = "app.group.screen.font";
-	public static final String APP_GROUP_SCREEN_FONT_TIME                 = "app.group.screen.font.time";
-	public static final String APP_GROUP_SCREEN_FONT_DATE                 = "app.group.screen.font.date";
+	public static final String APP_GROUP_SCREEN_FONT                      = "app.group.screen.watch.font";
+	public static final String APP_GROUP_SCREEN_FONT_TIME                 = "app.group.screen.watch.font.time";
+	public static final String APP_GROUP_SCREEN_FONT_DATE                 = "app.group.screen.watch.font.date";
 	public static final String APP_GROUP_SCREEN_WATCH_BACKGROUND          = "app.group.screen.watch.background";
 	public static final String APP_GROUP_SCREEN_WATCH_BACKGROUND_IMAGE    = "app.group.screen.watch.background.image";
 	
