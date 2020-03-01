@@ -1,6 +1,7 @@
 package me.antoniocaccamo.player.rx.ui;
 
 import com.diffplug.common.swt.Layouts;
+import com.diffplug.common.swt.Shells;
 import com.diffplug.common.swt.SwtRx;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.bundle.LocaleManager;
@@ -8,6 +9,7 @@ import me.antoniocaccamo.player.rx.model.preference.MonitorModel;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.*;
 
 import javax.validation.constraints.NotNull;
@@ -21,6 +23,7 @@ public class TabItemMonitorUI extends CTabItem {
 
     private final int index;
     private final MonitorModel monitorModel;
+    private final Shell monitorUI;
 
     public TabItemMonitorUI(CTabFolder tabFolder, MonitorModel monitorModel,  int index) {
         super(tabFolder, SWT.NONE);
@@ -45,6 +48,15 @@ public class TabItemMonitorUI extends CTabItem {
 
         Layouts.setGridData(playerGroup(composite))
                 .grabAll();
+
+        monitorUI = Shells.builder(SWT.BORDER, cmp -> {
+            Layouts.setGrid(cmp);
+            Layouts.setGridData(new MonitorUI(cmp)).grabAll();
+        })
+        .setSize(300, 280)
+        .setLocation(new Point(50,50))
+        .openOn(getParent().getShell())
+        ;
     }
 
     @NotNull
