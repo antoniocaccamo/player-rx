@@ -1,6 +1,8 @@
 package me.antoniocaccamo.player.rx.model.preference;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.helper.SWTHelper;
@@ -14,7 +16,8 @@ import org.eclipse.swt.graphics.Point;
  * @author antoniocaccamo on 07/02/2020
  */
 @Slf4j
-@Getter @Setter
+@Getter @Setter @NoArgsConstructor
+@AllArgsConstructor
 public class SizeModel extends Model implements PointSWT<SizeModel> {
 
     private int width;

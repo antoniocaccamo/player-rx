@@ -19,7 +19,7 @@ public class Application {
             CONTEXT.findBean(EmbeddedServer.class)
                     .ifPresent( srv -> srv.start());
 
-            CONTEXT.findBean(MainUI.class).get().show();
+            CONTEXT.findBean(MainUI.class).get();
 
             CONTEXT.findBean(EmbeddedServer.class)
                     .ifPresent( srv -> srv.stop());

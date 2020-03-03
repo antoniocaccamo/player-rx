@@ -53,8 +53,8 @@ public class TabItemMonitorUI extends CTabItem {
             Layouts.setGrid(cmp);
             Layouts.setGridData(new MonitorUI(cmp)).grabAll();
         })
-        .setSize(300, 280)
-        .setLocation(new Point(50,50))
+        .setSize(monitorModel.getSize().toPoint())
+        .setLocation(monitorModel.getLocation().toPoint())
         .openOn(getParent().getShell())
         ;
     }
@@ -94,6 +94,7 @@ public class TabItemMonitorUI extends CTabItem {
                         evt -> {
                             monitorModel.getSize().setWidth(((Spinner) evt.widget).getSelection());
                             log.info("monitorModel.getSize().getWidth()  : {}", monitorModel.getSize().getWidth());
+                            monitorUI.setSize(monitorModel.getSize().toPoint());
                         });
 
         label = new Label(sizeGroup, SWT.NONE);
@@ -108,6 +109,7 @@ public class TabItemMonitorUI extends CTabItem {
                     evt -> {
                         monitorModel.getSize().setHeight(((Spinner) evt.widget).getSelection());
                         log.info("monitorModel.getSize().getHeight() : {}", monitorModel.getSize().getHeight());
+                        monitorUI.setSize(monitorModel.getSize().toPoint());
                     });
 
         // -- location
@@ -131,6 +133,7 @@ public class TabItemMonitorUI extends CTabItem {
                         evt -> {
                             monitorModel.getLocation().setTop(((Spinner) evt.widget).getSelection());
                             log.info("monitorModel.getLocation().getTop()  : {}", monitorModel.getLocation().getTop());
+                            monitorUI.setLocation(monitorModel.getLocation().toPoint());
                         });
 
         label = new Label(locationGroup, SWT.NONE);
@@ -145,6 +148,7 @@ public class TabItemMonitorUI extends CTabItem {
                         evt -> {
                             monitorModel.getLocation().setLeft(((Spinner) evt.widget).getSelection());
                             log.info("monitorModel.getLocation().getLeft() : {}", monitorModel.getLocation().getLeft());
+                            monitorUI.setLocation(monitorModel.getLocation().toPoint());
                         });
 
         // watch
@@ -219,5 +223,11 @@ public class TabItemMonitorUI extends CTabItem {
         ;
 
         return group;
+    }
+
+    @Override
+    public void dispose() {
+        monitorUI.dispose();
+        super.dispose();
     }
 }

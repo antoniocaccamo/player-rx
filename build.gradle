@@ -3,7 +3,7 @@ plugins {
     id "com.diffplug.gradle.eclipse.mavencentral"   version "3.21.0"
     id "application"
     id "net.ltgt.apt-eclipse"                       version "0.21"
-    id "groovy"
+//  id "groovy"
     id "org.sonarqube"                              version "2.8"
 }
 
