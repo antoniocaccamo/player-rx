@@ -5,7 +5,7 @@ import com.diffplug.common.swt.Layouts;
 import com.diffplug.common.swt.jface.ColumnViewerFormat;
 import com.diffplug.common.swt.jface.ViewerMisc;
 import lombok.extern.slf4j.Slf4j;
-import me.antoniocaccamo.player.rx.Application;
+import me.antoniocaccamo.player.rx.Main;
 import me.antoniocaccamo.player.rx.model.resource.AbstractResource;
 import me.antoniocaccamo.player.rx.service.ResourceService;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -55,7 +55,7 @@ public class ResourceLibraryUI extends Composite {
         RxBox<Optional<AbstractResource>> resourceRxBox  = ViewerMisc.singleSelection(tableViewer);
         resourceRxBox.asObservable().subscribe(or -> or.ifPresent( r->log.info("selected : {}", r)));
 
-        ResourceService rs = Application.CONTEXT.findBean(ResourceService.class).get();
+        ResourceService rs = Main.CONTEXT.findBean(ResourceService.class).get();
 
         tableViewer.setInput(rs.getResources());
 

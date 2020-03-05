@@ -1,11 +1,11 @@
 !!me.antoniocaccamo.player.rx.model.preference.PreferenceModel
 computer: antonio
-location: {left: 822, top: 160}
+location: {left: 637, top: 99}
 monitors:
-- location: {left: 195, top: 57}
+- location: {left: 50, top: 100}
   name: A
-  sequence: C:\development\workspaces\antoniocaccamo\AT.Player.ST\src\AT.Player\Resources\sequence.01.yaml
-  size: {height: 220, width: 41}
+  sequence: C:\development\workspaces\antoniocaccamo\player-rx\sequence.01.yaml
+  size: {height: 220, width: 430}
 sendAllEmail: null
-size: {height: 598, width: 565}
+size: {height: 641, width: 526}
 uuid: 7b7231bb-e706-4c65-97d3-bc3d6239c6ca

@@ -14,6 +14,7 @@ import java.time.Duration;
 public abstract class AbstractResource {
 
 
+
     public enum TYPE {
         BLACK,
         HIDDEN,

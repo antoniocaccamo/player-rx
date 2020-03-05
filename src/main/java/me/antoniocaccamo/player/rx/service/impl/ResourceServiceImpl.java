@@ -6,11 +6,16 @@ import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.model.resource.AbstractResource;
 import me.antoniocaccamo.player.rx.model.resource.LocalResource;
 import me.antoniocaccamo.player.rx.service.ResourceService;
+import org.yaml.snakeyaml.Yaml;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -31,13 +36,15 @@ public class ResourceServiceImpl implements ResourceService {
     private Map<String, AbstractResource> resources;
 
     @PostConstruct
-    public void postConstruct(){
+    public void postConstruct() throws FileNotFoundException {
         Path path = Paths.get(resLibraryFile);
         log.info("loading resource library : file {} exists ? : {}" , path.toAbsolutePath(), path.toFile().exists());
         // @TODO loading resource library
         if ( path.toFile().exists() ) {
             log.warn("load resource library...");
 
+          //  Iterable<Object> rss = new Yaml().loadAll( new FileInputStream(path.toFile()));
+            //rss.forEach( rs ->          log.warn("rs : {}", rs));
         }
         resources = Arrays.asList(
                 LocalResource.builder()
@@ -47,7 +54,7 @@ public class ResourceServiceImpl implements ResourceService {
                         .withDuration(Duration.ofSeconds(5))
                         .build(),
                 LocalResource.builder()
-                        .withType(AbstractResource.TYPE.PHOTO)
+                        .withType(AbstractResource.TYPE.VIDEO)
                         .withLocation(AbstractResource.LOCATION.LOCAL)
                         .withPath("C:\\Users\\antonio\\Videos\\big_buck_bunny.mp4")
                         .build()
@@ -64,5 +71,12 @@ public class ResourceServiceImpl implements ResourceService {
     @PreDestroy
     public void preDestroy() {
         log.info("{} service destroying", getClass().getSimpleName());
+
+        log.info("saving resources...");
+        try ( FileWriter fw = new FileWriter(new File(resLibraryFile)) ) {
+            new Yaml().dump(getResources(), fw);
+        } catch (Exception e) {
+            log.error("error occurred", e);
+        }
     }
 }

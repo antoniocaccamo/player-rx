@@ -2,6 +2,7 @@ package me.antoniocaccamo.player.rx.ui;
 
 import com.diffplug.common.swt.Layouts;
 import com.diffplug.common.swt.Shells;
+import com.diffplug.common.swt.SwtMisc;
 import com.diffplug.common.swt.SwtRx;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.bundle.LocaleManager;
@@ -13,6 +14,8 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.*;
 
 import javax.validation.constraints.NotNull;
+import java.time.Duration;
+import java.time.format.DateTimeFormatter;
 
 
 /**
@@ -53,9 +56,9 @@ public class TabItemMonitorUI extends CTabItem {
             Layouts.setGrid(cmp);
             Layouts.setGridData(new MonitorUI(cmp)).grabAll();
         })
-        .setSize(monitorModel.getSize().toPoint())
-        .setLocation(monitorModel.getLocation().toPoint())
-        .openOn(getParent().getShell())
+                .setSize(monitorModel.getSize().toPoint())
+                .setLocation(monitorModel.getLocation().toPoint())
+                .openOn(getParent().getShell())
         ;
     }
 
@@ -106,11 +109,11 @@ public class TabItemMonitorUI extends CTabItem {
         spinner.setSelection(monitorModel.getSize().getHeight());
         SwtRx.addListener(spinner, SWT.Modify , SWT.Selection)
                 .subscribe(
-                    evt -> {
-                        monitorModel.getSize().setHeight(((Spinner) evt.widget).getSelection());
-                        log.info("monitorModel.getSize().getHeight() : {}", monitorModel.getSize().getHeight());
-                        monitorUI.setSize(monitorModel.getSize().toPoint());
-                    });
+                        evt -> {
+                            monitorModel.getSize().setHeight(((Spinner) evt.widget).getSelection());
+                            log.info("monitorModel.getSize().getHeight() : {}", monitorModel.getSize().getHeight());
+                            monitorUI.setSize(monitorModel.getSize().toPoint());
+                        });
 
         // -- location
         final Group locationGroup = new Group(group, SWT.NONE);
@@ -213,14 +216,106 @@ public class TabItemMonitorUI extends CTabItem {
     @NotNull
     private Group playerGroup(Composite composite) {
 
+        Label label = null;
+        Button button =null;
+
         Group group = new Group(composite, SWT.NONE);
         group.setText(LocaleManager.getText(LocaleManager.Application.Group.Sequence.Sequence));
 
         Layouts.setGrid(group)
                 .numColumns(2)
-                .columnsEqualWidth(true)
+                .columnsEqualWidth(false)
                 .margin(0)
         ;
+
+        label = new Label(group, SWT.NONE);
+        label.setText(LocaleManager.getText(LocaleManager.Application.Group.Sequence.Sequence));
+
+        Layouts.setGridData(new Combo(group, SWT.NONE)).grabHorizontal();
+
+        label = new Label(group, SWT.NONE);
+        label.setText(LocaleManager.getText("Numero video"));
+
+        label = new Label(group, SWT.NONE);
+        label.setText(LocaleManager.getText("3"));
+
+        label = new Label(group, SWT.NONE);
+        label.setText(LocaleManager.getText("Durata"));
+
+        label = new Label(group, SWT.NONE);
+        label.setText("00:00:09,000");
+
+        label = new Label(group, SWT.NONE);
+        label.setText(LocaleManager.getText("Nome file"));
+
+        label = new Label(group, SWT.NONE);
+        label.setText("default.xsq");
+
+        Composite buttonsComposite = new Composite(group, SWT.NONE);
+        Layouts.setGrid(buttonsComposite).numColumns(3).columnsEqualWidth(true);
+        Layouts.setGridData(buttonsComposite)
+                .horizontalSpan(2)
+                .grabHorizontal()
+        ;
+
+        button = new Button(buttonsComposite, SWT.PUSH);
+        button.setText("Stop");
+        Layouts.setGridData(button)
+                .grabHorizontal()
+                .minimumWidth(SwtMisc.defaultButtonWidth())
+        ;
+
+        button = new Button(buttonsComposite, SWT.PUSH);
+        button.setText("Pause");
+        Layouts.setGridData(button)
+                .grabHorizontal()
+                .minimumWidth(SwtMisc.defaultButtonWidth())
+        ;
+
+        button = new Button(buttonsComposite, SWT.PUSH);
+        button.setText("Play");
+        Layouts.setGridData(button)
+                .grabHorizontal()
+                .minimumWidth(SwtMisc.defaultButtonWidth())
+        ;
+
+        Group mediaGroup  = new Group(group, SWT.NONE);
+        mediaGroup.setText("current media");
+        Layouts.setGrid(mediaGroup).numColumns(2).columnsEqualWidth(false)
+            //.margin(2)
+            .spacing(2);
+        Layouts.setGridData(mediaGroup)
+                .horizontalSpan(2)
+                .grabHorizontal()
+        ;
+
+        label = new Label(mediaGroup, SWT.NONE);
+        label.setText(LocaleManager.getText("Numero video"));
+
+        label = new Label(mediaGroup, SWT.NONE);
+        label.setText(LocaleManager.getText("3"));
+
+        label = new Label(mediaGroup, SWT.NONE);
+        label.setText(LocaleManager.getText("Durata"));
+
+        label = new Label(mediaGroup, SWT.NONE);
+        label.setText("00:00:09,000");
+
+        label = new Label(mediaGroup, SWT.NONE);
+        label.setText(LocaleManager.getText("Nome file"));
+
+        label = new Label(mediaGroup, SWT.NONE);
+        label.setText("default.xsq");
+
+
+        Layouts.setGridData( new ProgressBar(mediaGroup, SWT.NONE))
+                .horizontalSpan(2)
+                .grabHorizontal()
+
+
+        ;
+
+
 
         return group;
     }
