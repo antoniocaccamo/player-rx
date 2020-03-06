@@ -2,15 +2,12 @@ package me.antoniocaccamo.player.rx.service;
 
 import io.micronaut.test.annotation.MicronautTest;
 import io.reactivex.Observable;
-import me.antoniocaccamo.player.rx.model.resource.AbstractResource;
+import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.model.resource.LocalResource;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.time.Duration;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalUnit;
-import java.util.concurrent.TimeUnit;
 
 @MicronautTest
 class TrancodeServiceTest  {
@@ -26,7 +23,7 @@ class TrancodeServiceTest  {
                         transcodeService.transcode(
                                 LocalResource.builder()
                                         .withDuration(Duration.ofSeconds(i))
-                                        .withType(AbstractResource.TYPE.VIDEO)
+                                        .withType(Resource.TYPE.VIDEO)
                                         .withPath("XXXX")
                                         .build()
                         ));

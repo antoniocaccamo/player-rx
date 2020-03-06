@@ -6,7 +6,7 @@ import com.diffplug.common.swt.jface.ColumnViewerFormat;
 import com.diffplug.common.swt.jface.ViewerMisc;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.Main;
-import me.antoniocaccamo.player.rx.model.resource.AbstractResource;
+import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.service.ResourceService;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
@@ -43,8 +43,8 @@ public class ResourceLibraryUI extends Composite {
         group.setText("resources");
         //Layouts.setFill(group);
 
-        ColumnViewerFormat<AbstractResource> format = ColumnViewerFormat.builder();
-        format.addColumn().setText("location").setLabelProviderText(r-> r.getLocation().name());
+        ColumnViewerFormat<Resource> format = ColumnViewerFormat.builder();
+        format.addColumn().setText("location").setLabelProviderText(r-> r.getClass().getSimpleName());
         format.addColumn().setText("type").setLabelProviderText(r-> r.getType().name());
         format.addColumn().setText("duration").setLabelProviderText(r->r.getDuration() != null ?r.getDuration().toString(): "");
         format.addColumn().setText("path").setLabelProviderText(r->r.getPath());
@@ -52,7 +52,7 @@ public class ResourceLibraryUI extends Composite {
 
         TableViewer tableViewer = format.buildTable(group);
         tableViewer.setContentProvider(new ArrayContentProvider());
-        RxBox<Optional<AbstractResource>> resourceRxBox  = ViewerMisc.singleSelection(tableViewer);
+        RxBox<Optional<Resource>> resourceRxBox  = ViewerMisc.singleSelection(tableViewer);
         resourceRxBox.asObservable().subscribe(or -> or.ifPresent( r->log.info("selected : {}", r)));
 
         ResourceService rs = Main.CONTEXT.findBean(ResourceService.class).get();

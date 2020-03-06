@@ -1,7 +1,7 @@
 package me.antoniocaccamo.player.rx.ui.monitor;
 
 import io.micronaut.context.annotation.Factory;
-import me.antoniocaccamo.player.rx.model.resource.AbstractResource;
+import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.ui.AbstractUI;
 import org.eclipse.swt.widgets.Composite;
 
@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Composite;
 @Factory
 public class FactoryUI {
 
-    public AbstractUI createViewer(Composite parent, AbstractResource.TYPE type ) {
+    public AbstractUI createViewer(Composite parent, Resource.TYPE type ) {
 
         AbstractUI viewer = null;
 

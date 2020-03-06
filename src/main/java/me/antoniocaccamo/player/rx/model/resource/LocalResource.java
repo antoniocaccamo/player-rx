@@ -3,6 +3,8 @@ package me.antoniocaccamo.player.rx.model.resource;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
 import java.nio.file.Path;
 import java.time.Duration;
 
@@ -11,7 +13,8 @@ import java.time.Duration;
  */
 @Getter
 @Setter
-public class LocalResource extends AbstractResource {
+@Entity @DiscriminatorValue(Resource.LOCATION.LOCAL)
+public class LocalResource extends Resource {
 
     @Override
     public Path getLocalPath() {
@@ -39,10 +42,10 @@ public class LocalResource extends AbstractResource {
             return this;
         }
 
-        public LocalResourceBuilder withLocation(LOCATION location) {
-            localResource.setLocation(location);
-            return this;
-        }
+//        public LocalResourceBuilder withLocation(LOCATION location) {
+//            localResource.setLocation(location);
+//            return this;
+//        }
 
         public LocalResourceBuilder withPath(String path) {
             localResource.setPath(path);
@@ -61,12 +64,6 @@ public class LocalResource extends AbstractResource {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("LocalResource{");
-        sb.append("type=").append(type);
-        sb.append(", location=").append(location);
-        sb.append(", path='").append(path).append('\'');
-        sb.append(", duration=").append(duration);
-        sb.append('}');
-        return sb.toString();
+        return super.toString();
     }
 }

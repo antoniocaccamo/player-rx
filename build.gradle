@@ -43,6 +43,7 @@ dependencies {
     annotationProcessor         "io.micronaut:micronaut-inject-java"
     annotationProcessor         "io.micronaut:micronaut-validation"
     annotationProcessor         "org.projectlombok:lombok:1.18.10"
+    annotationProcessor         "io.micronaut.data:micronaut-data-processor:1.0.0"
 
     implementation              platform("io.micronaut:micronaut-bom:$micronautVersion")
     implementation              "io.micronaut:micronaut-http-client"
@@ -71,10 +72,15 @@ dependencies {
     compileOnly                 "com.google.code.findbugs:annotations:3.0.1"
     compileOnly                 "org.projectlombok:lombok:1.18.10"
 
+    compile                     "io.micronaut.data:micronaut-data-hibernate-jpa:1.0.0"
+
     implementation              "org.apache.commons:commons-lang3:3.9"
 
     testAnnotationProcessor     platform("io.micronaut:micronaut-bom:$micronautVersion")
     testAnnotationProcessor     "io.micronaut:micronaut-inject-java"
+    testAnnotationProcessor     "org.projectlombok:lombok:1.18.10"
+    testAnnotationProcessor     "io.micronaut.data:micronaut-data-processor:1.0.0"
+
     testImplementation          platform("io.micronaut:micronaut-bom:$micronautVersion")
     testImplementation          "org.junit.jupiter:junit-jupiter-api"
     testImplementation          "io.micronaut.test:micronaut-test-junit5"
@@ -109,7 +115,7 @@ shadowJar {
 
 run.classpath += configurations.developmentOnly
 run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote',
-        //'-XstartOnFirstThread'
+        '-XstartOnFirstThread', "-Xdock:name=player-rx", "-Xdock:icon=player-rx.ico"
         )
 
 tasks.withType(JavaCompile){

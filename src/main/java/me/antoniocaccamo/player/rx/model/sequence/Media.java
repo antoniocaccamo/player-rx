@@ -2,10 +2,9 @@ package me.antoniocaccamo.player.rx.model.sequence;
 
 import lombok.*;
 import me.antoniocaccamo.player.rx.model.Model;
-import me.antoniocaccamo.player.rx.model.resource.AbstractResource;
+import me.antoniocaccamo.player.rx.model.resource.Resource;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.yaml.snakeyaml.Yaml;
 
 import java.time.Duration;
 
@@ -22,7 +21,7 @@ public class Media implements Cloneable{
     private Duration       duration;
 
 
-    private AbstractResource resource;
+    private Resource resource;
 
     @Override
     public String toString() {

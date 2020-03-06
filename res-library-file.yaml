@@ -1,7 +1,9 @@
-- !!me.antoniocaccamo.player.rx.model.resource.LocalResource {duration: null, location: LOCAL,
-  path: 'C:\Users\antonio\Videos\big_buck_bunny.mp4', type: VIDEO}
 - !!me.antoniocaccamo.player.rx.model.resource.LocalResource
   duration: {}
-  location: LOCAL
+  id: null
   path: C:\Windows\Web\Screen\img100.jpg
   type: PHOTO
+- !!me.antoniocaccamo.player.rx.model.resource.RemoteResource {duration: null, id: null,
+  path: 's3:antonio/Videos/big_buck_bunny.mp4', type: VIDEO}
+- !!me.antoniocaccamo.player.rx.model.resource.LocalResource {duration: null, id: null,
+  path: 'C:\Users\antonio\Videos\big_buck_bunny.mp4', type: VIDEO}

@@ -3,7 +3,8 @@ package me.antoniocaccamo.player.rx.service.impl;
 import com.google.common.hash.Hashing;
 import io.micronaut.context.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
-import me.antoniocaccamo.player.rx.model.resource.AbstractResource;
+import me.antoniocaccamo.player.rx.model.resource.RemoteResource;
+import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.model.resource.LocalResource;
 import me.antoniocaccamo.player.rx.service.ResourceService;
 import org.yaml.snakeyaml.Yaml;
@@ -11,20 +12,17 @@ import org.yaml.snakeyaml.Yaml;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
-import javax.validation.constraints.NotNull;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.rmi.Remote;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Singleton @Slf4j
@@ -33,7 +31,7 @@ public class ResourceServiceImpl implements ResourceService {
     @Value("${micronaut.application.res-library-file}")
     private String resLibraryFile;
 
-    private Map<String, AbstractResource> resources;
+    private Map<String, Resource> resources;
 
     @PostConstruct
     public void postConstruct() throws FileNotFoundException {
@@ -48,15 +46,20 @@ public class ResourceServiceImpl implements ResourceService {
         }
         resources = Arrays.asList(
                 LocalResource.builder()
-                        .withType(AbstractResource.TYPE.PHOTO)
-                        .withLocation(AbstractResource.LOCATION.LOCAL)
+                        .withType(Resource.TYPE.PHOTO)
+           //             .withLocation(Resource.LOCATION.LOCAL)
                         .withPath("C:\\Windows\\Web\\Screen\\img100.jpg")
                         .withDuration(Duration.ofSeconds(5))
                         .build(),
                 LocalResource.builder()
-                        .withType(AbstractResource.TYPE.VIDEO)
-                        .withLocation(AbstractResource.LOCATION.LOCAL)
+                        .withType(Resource.TYPE.VIDEO)
+           //             .withLocation(Resource.LOCATION.LOCAL)
                         .withPath("C:\\Users\\antonio\\Videos\\big_buck_bunny.mp4")
+                        .build(),
+                RemoteResource.builder()
+                        .withType(Resource.TYPE.VIDEO)
+                        //             .withLocation(Resource.LOCATION.LOCAL)
+                        .withPath("s3:antonio/Videos/big_buck_bunny.mp4")
                         .build()
         )   .stream()
             .collect(
@@ -64,7 +67,7 @@ public class ResourceServiceImpl implements ResourceService {
             );
     }
 
-    public List<AbstractResource> getResources() {
+    public List<Resource> getResources() {
         return resources.values().stream().collect(Collectors.toList());
     }
 

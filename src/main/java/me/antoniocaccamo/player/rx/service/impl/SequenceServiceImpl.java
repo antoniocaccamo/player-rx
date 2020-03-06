@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.model.Model;
-import me.antoniocaccamo.player.rx.model.resource.AbstractResource;
+import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.model.resource.LocalResource;
 import me.antoniocaccamo.player.rx.model.resource.RemoteResource;
 import me.antoniocaccamo.player.rx.model.sequence.Media;
@@ -14,6 +14,8 @@ import me.antoniocaccamo.player.rx.service.SequenceService;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -35,8 +37,8 @@ public class SequenceServiceImpl implements SequenceService {
                         Media.builder()
                                 .resource(
                                         LocalResource.builder()
-                                                .withType(AbstractResource.TYPE.PHOTO)
-                                                .withLocation(AbstractResource.LOCATION.LOCAL)
+                                                .withType(Resource.TYPE.PHOTO)
+//                                                .withLocation(Resource.LOCATION.LOCAL)
                                                 .withPath("C:\\Windows\\Web\\Screen\\img100.jpg")
                                                 .withDuration(Duration.ofSeconds(5))
                                                 .build()
@@ -45,8 +47,8 @@ public class SequenceServiceImpl implements SequenceService {
                         Media.builder()
                                 .resource(
                                         LocalResource.builder()
-                                                .withType(AbstractResource.TYPE.PHOTO)
-                                                .withLocation(AbstractResource.LOCATION.LOCAL)
+                                                .withType(Resource.TYPE.PHOTO)
+  //                                              .withLocation(Resource.LOCATION.LOCAL)
                                                 .withPath("C:\\Windows\\Web\\Screen\\img160.jpg")
                                                 .withDuration(Duration.ofSeconds(15))
                                                 .build()
@@ -55,15 +57,15 @@ public class SequenceServiceImpl implements SequenceService {
                         Media.builder()
                                 .resource(
                                         RemoteResource.builder()
-                                            .withType(AbstractResource.TYPE.WEATHER)
+                                            .withType(Resource.TYPE.WEATHER)
                                             .build()
                                 )
                                 .build(),
                         Media.builder()
                                 .resource(
                                         LocalResource.builder()
-                                                .withType(AbstractResource.TYPE.VIDEO)
-                                                .withLocation(AbstractResource.LOCATION.LOCAL)
+                                                .withType(Resource.TYPE.VIDEO)
+//                                                .withLocation(Resource.LOCATION.LOCAL)
                                                 .withPath("C:\\Users\\antonio\\Videos\\big_buck_bunny.mp4")
                                                 .build()
                                 )
@@ -100,7 +102,10 @@ public class SequenceServiceImpl implements SequenceService {
     public void save(Sequence sequence, Path path) {
         try {
             log.info("sequence : {}", mapper.writeValueAsString(sequence) );
+            mapper.writeValue(new FileWriter(sequence.getName()), sequence);
         } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

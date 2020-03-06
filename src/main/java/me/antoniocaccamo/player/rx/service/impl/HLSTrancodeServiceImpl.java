@@ -1,7 +1,7 @@
 package me.antoniocaccamo.player.rx.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import me.antoniocaccamo.player.rx.model.resource.AbstractResource;
+import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.service.TranscodeService;
 
 import javax.annotation.PostConstruct;
@@ -19,7 +19,7 @@ public class HLSTrancodeServiceImpl implements TranscodeService {
 
     private final AtomicBoolean running = new AtomicBoolean(Boolean.FALSE);
 
-    private BlockingQueue<AbstractResource> trancodingQueue;
+    private BlockingQueue<Resource> trancodingQueue;
 
     private ExecutorService executorService;
 
@@ -54,8 +54,8 @@ public class HLSTrancodeServiceImpl implements TranscodeService {
     }
 
     @Override
-    public void transcode(AbstractResource resource) {
-        if ( AbstractResource.TYPE.VIDEO.equals(resource.getType())){
+    public void transcode(Resource resource) {
+        if ( Resource.TYPE.VIDEO.equals(resource.getType())){
             log.info("add video resource to trancode : {}", resource);
             trancodingQueue.offer(resource);
         }
@@ -64,16 +64,16 @@ public class HLSTrancodeServiceImpl implements TranscodeService {
 
     private class TrancoderTask implements Runnable {
 
-        private final BlockingQueue<AbstractResource> trancodingQueue;
+        private final BlockingQueue<Resource> trancodingQueue;
 
-        private TrancoderTask(BlockingQueue<AbstractResource> trancodingQueue) {
+        private TrancoderTask(BlockingQueue<Resource> trancodingQueue) {
             this.trancodingQueue = trancodingQueue;
         }
 
         @Override
         public void run() {
             log.info("{} ready to trancode..", Thread.currentThread().getName());
-            AbstractResource resource = null;
+            Resource resource = null;
             while ( running.get() ){
                 try {
                     resource = trancodingQueue.poll(5, TimeUnit.SECONDS);
