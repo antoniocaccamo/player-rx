@@ -9,7 +9,7 @@ import java.nio.file.Path;
 /**
  * @author antoniocaccamo on 18/02/2020
  */
-@Getter @Setter @Builder
+@Getter @Setter
 public class FTPRemoreResource extends RemoteResource {
 
 

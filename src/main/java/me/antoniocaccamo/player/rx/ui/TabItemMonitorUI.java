@@ -1,22 +1,21 @@
 package me.antoniocaccamo.player.rx.ui;
 
-import com.diffplug.common.swt.Layouts;
-import com.diffplug.common.swt.Shells;
-import com.diffplug.common.swt.SwtMisc;
-import com.diffplug.common.swt.SwtRx;
+import com.diffplug.common.swt.*;
+import io.reactivex.Single;
 import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.Main;
 import me.antoniocaccamo.player.rx.bundle.LocaleManager;
 import me.antoniocaccamo.player.rx.model.preference.MonitorModel;
+import me.antoniocaccamo.player.rx.model.sequence.Sequence;
+import me.antoniocaccamo.player.rx.service.SequenceService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.*;
 
 import javax.validation.constraints.NotNull;
-import java.time.Duration;
-import java.time.format.DateTimeFormatter;
-
+import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author antoniocaccamo on 20/02/2020
@@ -28,8 +27,13 @@ public class TabItemMonitorUI extends CTabItem {
     private final MonitorModel monitorModel;
     private final Shell monitorUI;
 
+    private final SequenceService sequenceService;
+
     public TabItemMonitorUI(CTabFolder tabFolder, MonitorModel monitorModel,  int index) {
         super(tabFolder, SWT.NONE);
+
+        sequenceService = Main.CONTEXT.findBean(SequenceService.class).get();
+
         setText(String.format("screen %s", index + 1));
         this.monitorModel = monitorModel;
         this.index = index;
@@ -60,6 +64,16 @@ public class TabItemMonitorUI extends CTabItem {
                 .setLocation(monitorModel.getLocation().toPoint())
                 .openOn(getParent().getShell())
         ;
+
+        SwtExec.async().guardOn(this)
+                .subscribe(
+                        Single.create( emitter -> {
+                            emitter.onSuccess(sequenceService.read(  Paths.get(monitorModel.getSequence())  ) );
+                        }).toObservable()
+                        , value -> log.info("{}", value)
+                );
+        SwtExec.async().guardOn(this)
+                .scheduleAtFixedRate(()->log.info("  -> player #{}: check to run/stop...", this.index), 100L, 500L, TimeUnit.MILLISECONDS);
     }
 
     @NotNull

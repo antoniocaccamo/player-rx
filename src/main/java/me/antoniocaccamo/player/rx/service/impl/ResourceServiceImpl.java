@@ -44,7 +44,7 @@ public class ResourceServiceImpl implements ResourceService {
             log.warn("load resource library...");
 
           //  Iterable<Object> rss = new Yaml().loadAll( new FileInputStream(path.toFile()));
-            //rss.forEach( rs ->          log.warn("rs : {}", rs));
+            // rss.forEach( rs ->          log.warn("rs : {}", rs));
         }
         resources = Arrays.asList(
                 LocalResource.builder()
