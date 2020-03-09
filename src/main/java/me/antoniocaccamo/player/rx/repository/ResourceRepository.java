@@ -6,5 +6,5 @@ import me.antoniocaccamo.player.rx.model.resource.Resource;
 
 @Repository
 interface ResourceRepository extends CrudRepository<Resource, Long> {
-    // Resource find(String title);
+    Resource findByType(Resource.TYPE type);
 }

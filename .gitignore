@@ -17,3 +17,4 @@ build/*
 #gradlew*
 .gradle
 .gradle/*
+.gradle

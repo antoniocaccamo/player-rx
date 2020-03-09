@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.persistence.*;
 import java.nio.file.Path;
@@ -36,8 +37,8 @@ public abstract class Resource {
     }
 
     @Id
-    @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="EMP_SEQ")
-    @SequenceGenerator(name="EMP_SEQ", sequenceName="EMP_SEQ", allocationSize=100)
+    @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="RESOURCE_SEQ")
+    @SequenceGenerator(name="RESOURCE_SEQ", sequenceName="RESOURCE_SEQ", allocationSize=1)
     protected Long id;
 
     @Column
@@ -90,7 +91,7 @@ public abstract class Resource {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
                 .append("id", id)
                 .append("type", type)
                 .append("path", path)

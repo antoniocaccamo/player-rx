@@ -6,6 +6,7 @@ import me.antoniocaccamo.player.rx.model.Model;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import javax.persistence.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -14,16 +15,60 @@ import java.util.List;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder @Slf4j
+@Entity
+@Table(name = "SEQUENCE")
 public class Sequence implements Cloneable{
 
+    @Id
+    @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="SEQUENCE_SEQ")
+    @SequenceGenerator(name="SEQUENCE_SEQ", sequenceName="SEQUENCE_SEQ", allocationSize=1)
+    protected Long id;
+
+    @Column(nullable = false)
     private String name;
+
+    @Transient
     private Model.Location location;
+
+    @OneToMany
+    @JoinTable(
+            name = "SEQUENCE_MEDIA",
+            joinColumns = { @JoinColumn(name = "SEQUENCE_ID", referencedColumnName = "ID")},
+            inverseJoinColumns = {@JoinColumn(name = "MEDIA_ID", referencedColumnName = "ID")}
+    )
     private List<Media> medias;
 
-    public  List<Media> getMedias() {
-        if ( medias ==null )
-            medias = new LinkedList();
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Model.Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Model.Location location) {
+        this.location = location;
+    }
+
+    public List<Media> getMedias() {
         return medias;
+    }
+
+    public void setMedias(List<Media> medias) {
+        this.medias = medias;
     }
 
     @Override
