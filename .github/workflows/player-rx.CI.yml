@@ -17,7 +17,7 @@ jobs:
       with :
         args: build -x test
 
-    - name : gradle sonarqube
-      uses : OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
-      with :
-        args: sonarqube -x test         
+ #  - name : gradle sonarqube
+ #    uses : OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
+ #    with :
+ #      args: sonarqube -x test
