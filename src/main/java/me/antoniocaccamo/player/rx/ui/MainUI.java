@@ -9,6 +9,7 @@ import io.micronaut.context.annotation.Value;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.helper.DBInitHelper;
 import me.antoniocaccamo.player.rx.helper.SWTHelper;
 import me.antoniocaccamo.player.rx.model.preference.LocationModel;
 import me.antoniocaccamo.player.rx.model.preference.MonitorModel;
@@ -52,6 +53,9 @@ public class MainUI {
     @Inject
     private PreferenceService preferenceService;
 
+    @Inject
+    private DBInitHelper dbInitHelper;
+
     private PreferenceModel preference;
 
     private PublishSubject<MonitorModel> monitorPublishSubject;
@@ -67,6 +71,7 @@ public class MainUI {
 
     @PostConstruct
     public void show() {
+        dbInitHelper.getDefaultSquence();
         preference = preferenceService.read();
         monitorPublishSubject = PublishSubject.create();
 

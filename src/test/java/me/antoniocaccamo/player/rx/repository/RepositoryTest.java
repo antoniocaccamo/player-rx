@@ -5,9 +5,11 @@ import io.micronaut.test.annotation.MicronautTest;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import me.antoniocaccamo.player.rx.model.Model;
 import me.antoniocaccamo.player.rx.model.resource.LocalResource;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.model.sequence.Media;
+import me.antoniocaccamo.player.rx.model.sequence.Sequence;
 import me.antoniocaccamo.player.rx.service.ResourceService;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
+import java.util.Arrays;
 
 @MicronautTest
 //@Slf4j
@@ -29,7 +32,8 @@ public class RepositoryTest {
     @Inject
     private MediaRepository mediaRepository;
 
-    @Inject SequenceRepository sequenceRepository;
+    @Inject
+    private SequenceRepository sequenceRepository;
 
     @Inject
     private ResourceService resourceService;
@@ -95,10 +99,17 @@ public class RepositoryTest {
 
         Resource resource;
 
+        resource  = resourceRepository.findByType(Resource.TYPE.PHOTO);
+
+        Media photohMedia = Media.builder()
+                .duration(Duration.ofSeconds(5))
+                .resource(resource)
+                .build();
+
         resource  = resourceRepository.findByType(Resource.TYPE.WATCH);
 
         Media watchMedia = Media.builder()
-                .duration(Duration.ofSeconds(10))
+                .duration(Duration.ofSeconds(5))
                 .resource(resource)
                 .build();
 
@@ -108,13 +119,21 @@ public class RepositoryTest {
                 .resource(resource)
                 .build();
 
-        Observable.just(watchMedia, weatherMedia)
-                .subscribe(media -> mediaRepository.save(media));
+        Observable.just(photohMedia, watchMedia, weatherMedia)
+                .subscribe(media -> logger.info("media saved : {}", mediaRepository.save(media)));
 
         mediaRepository.findAll()
                 .forEach( media -> logger.info("media read : {}", media))
         ;
 
+
+        Sequence sequence = Sequence.builder()
+                .name("test sequence")
+                .location(Model.Location.LOCAL)
+                .medias(Arrays.asList(photohMedia, watchMedia, weatherMedia))
+                .build();
+
+        logger.info("sequence saved : {}", sequenceRepository.save(sequence));
 
     }
 }

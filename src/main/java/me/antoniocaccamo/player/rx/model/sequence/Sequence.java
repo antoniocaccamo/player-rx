@@ -24,7 +24,7 @@ public class Sequence implements Cloneable{
     @SequenceGenerator(name="SEQUENCE_SEQ", sequenceName="SEQUENCE_SEQ", allocationSize=1)
     protected Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Transient
@@ -73,7 +73,8 @@ public class Sequence implements Cloneable{
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                .append("id", id)
                 .append("name", name)
                 .append("location", location)
                 .append("medias", medias)
