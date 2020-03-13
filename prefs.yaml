@@ -1,11 +1,11 @@
 !!me.antoniocaccamo.player.rx.model.preference.PreferenceModel
 computer: antonio
-location: {left: 860, top: 92}
+location: {left: 805, top: 137}
 monitors:
 - location: {left: 50, top: 100}
   name: A
   sequence: test.sequence.json
   size: {height: 280, width: 320}
 sendAllEmail: null
-size: {height: 648, width: 565}
+size: {height: 648, width: 581}
 uuid: 7b7231bb-e706-4c65-97d3-bc3d6239c6ca

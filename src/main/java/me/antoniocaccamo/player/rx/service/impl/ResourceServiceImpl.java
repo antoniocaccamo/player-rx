@@ -6,11 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.model.resource.RemoteResource;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.model.resource.LocalResource;
+import me.antoniocaccamo.player.rx.repository.ResourceRepository;
 import me.antoniocaccamo.player.rx.service.ResourceService;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,10 +20,8 @@ import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.rmi.Remote;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -31,7 +31,10 @@ public class ResourceServiceImpl implements ResourceService {
     @Value("${micronaut.application.res-library-file}")
     private String resLibraryFile;
 
-    private Map<String, Resource> resources;
+    @Inject
+    private ResourceRepository resourceRepository;
+
+    private Map<String, Resource> resourceMap;
 
     @PostConstruct
     public void postConstruct() throws FileNotFoundException {
@@ -44,7 +47,7 @@ public class ResourceServiceImpl implements ResourceService {
           //  Iterable<Object> rss = new Yaml().loadAll( new FileInputStream(path.toFile()));
             // rss.forEach( rs ->          log.warn("rs : {}", rs));
         }
-        resources = Arrays.asList(
+        resourceMap = Arrays.asList(
                 LocalResource.builder()
                         .withType(Resource.TYPE.PHOTO)
            //             .withLocation(Resource.LOCATION.LOCAL)
@@ -67,8 +70,9 @@ public class ResourceServiceImpl implements ResourceService {
             );
     }
 
-    public List<Resource> getResources() {
-        return resources.values().stream().collect(Collectors.toList());
+    public Iterable<Resource> getResourceMap() {
+        return  resourceRepository.findAll();
+        // return resources.values().stream().collect(Collectors.toList());
     }
 
     @PreDestroy
@@ -77,7 +81,7 @@ public class ResourceServiceImpl implements ResourceService {
 
         log.info("saving resources...");
         try ( FileWriter fw = new FileWriter(new File(resLibraryFile)) ) {
-            new Yaml().dump(getResources(), fw);
+            new Yaml().dump(getResourceMap(), fw);
         } catch (Exception e) {
             log.error("error occurred", e);
         }
