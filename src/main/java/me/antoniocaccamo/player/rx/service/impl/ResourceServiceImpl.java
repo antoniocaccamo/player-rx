@@ -2,6 +2,7 @@ package me.antoniocaccamo.player.rx.service.impl;
 
 import com.google.common.hash.Hashing;
 import io.micronaut.context.annotation.Value;
+import io.reactivex.Observable;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.model.resource.RemoteResource;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
@@ -24,6 +25,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Singleton @Slf4j
 public class ResourceServiceImpl implements ResourceService {
@@ -38,6 +40,8 @@ public class ResourceServiceImpl implements ResourceService {
 
     @PostConstruct
     public void postConstruct() throws FileNotFoundException {
+
+        /*
         Path path = Paths.get(resLibraryFile);
         log.info("loading resource library : file {} exists ? : {}" , path.toAbsolutePath(), path.toFile().exists());
         // @TODO loading resource library
@@ -47,43 +51,34 @@ public class ResourceServiceImpl implements ResourceService {
           //  Iterable<Object> rss = new Yaml().loadAll( new FileInputStream(path.toFile()));
             // rss.forEach( rs ->          log.warn("rs : {}", rs));
         }
-        resourceMap = Arrays.asList(
-                LocalResource.builder()
-                        .withType(Resource.TYPE.PHOTO)
-           //             .withLocation(Resource.LOCATION.LOCAL)
-                        .withPath("C:\\Windows\\Web\\Screen\\img100.jpg")
-                        .withDuration(Duration.ofSeconds(5))
-                        .build(),
-                LocalResource.builder()
-                        .withType(Resource.TYPE.VIDEO)
-           //             .withLocation(Resource.LOCATION.LOCAL)
-                        .withPath("C:\\Users\\antonio\\Videos\\big_buck_bunny.mp4")
-                        .build(),
-                RemoteResource.builder()
-                        .withType(Resource.TYPE.VIDEO)
-                        //             .withLocation(Resource.LOCATION.LOCAL)
-                        .withPath("s3:antonio/Videos/big_buck_bunny.mp4")
-                        .build()
-        )   .stream()
-            .collect(
-                    Collectors.toMap(x-> Hashing.sha512().hashString(x.toString(), StandardCharsets.UTF_8).toString(), x->x)
-            );
+        */
+
+
+
+
+        resourceMap = Observable.fromIterable(resourceRepository.findAll()).toMap( x-> Hashing.sha512().hashString(x.toString(), StandardCharsets.UTF_8).toString()).blockingGet();
+
+
     }
 
-    public Iterable<Resource> getResourceMap() {
-        return  resourceRepository.findAll();
-        // return resources.values().stream().collect(Collectors.toList());
+    public Map getResourceMap() {
+       return resourceMap;
     }
 
-    @PreDestroy
-    public void preDestroy() {
-        log.info("{} service destroying", getClass().getSimpleName());
-
-        log.info("saving resources...");
-        try ( FileWriter fw = new FileWriter(new File(resLibraryFile)) ) {
-            new Yaml().dump(getResourceMap(), fw);
-        } catch (Exception e) {
-            log.error("error occurred", e);
-        }
+    @Override
+    public Iterable<Resource> getResources() {
+        return resourceRepository.findAll();
     }
+
+    //@PreDestroy
+   //public void preDestroy() {
+   //    log.info("{} service destroying", getClass().getSimpleName());
+
+   //    log.info("saving resources...");
+   //    try ( FileWriter fw = new FileWriter(new File(resLibraryFile)) ) {
+   //        new Yaml().dump(getResourceMap(), fw);
+   //    } catch (Exception e) {
+   //        log.error("error occurred", e);
+   //    }
+   //}
 }

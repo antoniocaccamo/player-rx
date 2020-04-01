@@ -51,12 +51,12 @@ public class PreferenceServiceImpl implements PreferenceService {
 
     @Override @PreDestroy
     public void save() throws IOException {
-        log.info("saving preferences...");
-        try ( FileWriter fw = new FileWriter(new File(prefFile)) ) {
-            yaml.dump(preferenceModel, fw);
-        } catch (Exception e) {
-            log.error("error occurred", e);
-        }
+//        log.info("saving preferences...");
+//        try ( FileWriter fw = new FileWriter(new File(prefFile)) ) {
+//            yaml.dump(preferenceModel, fw);
+//        } catch (Exception e) {
+//            log.error("error occurred", e);
+//        }
 
 
     }

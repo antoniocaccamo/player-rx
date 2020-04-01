@@ -1,4 +1,4 @@
-package me.antoniocaccamo.player.rx.event.media;
+package me.antoniocaccamo.player.rx.event.media.progress;
 
 import me.antoniocaccamo.player.rx.model.sequence.Media;
 
@@ -9,7 +9,7 @@ public abstract class MediaEvent {
 
     private final Media media;
 
-    protected MediaEvent(Media media) {
+    public MediaEvent(Media media) {
         this.media = media;
     }
 }

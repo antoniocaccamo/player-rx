@@ -2,11 +2,16 @@ package me.antoniocaccamo.player.rx.ui;
 
 import com.diffplug.common.swt.*;
 import io.reactivex.Single;
+import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.Main;
 import me.antoniocaccamo.player.rx.bundle.LocaleManager;
+import me.antoniocaccamo.player.rx.event.media.command.CommandEvent;
+import me.antoniocaccamo.player.rx.event.media.command.PauseCommandEvent;
+import me.antoniocaccamo.player.rx.event.media.command.PlayCommandEvent;
+import me.antoniocaccamo.player.rx.event.media.command.StopCommandEvent;
+import me.antoniocaccamo.player.rx.event.media.progress.MediaEvent;
 import me.antoniocaccamo.player.rx.model.preference.MonitorModel;
-import me.antoniocaccamo.player.rx.model.sequence.Sequence;
 import me.antoniocaccamo.player.rx.service.SequenceService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -28,6 +33,12 @@ public class TabItemMonitorUI extends CTabItem {
     private final Shell monitorUI;
 
     private final SequenceService sequenceService;
+
+    // tab -> monitor
+    private final PublishSubject<CommandEvent> commandEventSubject = PublishSubject.create();
+
+    // monitor -> tab
+    private final PublishSubject<MediaEvent> mediaEventSubject = PublishSubject.create();
 
     public TabItemMonitorUI(CTabFolder tabFolder, MonitorModel monitorModel,  int index) {
         super(tabFolder, SWT.NONE);
@@ -58,7 +69,7 @@ public class TabItemMonitorUI extends CTabItem {
 
         monitorUI = Shells.builder(SWT.BORDER, cmp -> {
             Layouts.setGrid(cmp);
-            Layouts.setGridData(new MonitorUI(cmp)).grabAll();
+            Layouts.setGridData(new MonitorUI(cmp, commandEventSubject, mediaEventSubject)).grabAll();
         })
                 .setSize(monitorModel.getSize().toPoint())
                 .setLocation(monitorModel.getLocation().toPoint())
@@ -70,10 +81,13 @@ public class TabItemMonitorUI extends CTabItem {
                         Single.create( emitter -> {
                             emitter.onSuccess(sequenceService.read(  Paths.get(monitorModel.getSequence())  ) );
                         }).toObservable()
-                        , value -> log.info("{}", value)
+                        , value -> log.debug("===>>>sequence : {}", value)
                 );
+                
         SwtExec.async().guardOn(this)
-                .scheduleAtFixedRate(()->log.info("  -> player #{}: check to run/stop...", this.index), 100L, 500L, TimeUnit.MILLISECONDS);
+                .scheduleAtFixedRate(()->log.debug("===>>> player #{}: check to run/stop...", this.index), 100L, 500L, TimeUnit.MILLISECONDS);
+
+        this.mediaEventSubject.subscribe( mediaEvent -> log.info("media event received : {}", mediaEvent));
     }
 
     @NotNull
@@ -278,6 +292,10 @@ public class TabItemMonitorUI extends CTabItem {
                 .grabHorizontal()
                 .minimumWidth(SwtMisc.defaultButtonWidth())
         ;
+        SwtRx.addListener(button, SWT.Selection).subscribe(evt -> {
+            log.info("stop  pressed ..");
+            commandEventSubject.onNext( new StopCommandEvent(null));
+        });
 
         button = new Button(buttonsComposite, SWT.PUSH);
         button.setText("Pause");
@@ -285,6 +303,10 @@ public class TabItemMonitorUI extends CTabItem {
                 .grabHorizontal()
                 .minimumWidth(SwtMisc.defaultButtonWidth())
         ;
+        SwtRx.addListener(button, SWT.Selection).subscribe(evt ->{
+            log.info("pause pressed ..");
+            commandEventSubject.onNext( new PauseCommandEvent(null));
+        });
 
         button = new Button(buttonsComposite, SWT.PUSH);
         button.setText("Play");
@@ -292,6 +314,11 @@ public class TabItemMonitorUI extends CTabItem {
                 .grabHorizontal()
                 .minimumWidth(SwtMisc.defaultButtonWidth())
         ;
+        SwtRx.addListener(button, SWT.Selection).subscribe(evt ->{
+            log.info("play pressed ..");
+            commandEventSubject.onNext( new PlayCommandEvent(null)) ;
+        });
+
 
         Group mediaGroup  = new Group(group, SWT.NONE);
         mediaGroup.setText("current media");

@@ -11,6 +11,7 @@ import me.antoniocaccamo.player.rx.service.ResourceService;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
@@ -28,9 +29,16 @@ public class ResourceLibraryUI extends Composite {
 
         Layouts.setGrid(this);
 
-//        SashForm sashForm = new SashForm(this, SWT.HORIZONTAL);
-//
-//
+
+        SashForm psashForm = new SashForm(this, SWT.HORIZONTAL);
+        Layouts.setGridData(psashForm).grabAll();
+
+        SashForm sashForm = new SashForm(psashForm, SWT.VERTICAL);
+
+
+//        Layouts.setGridData(sashForm).grabAll();
+
+
 //        Button button2 = new Button(sashForm, SWT.NONE);
 //        button2.setText("Button 2");
 //
@@ -38,10 +46,11 @@ public class ResourceLibraryUI extends Composite {
 //        button3.setText("Button 3");
 //       sashForm.setWeights(new int[] { 2, 1});
 
-        ResourceService rs = Main.CONTEXT.findBean(ResourceService.class).get();
+        ResourceService resourceService = Main.CONTEXT.findBean(ResourceService.class).get();
 
-        Group group = new Group(this, SWT.NONE);
-        Layouts.setGridData(group).grabAll();
+        Group group = new Group(sashForm, SWT.NONE);
+        //Layouts.setGrid(group);
+        //Layouts.setGridData(group).grabAll();
         group.setText("resources");
         //Layouts.setFill(group);
 
@@ -60,10 +69,11 @@ public class ResourceLibraryUI extends Composite {
 
 
 
-        tableViewer.setInput(rs.getResourceMap());
+        tableViewer.setInput(resourceService.getResources());
 
-        group = new Group(this, SWT.NONE);
-        Layouts.setGridData(group).grabAll();
+        group = new Group(sashForm, SWT.NONE);
+        //Layouts.setGrid(group);
+        //Layouts.setGridData(group).grabAll();
         group.setText("resources");
         //Layouts.setFill(group);
 
@@ -81,7 +91,59 @@ public class ResourceLibraryUI extends Composite {
         resourceRxBox.asObservable().subscribe(or -> or.ifPresent( r->log.info("selected : {}", r)));
 
 
-        tableViewer.setInput(rs.getResourceMap());
+        tableViewer.setInput(resourceService.getResources());
+
+        // left
+        sashForm = new SashForm(psashForm, SWT.VERTICAL);
+
+        group = new Group(sashForm, SWT.NONE);
+        //Layouts.setGrid(group);
+        //Layouts.setGridData(group).grabAll();
+        group.setText("resources");
+        //Layouts.setFill(group);
+
+        format = ColumnViewerFormat.builder();
+        format.addColumn().setText("id").setLabelProviderText(r -> String.valueOf(r.getId()));
+        format.addColumn().setText("location").setLabelProviderText(r-> r.getClass().getSimpleName());
+        format.addColumn().setText("type").setLabelProviderText(r-> r.getType().name());
+        format.addColumn().setText("duration").setLabelProviderText(r->r.getDuration() != null ?r.getDuration().toString(): "");
+        format.addColumn().setText("path").setLabelProviderText(r->r.getPath());
+        format.setStyle( SWT. FULL_SELECTION);
+
+         tableViewer = format.buildTable(group);
+
+         tableViewer.setContentProvider(new ArrayContentProvider());
+        resourceRxBox  = ViewerMisc.singleSelection(tableViewer);
+        resourceRxBox.asObservable().subscribe(or -> or.ifPresent( r->log.info("selected : {}", r)));
+
+
+
+        tableViewer.setInput(resourceService.getResources());
+
+        group = new Group(sashForm, SWT.NONE);
+        //Layouts.setGrid(group);
+        //Layouts.setGridData(group).grabAll();
+        group.setText("resources");
+        //Layouts.setFill(group);
+
+        format = ColumnViewerFormat.builder();
+        format.addColumn().setText("id").setLabelProviderText(r -> String.valueOf(r.getId()));
+        format.addColumn().setText("location").setLabelProviderText(r-> r.getClass().getSimpleName());
+        format.addColumn().setText("type").setLabelProviderText(r-> r.getType().name());
+        format.addColumn().setText("duration").setLabelProviderText(r->r.getDuration() != null ?r.getDuration().toString(): "");
+        format.addColumn().setText("path").setLabelProviderText(r->r.getPath());
+        format.setStyle( SWT. FULL_SELECTION);
+
+        tableViewer = format.buildTable(group);
+        tableViewer.setContentProvider(new ArrayContentProvider());
+        resourceRxBox  = ViewerMisc.singleSelection(tableViewer);
+        resourceRxBox.asObservable().subscribe(or -> or.ifPresent( r->log.info("selected : {}", r)));
+
+
+        tableViewer.setInput(resourceService.getResources());
+
+        psashForm.setWeights( new int[]{3,1});
+
 
     }
 }

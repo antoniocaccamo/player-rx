@@ -102,7 +102,8 @@ public class SequenceServiceImpl implements SequenceService {
     public void save(Sequence sequence, Path path) {
         try {
             log.info("sequence : {}", mapper.writeValueAsString(sequence) );
-            mapper.writeValue(new FileWriter(sequence.getName()), sequence);
+            if ( path.toFile().exists() )
+                mapper.writeValue(new FileWriter(sequence.getName()), sequence);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         } catch (IOException e) {
