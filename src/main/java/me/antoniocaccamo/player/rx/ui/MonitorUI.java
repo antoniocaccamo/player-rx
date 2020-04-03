@@ -1,16 +1,22 @@
 package me.antoniocaccamo.player.rx.ui;
 
 import com.diffplug.common.swt.CoatMux;
+import com.diffplug.common.swt.Layouts;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.event.media.command.CommandEvent;
 import me.antoniocaccamo.player.rx.event.media.command.PlayCommandEvent;
-import me.antoniocaccamo.player.rx.event.media.progress.MediaEvent;
-import me.antoniocaccamo.player.rx.event.media.progress.PercentageProgressMediaEvent;
-import me.antoniocaccamo.player.rx.event.media.progress.StartedProgressMediaEvent;
+import me.antoniocaccamo.player.rx.event.media.progress.*;
+import me.antoniocaccamo.player.rx.model.resource.Resource;
+import me.antoniocaccamo.player.rx.model.sequence.Media;
+import me.antoniocaccamo.player.rx.ui.monitor.*;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.widgets.Composite;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -22,12 +28,86 @@ public class MonitorUI extends CoatMux {
     private final PublishSubject<CommandEvent> commandEventSubject;
     private final PublishSubject<MediaEvent>   mediaEventSubject;
 
-    public MonitorUI(Composite wrapped, PublishSubject<CommandEvent> commandEventSubject, PublishSubject<MediaEvent> mediaEventSubject) {
-        super(wrapped);
-        log.info("...");
+    private final Map<Resource.TYPE, CoatMux.Layer<AbstractUI> > layerMap = new HashMap<>();
+    private final int index;
+
+    private  CoatMux.Layer<AbstractUI> currenLayer;
+
+    public MonitorUI(Composite wrapped, int index, PublishSubject<CommandEvent> commandEventSubject, PublishSubject<MediaEvent> mediaEventSubject) {
+        super(wrapped, SWT.NONE);
+        this.index = index;
+        log.info("monitor # {}", getIndex() );
         this.commandEventSubject = commandEventSubject;
         this.mediaEventSubject   = mediaEventSubject;
         this.commandEventSubject.subscribe(this::manageCommandEvent);
+        createSubMonitor();
+
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    private void createSubMonitor() {
+        // Resource.TYPE.BLACK
+        layerMap.putIfAbsent(Resource.TYPE.BLACK, addCoat( composite -> {
+            Layouts.setGrid(composite)
+                    .numColumns(1)
+                    .columnsEqualWidth(true)
+                    .horizontalSpacing(0)
+                    .verticalSpacing(0)
+                    .spacing(0)
+                    .margin(0)
+            ;
+            return new BlackUI(this, composite);
+
+        }));
+
+        // Resource.TYPE.WATCH
+        layerMap.putIfAbsent(Resource.TYPE.WATCH, addCoat( composite -> {
+            Layouts.setGrid(composite)
+                    .numColumns(1)
+                    .columnsEqualWidth(true)
+                    .horizontalSpacing(0)
+                    .verticalSpacing(0)
+            ;
+            return new WatchUI(this, composite);
+
+        }));
+
+        // Resource.TYPE.WEATHER
+        layerMap.putIfAbsent(Resource.TYPE.WEATHER, addCoat( composite -> {
+            Layouts.setGrid(composite)
+                    .numColumns(1)
+                    .columnsEqualWidth(true)
+                    .horizontalSpacing(0)
+                    .verticalSpacing(0)
+            ;
+            return new WeatherUI(this, composite);
+        }));
+
+        // Resource.TYPE.PHOTO
+        layerMap.putIfAbsent(Resource.TYPE.PHOTO, addCoat( composite -> {
+            Layouts.setGrid(composite)
+                    .numColumns(1)
+                    .columnsEqualWidth(true)
+                    .horizontalSpacing(0)
+                    .verticalSpacing(0)
+            ;
+            return new PhotoUI(this, composite);
+        }));
+
+        // Resource.TYPE.VIDEO
+        layerMap.putIfAbsent(Resource.TYPE.VIDEO, addCoat( composite -> {
+            Layouts.setGrid(composite)
+                    .numColumns(1)
+                    .columnsEqualWidth(true)
+                    .horizontalSpacing(0)
+                    .verticalSpacing(0)
+            ;
+            return new VideoUI(this, composite);
+        }));
+
     }
 
     private void manageCommandEvent(CommandEvent evt) throws InterruptedException {
@@ -35,10 +115,45 @@ public class MonitorUI extends CoatMux {
 
         if ( evt instanceof PlayCommandEvent ) {
             PlayCommandEvent playCommandEvent = (PlayCommandEvent) evt;
-            mediaEventSubject.onNext( new StartedProgressMediaEvent(playCommandEvent.getMedia()));
-
-            Observable.intervalRange(1, 100, 100, 100, TimeUnit.MILLISECONDS)
-                    .subscribe(along -> mediaEventSubject.onNext( new PercentageProgressMediaEvent(playCommandEvent.getMedia(), along.intValue())) );
+            play(  playCommandEvent.getMedia() );
         }
     }
+
+    public void play( Media media ) {
+        currenLayer  = this.layerMap.get(  media.getResource().getType() );
+        currenLayer.getHandle().setMedia(media);
+        currenLayer.getHandle().play();
+        currenLayer.bringToTop();
+
+        mediaEventSubject.onNext( new StartedProgressMediaEvent(media));
+    }
+
+    public void errorOnPlay(Throwable throwable){
+        this.mediaEventSubject.onNext(
+                new ErrorProgressMediaEvent(currenLayer.getHandle().getMedia(), throwable)
+        );
+    }
+
+    public void next() {
+        this.mediaEventSubject.onNext(
+                new EndedProgressMediaEvent(currenLayer.getHandle().getMedia())
+        );
+    }
+
+    public void stop() {
+        currenLayer.getHandle().stop();
+    }
+
+    public void updatePercentageProgess(int percentage){
+        mediaEventSubject
+                .onNext( new PercentageProgressMediaEvent(currenLayer.getHandle().getMedia(), percentage));
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        stop();
+        log.info("finalize on monitor : {}", getIndex());
+    }
+
+
 }

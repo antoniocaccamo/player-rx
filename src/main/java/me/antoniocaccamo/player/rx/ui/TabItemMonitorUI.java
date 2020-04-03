@@ -3,15 +3,18 @@ package me.antoniocaccamo.player.rx.ui;
 import com.diffplug.common.swt.*;
 import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.Main;
 import me.antoniocaccamo.player.rx.bundle.LocaleManager;
-import me.antoniocaccamo.player.rx.event.media.command.CommandEvent;
-import me.antoniocaccamo.player.rx.event.media.command.PauseCommandEvent;
-import me.antoniocaccamo.player.rx.event.media.command.PlayCommandEvent;
-import me.antoniocaccamo.player.rx.event.media.command.StopCommandEvent;
+import me.antoniocaccamo.player.rx.event.media.command.*;
 import me.antoniocaccamo.player.rx.event.media.progress.MediaEvent;
+import me.antoniocaccamo.player.rx.event.media.progress.PercentageProgressMediaEvent;
 import me.antoniocaccamo.player.rx.model.preference.MonitorModel;
+import me.antoniocaccamo.player.rx.model.resource.LocalResource;
+import me.antoniocaccamo.player.rx.model.resource.Resource;
+import me.antoniocaccamo.player.rx.model.sequence.Media;
 import me.antoniocaccamo.player.rx.service.SequenceService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -20,6 +23,8 @@ import org.eclipse.swt.widgets.*;
 
 import javax.validation.constraints.NotNull;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,8 +33,11 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class TabItemMonitorUI extends CTabItem {
 
+    @Getter
     private final int index;
+    @Getter
     private final MonitorModel monitorModel;
+    
     private final Shell monitorUI;
 
     private final SequenceService sequenceService;
@@ -39,6 +47,11 @@ public class TabItemMonitorUI extends CTabItem {
 
     // monitor -> tab
     private final PublishSubject<MediaEvent> mediaEventSubject = PublishSubject.create();
+    private ProgressBar progressBar;
+    
+    private Button playButton;
+    private Button pauseButton;
+    private Button stopButton;
 
     public TabItemMonitorUI(CTabFolder tabFolder, MonitorModel monitorModel,  int index) {
         super(tabFolder, SWT.NONE);
@@ -67,9 +80,9 @@ public class TabItemMonitorUI extends CTabItem {
         Layouts.setGridData(playerGroup(composite))
                 .grabAll();
 
-        monitorUI = Shells.builder(SWT.BORDER, cmp -> {
-            Layouts.setGrid(cmp);
-            Layouts.setGridData(new MonitorUI(cmp, commandEventSubject, mediaEventSubject)).grabAll();
+        monitorUI = Shells.builder(SWT.NONE, cmp -> {
+            Layouts.setGrid(cmp).margin(0).spacing(0);
+            Layouts.setGridData(new MonitorUI(cmp, index, commandEventSubject, mediaEventSubject)).grabAll();
         })
                 .setSize(monitorModel.getSize().toPoint())
                 .setLocation(monitorModel.getLocation().toPoint())
@@ -85,10 +98,27 @@ public class TabItemMonitorUI extends CTabItem {
                 );
                 
         SwtExec.async().guardOn(this)
-                .scheduleAtFixedRate(()->log.debug("===>>> player #{}: check to run/stop...", this.index), 100L, 500L, TimeUnit.MILLISECONDS);
+                .scheduleAtFixedRate(
+                        //()->log.debug("===>>> player #{}: check to run/stop...", this.index),
+                        this::check,
+                        100L, 
+                        500L, 
+                        TimeUnit.MILLISECONDS
+                );
 
         this.mediaEventSubject.subscribe( mediaEvent -> log.info("media event received : {}", mediaEvent));
+
+        mediaEventSubject.filter(me -> me instanceof PercentageProgressMediaEvent)
+                .observeOn(  SwtExec.async().getRxExecutor().scheduler())
+                .subscribe(
+                        evt -> progressBar.setSelection( ((PercentageProgressMediaEvent)evt).getPercentage() ),
+                        t -> log.info("error occurred on update % : {}", t)
+                );
+
+
     }
+
+   
 
     @NotNull
     private Group screenGroup(Composite composite) {
@@ -286,37 +316,46 @@ public class TabItemMonitorUI extends CTabItem {
                 .grabHorizontal()
         ;
 
-        button = new Button(buttonsComposite, SWT.PUSH);
-        button.setText("Stop");
-        Layouts.setGridData(button)
+        stopButton = new Button(buttonsComposite, SWT.PUSH);
+        stopButton.setText("Stop");
+        Layouts.setGridData(stopButton)
                 .grabHorizontal()
                 .minimumWidth(SwtMisc.defaultButtonWidth())
         ;
-        SwtRx.addListener(button, SWT.Selection).subscribe(evt -> {
+        SwtRx.addListener(stopButton, SWT.Selection).subscribe(evt -> {
             log.info("stop  pressed ..");
-            commandEventSubject.onNext( new StopCommandEvent(null));
+            commandEventSubject.onNext( new StopCommandEvent());
         });
 
-        button = new Button(buttonsComposite, SWT.PUSH);
-        button.setText("Pause");
-        Layouts.setGridData(button)
+        pauseButton = new Button(buttonsComposite, SWT.PUSH);
+        pauseButton.setText("Pause");
+        Layouts.setGridData(pauseButton)
                 .grabHorizontal()
                 .minimumWidth(SwtMisc.defaultButtonWidth())
         ;
-        SwtRx.addListener(button, SWT.Selection).subscribe(evt ->{
+        SwtRx.addListener(pauseButton, SWT.Selection).subscribe(evt ->{
             log.info("pause pressed ..");
             commandEventSubject.onNext( new PauseCommandEvent(null));
         });
 
-        button = new Button(buttonsComposite, SWT.PUSH);
-        button.setText("Play");
-        Layouts.setGridData(button)
+        playButton = new Button(buttonsComposite, SWT.PUSH);
+        playButton.setText("Play");
+        Layouts.setGridData(playButton)
                 .grabHorizontal()
                 .minimumWidth(SwtMisc.defaultButtonWidth())
         ;
-        SwtRx.addListener(button, SWT.Selection).subscribe(evt ->{
+        SwtRx.addListener(playButton, SWT.Selection).subscribe(evt ->{
             log.info("play pressed ..");
-            commandEventSubject.onNext( new PlayCommandEvent(null)) ;
+            commandEventSubject.onNext( new PlayCommandEvent(
+                    Media.builder()
+                            .resource(
+                                    LocalResource.builder()
+                                            .withDuration(Duration.ofSeconds(5))
+                                            .withType(Resource.TYPE.BLACK)
+                                            .build()
+                            )
+                    .build()
+            )) ;
         });
 
 
@@ -348,22 +387,116 @@ public class TabItemMonitorUI extends CTabItem {
         label = new Label(mediaGroup, SWT.NONE);
         label.setText("default.xsq");
 
+        progressBar = new ProgressBar(mediaGroup, SWT.NONE);
 
-        Layouts.setGridData( new ProgressBar(mediaGroup, SWT.NONE))
+        Layouts.setGridData( progressBar )
                 .horizontalSpan(2)
                 .grabHorizontal()
-
-
         ;
+        progressBar.setMinimum(0);
+        progressBar.setMaximum(100);
 
 
 
         return group;
     }
 
+    private void check() {
+        log.debug("getIndex() [{}] running [{}] status [{}] getPlayerSetting().isTimed() [{}] ", getIndex(), getRunning(), getStatus() , getMonitorModel().isTimed());
+
+        if ( StatusEnum.STOPPED.equals( getStatus()) ) {
+            return;
+        }
+
+        if ( ! monitorModel.isTimed() ) {
+
+            if ( ! RunningEnum.N.equals(getRunning()) || ! ( StatusEnum.PLAYING.equals(getStatus()) || StatusEnum.PAUSED.equals(getStatus())) ) {
+
+               commandEventSubject.onNext( new StartCommandEvent() );
+            }
+
+        }
+
+        if ( monitorModel.isTimed() ) {
+
+            LocalTime now   = LocalTime.now();
+
+            if ( RunningEnum.Y.equals(getRunning()) ) {
+
+                log.debug("*** now [{}] getIndex() [{}] getStatus() [{}] getPlayerSetting().getActiveFrom() [{}]  getPlayerSetting().getActiveTo() [{}]",
+                        now,
+                        getIndex(),
+                        getStatus() ,
+                        getMonitorModel().getFrom(),
+                        getMonitorModel().getTo()
+                );
+
+                switch ( getStatus() ) {
+
+                    case PAUSED:
+                    case PLAYING:
+
+                        if ( (now.isBefore( getMonitorModel().getFrom() ) || now.isAfter( getMonitorModel().getTo() ))  ) {
+                            log.warn("*** it's time to pause :  now [{}] getIndex() [{}] getStart() [{}] getEnd() [{}]",
+                                    now,
+                                    getIndex(),
+                                    getMonitorModel().getFrom(),
+                                    getMonitorModel().getTo()
+                            );
+                            commandEventSubject.onNext( new DeactivateCommandEvent() );
+                        }
+
+                        break;
+
+                    case NOT_ACTIVE:
+
+                        if ( getMonitorModel().getFrom().isBefore(now) && now.isBefore(getMonitorModel().getTo()) ) {
+                            log.warn("*** it's time to play :  now [{}] getIndex() [{}] getStart() [{}] getEnd() [{}]",
+                                    now,
+                                    getIndex(),
+                                    getMonitorModel().getFrom(),
+                                    getMonitorModel().getTo()
+                            );
+//                            dayOfFirstRun = now.toLocalDate();
+                            commandEventSubject.onNext( new StartCommandEvent() );
+                        }
+
+                        break;
+
+                    default:
+                        break;
+                }
+
+            }
+        }
+    }
+
+ 
+
     @Override
     public void dispose() {
-        monitorUI.dispose();
+        log.warn("disposing tabItemMonitorUI : #{}", index);
+        this.commandEventSubject.onComplete();
+        this.mediaEventSubject.onComplete();
         super.dispose();
     }
+    
+    @Getter @Setter
+    private StatusEnum status = StatusEnum.NOT_ACTIVE;
+
+    public enum StatusEnum {
+        NOT_ACTIVE, 
+        STOPPED, 
+        PLAYING, 
+        PAUSED 
+    }
+    
+    public enum RunningEnum {
+        N, Y
+    }
+    
+    @Getter @Setter
+    private RunningEnum running = RunningEnum.N;
+    
+    
 }

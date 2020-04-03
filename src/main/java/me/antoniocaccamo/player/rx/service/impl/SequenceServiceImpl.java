@@ -31,6 +31,7 @@ public class SequenceServiceImpl implements SequenceService {
     @PostConstruct
     public void postConstruct(){
         dummy = Sequence.builder()
+                .id(-1L)
                 .name("test sequence")
                 .location(Model.Location.LOCAL)
                 .medias(Arrays.asList(
@@ -100,20 +101,11 @@ public class SequenceServiceImpl implements SequenceService {
 
     @Override
     public void save(Sequence sequence, Path path) {
-        try {
-            log.info("sequence : {}", mapper.writeValueAsString(sequence) );
-            if ( path.toFile().exists() )
-                mapper.writeValue(new FileWriter(sequence.getName()), sequence);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
     }
 
     @PreDestroy
     public void preDestroy() {
         log.info("{} service destroying", getClass().getSimpleName());
-        save(dummy, Paths.get("."));
     }
 }

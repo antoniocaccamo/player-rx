@@ -15,17 +15,17 @@ public class FactoryUI {
     public AbstractUI createViewer(Composite parent, Resource.TYPE type ) {
 
         AbstractUI viewer = null;
-
-        switch (type) {
-
-            case PHOTO:
-                viewer = new BrowserUI(parent);
-                break;
-
-
-            default:
-                viewer = new BlackUI(parent);
-        }
+//
+//        switch (type) {
+//
+//            case PHOTO:
+//                viewer = new BrowserUI(parent);
+//                break;
+//
+//
+//            default:
+//                viewer = new BlackUI(parent);
+//        }
 
         return viewer;
     }

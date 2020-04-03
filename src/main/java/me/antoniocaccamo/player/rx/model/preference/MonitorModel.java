@@ -10,6 +10,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.beans.Transient;
+import java.time.LocalTime;
 
 /**
  * @author antoniocaccamo on 07/02/2020
@@ -26,6 +27,14 @@ public class MonitorModel extends Model {
 
     private String sequence;
 
+    public LocalTime getFrom() {
+        return LocalTime.of(9,0);
+    }
+
+    public LocalTime getTo(){
+        return LocalTime.of(20,0);
+    }
+
 
     @Override
     public String toString() {
@@ -35,5 +44,9 @@ public class MonitorModel extends Model {
                 .append("name", name)
                 .append("sequence", sequence)
                 .toString();
+    }
+
+    public boolean isTimed(){
+        return false;
     }
 }

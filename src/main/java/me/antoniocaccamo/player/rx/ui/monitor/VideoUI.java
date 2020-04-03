@@ -1,6 +1,7 @@
 package me.antoniocaccamo.player.rx.ui.monitor;
 
 import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.ui.MonitorUI;
 import org.eclipse.swt.widgets.Composite;
 
 /**
@@ -9,8 +10,8 @@ import org.eclipse.swt.widgets.Composite;
 @Slf4j
 public class VideoUI extends BrowserUI {
 
-    public VideoUI(Composite parent) {
-        super(parent);
+    public VideoUI(MonitorUI monitorUI, Composite wrapped) {
+        super(monitorUI, wrapped);
     }
 
 }

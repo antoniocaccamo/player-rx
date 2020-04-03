@@ -7,7 +7,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 /**
  * @author antoniocaccamo on 20/02/2020
  */
-public class StopCommandEvent extends CommandEvent {
+public class DeactivateCommandEvent extends CommandEvent {
+
 
     @Override
     public String toString() {

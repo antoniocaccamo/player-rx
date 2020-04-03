@@ -28,6 +28,7 @@ public class Main {
             log.error("error occurred", e);
         } finally {
             log.info("closing");
+            System.exit(0);
         }
     }
 }

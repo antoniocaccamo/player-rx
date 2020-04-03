@@ -127,6 +127,14 @@ public class MainUI {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            SwtRx.addListener(cmp, SWT.Dispose)
+                    .subscribe(event -> {
+                        for (CTabItem item: tabFolder.getItems()) {
+                            item.getControl().dispose();
+                            item.dispose();
+                        }
+                    });
         })
         .setTitle(String.format("%s : %s", appname,preference.getComputer()))
         .setSize( preference.getSize().toPoint())
@@ -215,5 +223,6 @@ public class MainUI {
 
         shell.setMenuBar(menu);
     }
+
 
 }
