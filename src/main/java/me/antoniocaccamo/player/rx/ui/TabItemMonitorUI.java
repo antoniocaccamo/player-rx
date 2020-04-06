@@ -1,5 +1,7 @@
 package me.antoniocaccamo.player.rx.ui;
 
+import com.diffplug.common.rx.RxBox;
+import com.diffplug.common.rx.RxGetter;
 import com.diffplug.common.swt.*;
 import io.reactivex.Single;
 import io.reactivex.subjects.PublishSubject;
@@ -9,8 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.Main;
 import me.antoniocaccamo.player.rx.bundle.LocaleManager;
 import me.antoniocaccamo.player.rx.event.media.command.*;
-import me.antoniocaccamo.player.rx.event.media.progress.MediaEvent;
-import me.antoniocaccamo.player.rx.event.media.progress.PercentageProgressMediaEvent;
+import me.antoniocaccamo.player.rx.event.media.progress.*;
 import me.antoniocaccamo.player.rx.model.preference.MonitorModel;
 import me.antoniocaccamo.player.rx.model.resource.LocalResource;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
@@ -25,6 +26,7 @@ import javax.validation.constraints.NotNull;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -47,6 +49,8 @@ public class TabItemMonitorUI extends CTabItem {
 
     // monitor -> tab
     private final PublishSubject<MediaEvent> mediaEventSubject = PublishSubject.create();
+    private final ScheduledFuture<?> scheduledFuture;
+    private final RxBox<StatusEnum> statusEnumRxBox;
     private ProgressBar progressBar;
     
     private Button playButton;
@@ -97,7 +101,7 @@ public class TabItemMonitorUI extends CTabItem {
                         , value -> log.debug("===>>>sequence : {}", value)
                 );
                 
-        SwtExec.async().guardOn(this)
+        scheduledFuture =  SwtExec.async().guardOn(this)
                 .scheduleAtFixedRate(
                         //()->log.debug("===>>> player #{}: check to run/stop...", this.index),
                         this::check,
@@ -106,16 +110,70 @@ public class TabItemMonitorUI extends CTabItem {
                         TimeUnit.MILLISECONDS
                 );
 
-        this.mediaEventSubject.subscribe( mediaEvent -> log.info("media event received : {}", mediaEvent));
+        this.mediaEventSubject.subscribe(
+                mediaEvent -> log.debug("media event received : {}", mediaEvent)
+        );
 
+        // update progress bar
         mediaEventSubject.filter(me -> me instanceof PercentageProgressMediaEvent)
                 .observeOn(  SwtExec.async().getRxExecutor().scheduler())
                 .subscribe(
                         evt -> progressBar.setSelection( ((PercentageProgressMediaEvent)evt).getPercentage() ),
-                        t -> log.info("error occurred on update % : {}", t)
+                        t -> log.error("error occurred on update % : {}", t)
+                );
+
+        mediaEventSubject.filter(me -> me instanceof  EndedProgressMediaEvent)
+                .observeOn(  SwtExec.async().getRxExecutor().scheduler())
+                .subscribe(
+                        evt -> {
+                            log.info("event received : {}", evt);
+                            progressBar.setSelection( 0 );
+                            commandEventSubject.onNext(
+                                    new PlayCommandEvent(
+                                            sequenceService.dummy().next())
+                            );
+                        },
+                        t -> log.error("error occurred on update % : {}", t)
                 );
 
 
+
+        statusEnumRxBox = RxBox.of(status);
+        statusEnumRxBox.asObservable()
+                .observeOn(  SwtExec.async().getRxExecutor().scheduler())
+                .subscribe(statusEnum ->  {
+                    log.info("### status : {} ###", statusEnum);
+                    switch (statusEnum){
+                        case STOPPED:
+                            progressBar.setSelection( 0 );
+                        case NOT_ACTIVE:
+                            stopButton.setEnabled(false);
+                            pauseButton.setEnabled(false);
+                            playButton.setEnabled(true);
+                            break;
+                        case PAUSED:
+                        case PLAYING:
+                            stopButton.setEnabled(true);
+                            pauseButton.setEnabled(true);
+                            playButton.setEnabled(false);
+                            break;
+                        default:
+                    }
+                });
+
+
+        commandEventSubject
+                .filter(commandEvent -> commandEvent instanceof StartCommandEvent)
+                .map(commandEvent -> (StartCommandEvent) commandEvent)
+                .observeOn(  SwtExec.async().getRxExecutor().scheduler())
+                .subscribe(startCommandEvent -> {
+                    log.info("startCommandEvent : {}", startCommandEvent);
+                    statusEnumRxBox.set(   status = StatusEnum.PLAYING );
+                    commandEventSubject.onNext(
+                            new PlayCommandEvent(
+                            sequenceService.dummy().next())
+                    );
+                });
     }
 
    
@@ -325,6 +383,7 @@ public class TabItemMonitorUI extends CTabItem {
         SwtRx.addListener(stopButton, SWT.Selection).subscribe(evt -> {
             log.info("stop  pressed ..");
             commandEventSubject.onNext( new StopCommandEvent());
+            statusEnumRxBox.set(StatusEnum.STOPPED);
         });
 
         pauseButton = new Button(buttonsComposite, SWT.PUSH);
@@ -336,6 +395,7 @@ public class TabItemMonitorUI extends CTabItem {
         SwtRx.addListener(pauseButton, SWT.Selection).subscribe(evt ->{
             log.info("pause pressed ..");
             commandEventSubject.onNext( new PauseCommandEvent(null));
+            statusEnumRxBox.set(StatusEnum.PAUSED);
         });
 
         playButton = new Button(buttonsComposite, SWT.PUSH);
@@ -346,16 +406,18 @@ public class TabItemMonitorUI extends CTabItem {
         ;
         SwtRx.addListener(playButton, SWT.Selection).subscribe(evt ->{
             log.info("play pressed ..");
-            commandEventSubject.onNext( new PlayCommandEvent(
-                    Media.builder()
-                            .resource(
-                                    LocalResource.builder()
-                                            .withDuration(Duration.ofSeconds(5))
-                                            .withType(Resource.TYPE.BLACK)
-                                            .build()
-                            )
-                    .build()
-            )) ;
+//            commandEventSubject.onNext( new PlayCommandEvent(
+//                    Media.builder()
+//                            .resource(
+//                                    LocalResource.builder()
+//                                            .withDuration(Duration.ofSeconds(5))
+//                                            .withType(Resource.TYPE.BLACK)
+//                                            .build()
+//                            )
+//                    .build()
+//
+//            )) ;
+            statusEnumRxBox.set(StatusEnum.PLAYING);
         });
 
 
@@ -471,13 +533,13 @@ public class TabItemMonitorUI extends CTabItem {
         }
     }
 
- 
-
     @Override
     public void dispose() {
         log.warn("disposing tabItemMonitorUI : #{}", index);
         this.commandEventSubject.onComplete();
         this.mediaEventSubject.onComplete();
+        scheduledFuture.cancel(true);
+        monitorUI.dispose();
         super.dispose();
     }
     

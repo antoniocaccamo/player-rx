@@ -59,6 +59,7 @@ public class SequenceServiceImpl implements SequenceService {
                                 .resource(
                                         RemoteResource.builder()
                                             .withType(Resource.TYPE.WEATHER)
+                                            .withDuration(Duration.ofSeconds(8))
                                             .build()
                                 )
                                 .build(),
@@ -68,6 +69,7 @@ public class SequenceServiceImpl implements SequenceService {
                                                 .withType(Resource.TYPE.VIDEO)
 //                                                .withLocation(Resource.LOCATION.LOCAL)
                                                 .withPath("C:\\Users\\antonio\\Videos\\big_buck_bunny.mp4")
+                                                .withDuration(Duration.ofSeconds(12))
                                                 .build()
                                 )
                                 .build()
@@ -102,6 +104,11 @@ public class SequenceServiceImpl implements SequenceService {
     @Override
     public void save(Sequence sequence, Path path) {
 
+    }
+
+    @Override
+    public Sequence dummy() {
+        return dummy;
     }
 
     @PreDestroy

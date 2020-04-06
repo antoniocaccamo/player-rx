@@ -206,16 +206,16 @@ public class MainUI {
 
         MenuManager file_menu = new MenuManager("&File");
         IAction action = Actions.builder()
-                .setText("Action")
-                .setStyle(Actions.Style.CHECK)
-                .setRunnable(() -> log.info("ciao"))
+                .setText("&Exit")
+                .setStyle(Actions.Style.PUSH)
+                .setRunnable(() -> System.exit(0))
                 .build();
 
-        RxBox<Boolean> selection = JFaceRx.toggle(action);
+//        RxBox<Boolean> selection = JFaceRx.toggle(action);
         file_menu.add(action);
 
 
-        selection.set(Boolean.TRUE);
+ //       selection.set(Boolean.TRUE);
 
         manager.add(file_menu);
 

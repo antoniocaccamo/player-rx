@@ -2,6 +2,7 @@ package me.antoniocaccamo.player.rx.ui;
 
 import com.diffplug.common.swt.CoatMux;
 import com.diffplug.common.swt.Layouts;
+import com.diffplug.common.swt.SwtExec;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,9 @@ public class MonitorUI extends CoatMux {
         log.info("monitor # {}", getIndex() );
         this.commandEventSubject = commandEventSubject;
         this.mediaEventSubject   = mediaEventSubject;
-        this.commandEventSubject.subscribe(this::manageCommandEvent);
+        this.commandEventSubject
+                .observeOn(  SwtExec.async().getRxExecutor().scheduler())
+                .subscribe(this::manageCommandEvent);
         createSubMonitor();
 
     }
@@ -70,6 +73,8 @@ public class MonitorUI extends CoatMux {
                     .columnsEqualWidth(true)
                     .horizontalSpacing(0)
                     .verticalSpacing(0)
+                    .spacing(0)
+                    .margin(0)
             ;
             return new WatchUI(this, composite);
 
@@ -82,6 +87,8 @@ public class MonitorUI extends CoatMux {
                     .columnsEqualWidth(true)
                     .horizontalSpacing(0)
                     .verticalSpacing(0)
+                    .spacing(0)
+                    .margin(0)
             ;
             return new WeatherUI(this, composite);
         }));
@@ -93,6 +100,8 @@ public class MonitorUI extends CoatMux {
                     .columnsEqualWidth(true)
                     .horizontalSpacing(0)
                     .verticalSpacing(0)
+                    .spacing(0)
+                    .margin(0)
             ;
             return new PhotoUI(this, composite);
         }));
@@ -104,6 +113,8 @@ public class MonitorUI extends CoatMux {
                     .columnsEqualWidth(true)
                     .horizontalSpacing(0)
                     .verticalSpacing(0)
+                    .spacing(0)
+                    .margin(0)
             ;
             return new VideoUI(this, composite);
         }));
@@ -120,11 +131,12 @@ public class MonitorUI extends CoatMux {
     }
 
     public void play( Media media ) {
+        log.info("playing media : {}", media);
         currenLayer  = this.layerMap.get(  media.getResource().getType() );
         currenLayer.getHandle().setMedia(media);
         currenLayer.getHandle().play();
         currenLayer.bringToTop();
-
+        log.info("showing : {}", currenLayer.getHandle().getClass().getSimpleName());
         mediaEventSubject.onNext( new StartedProgressMediaEvent(media));
     }
 
@@ -150,10 +162,8 @@ public class MonitorUI extends CoatMux {
     }
 
     @Override
-    protected void finalize() throws Throwable {
+    public void dispose() {
         stop();
-        log.info("finalize on monitor : {}", getIndex());
+        log.info("dispose on monitor : {}", getIndex());
     }
-
-
 }

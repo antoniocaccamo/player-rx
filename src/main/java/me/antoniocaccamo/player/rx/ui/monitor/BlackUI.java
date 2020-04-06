@@ -12,6 +12,6 @@ import org.eclipse.swt.widgets.Composite;
 public class BlackUI extends AbstractUI {
     public BlackUI(MonitorUI monitorUI, Composite wrapped) {
         super(monitorUI, wrapped);
-        setBackground(ColorPool.forWidget(this).getSystemColor(SWT.COLOR_BLACK));
+
     }
 }

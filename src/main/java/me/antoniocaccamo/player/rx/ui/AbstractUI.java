@@ -1,5 +1,6 @@
 package me.antoniocaccamo.player.rx.ui;
 
+import com.diffplug.common.swt.ColorPool;
 import com.diffplug.common.swt.Layouts;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.model.sequence.Media;
@@ -23,12 +24,14 @@ public abstract class AbstractUI extends Composite {
         super(parent, SWT.NONE);
         Layouts.setGrid(this)
                 .margin(0)
+                .spacing(0)
                 .numColumns(1)
                 .columnsEqualWidth(true)
         ;
         Layouts.setGridData(this)
                 .grabAll()
         ;
+        setBackground(ColorPool.forWidget(this).getSystemColor(SWT.COLOR_BLACK));
 
         this.monitorUI = monitorUI;
     }
@@ -99,7 +102,7 @@ public abstract class AbstractUI extends Composite {
 
     public  void updatePercentageProgess(double aa, double dd) {
          double percentage =  aa / dd * 100 ;
-        log.info("updatePercentageProgesse : {}", percentage);
+        log.debug("updatePercentageProgesse : {}", percentage);
         monitorUI.updatePercentageProgess( (int) percentage  );
     }
 

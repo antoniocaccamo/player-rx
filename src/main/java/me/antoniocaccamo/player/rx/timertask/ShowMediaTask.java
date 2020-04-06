@@ -39,7 +39,7 @@ public class ShowMediaTask extends TimerTask {
 		if ( actual < duration ) {
 			double aa = Double.valueOf(actual)    / 1000;
 			double dd = Double.valueOf(duration)  / 1000; 
-		    log.info("screenManager.getIndex() [{}] updating video progress bar : [ {} / {} ]", abstractUI.getMonitorUI().getIndex() ,aa ,dd );
+		    log.debug("screenManager.getIndex() [{}] updating video progress bar : [ {} / {} ]", abstractUI.getMonitorUI().getIndex() ,aa ,dd );
 			abstractUI.updatePercentageProgess( aa, dd /*(int) x*/ );
 		} else {			
 			cancel();

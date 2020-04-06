@@ -14,4 +14,5 @@ public interface SequenceService {
     void save(Sequence sequence, Path path);
 
 
+    Sequence dummy();
 }

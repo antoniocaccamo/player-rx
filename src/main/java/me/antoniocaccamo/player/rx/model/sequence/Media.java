@@ -36,10 +36,10 @@ public class Media implements Playable, Cloneable{
     @Column
     private Duration       duration;
 
-    @Column
+    @Column(name = "TIME_FROM")
     private LocalTime from;
 
-    @Column
+    @Column(name = "TIME_TO")
     private LocalTime to;
 
     @ManyToOne
