@@ -1,0 +1,43 @@
+{
+  "uuid" : "fad153cd-b9f5-40e1-940e-5d2c7bf411c8",
+  "computer" : "antonio",
+  "size" : {
+    "width" : 773,
+    "height" : 782
+  },
+  "location" : {
+    "x" : 53,
+    "y" : 748
+  },
+  "sendAllEmail" : null,
+  "weatherLatlng" : "45.08,7.40",
+  "player" : [ {
+    "size" : {
+      "width" : 487,
+      "height" : 376
+    },
+    "location" : {
+      "x" : 50,
+      "y" : 250
+    },
+    "name" : null,
+    "sequence" : "C:/development/workspaces/antoniocaccamo/at-adv/sequences/default.xseq",
+    "from" : null,
+    "to" : null,
+    "timing" : "ALL_DAY"
+  }, {
+    "size" : {
+      "width" : 200,
+      "height" : 180
+    },
+    "location" : {
+      "x" : 500,
+      "y" : 250
+    },
+    "name" : null,
+    "sequence" : "C:/development/workspaces/antoniocaccamo/at-adv/sequences/default.xseq",
+    "from" : null,
+    "to" : null,
+    "timing" : "ALL_DAY"
+  } ]
+}

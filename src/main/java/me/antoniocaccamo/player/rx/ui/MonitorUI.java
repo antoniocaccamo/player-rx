@@ -8,6 +8,7 @@ import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.event.media.command.CommandEvent;
 import me.antoniocaccamo.player.rx.event.media.command.PlayCommandEvent;
+import me.antoniocaccamo.player.rx.event.media.command.StopCommandEvent;
 import me.antoniocaccamo.player.rx.event.media.progress.*;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.model.sequence.Media;
@@ -127,6 +128,10 @@ public class MonitorUI extends CoatMux {
         if ( evt instanceof PlayCommandEvent ) {
             PlayCommandEvent playCommandEvent = (PlayCommandEvent) evt;
             play(  playCommandEvent.getMedia() );
+        }
+
+        if ( evt instanceof StopCommandEvent){
+            stop();
         }
     }
 

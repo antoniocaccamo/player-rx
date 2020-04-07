@@ -58,6 +58,7 @@ dependencies {
     runtimeOnly                 "com.h2database:h2"
 
     implementation              'com.fasterxml.jackson.dataformat:jackson-dataformats-text:2.9.8'
+    implementation              'com.fasterxml.jackson.dataformat:jackson-dataformat-properties:2.8.8'
 
     // This dependency is used by the application.
     implementation              "com.google.guava:guava:28.1-jre"

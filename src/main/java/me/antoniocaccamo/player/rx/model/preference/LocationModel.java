@@ -1,5 +1,6 @@
 package me.antoniocaccamo.player.rx.model.preference;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,8 +21,10 @@ import org.eclipse.swt.graphics.Point;
 @AllArgsConstructor
 public class LocationModel extends Model implements PointSWT<LocationModel> {
 
+    @JsonProperty("x")
     private int top;
 
+    @JsonProperty("y")
     private int left;
 
     @Override

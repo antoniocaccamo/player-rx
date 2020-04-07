@@ -1,14 +1,16 @@
 package me.antoniocaccamo.player.rx.ui;
 
-import com.diffplug.common.rx.RxBox;
-import com.diffplug.common.swt.*;
+import com.diffplug.common.swt.CoatMux;
+import com.diffplug.common.swt.Layouts;
+import com.diffplug.common.swt.Shells;
+import com.diffplug.common.swt.SwtRx;
 import com.diffplug.common.swt.jface.Actions;
 import com.diffplug.common.swt.jface.ImageDescriptors;
-import com.diffplug.common.swt.jface.JFaceRx;
 import io.micronaut.context.annotation.Value;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.helper.DBInitHelper;
 import me.antoniocaccamo.player.rx.helper.SWTHelper;
 import me.antoniocaccamo.player.rx.model.preference.LocationModel;
@@ -71,6 +73,7 @@ public class MainUI {
 
     @PostConstruct
     public void show() {
+
         dbInitHelper.getDefaultSquence();
         preference = preferenceService.read();
         monitorPublishSubject = PublishSubject.create();
@@ -134,6 +137,7 @@ public class MainUI {
                             item.getControl().dispose();
                             item.dispose();
                         }
+                        System.exit(0);
                     });
         })
         .setTitle(String.format("%s : %s", appname,preference.getComputer()))
@@ -157,7 +161,10 @@ public class MainUI {
                         new MonitorModel(
                             new SizeModel(320, 280),
                             new LocationModel( 50, 50),
-                            "", "")
+                            "", "",
+                                null, null, Constants.TimingEnum.ALL_DAY
+
+                        )
                         , tabFolderIndex.getAndIncrement());
                     tabFolder.setSelection(cTabItem);
                         })
@@ -205,14 +212,29 @@ public class MainUI {
         MenuManager manager = new MenuManager();
 
         MenuManager file_menu = new MenuManager("&File");
-        IAction action = Actions.builder()
+
+        //      Save
+        file_menu.add(Actions.builder()
+                .setText("&Save")
+                .setStyle(Actions.Style.PUSH)
+                .setRunnable(() -> {
+                    try {
+                        preferenceService.save();
+                    } catch (IOException e) {
+                        log.error("error saving prefs", e);
+                    }
+                })
+                .build()
+        );
+
+
+//      Exit
+        file_menu.add(Actions.builder()
                 .setText("&Exit")
                 .setStyle(Actions.Style.PUSH)
                 .setRunnable(() -> System.exit(0))
-                .build();
-
-//        RxBox<Boolean> selection = JFaceRx.toggle(action);
-        file_menu.add(action);
+                .build()
+        );
 
 
  //       selection.set(Boolean.TRUE);

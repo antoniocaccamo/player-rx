@@ -92,7 +92,7 @@ public class SequenceServiceImpl implements SequenceService {
         dummy.setName(path.toFile().getName());
 
         try {
-            log.info("dummy : {}", mapper.writeValueAsString(dummy) );
+            log.info("dummy : {}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dummy) );
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
