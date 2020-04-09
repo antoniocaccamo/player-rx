@@ -3,6 +3,7 @@ package me.antoniocaccamo.player.rx.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.service.TranscodeService;
+import me.antoniocaccamo.player.rx.config.Constants;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -55,7 +56,7 @@ public class HLSTrancodeServiceImpl implements TranscodeService {
 
     @Override
     public void transcode(Resource resource) {
-        if ( Resource.TYPE.VIDEO.equals(resource.getType())){
+        if ( Constants.Resource.Type.VIDEO.equals(resource.getType())){
             log.info("add video resource to trancode : {}", resource);
             trancodingQueue.offer(resource);
         }

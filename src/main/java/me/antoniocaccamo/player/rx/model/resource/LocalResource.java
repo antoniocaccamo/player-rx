@@ -2,10 +2,12 @@ package me.antoniocaccamo.player.rx.model.resource;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.antoniocaccamo.player.rx.config.Constants;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 
 /**
@@ -13,12 +15,25 @@ import java.time.Duration;
  */
 @Getter
 @Setter
-@Entity @DiscriminatorValue(Resource.LOCATION.LOCAL)
+@Entity @DiscriminatorValue(Constants.Resource.Location.Local)
 public class LocalResource extends Resource {
 
     @Override
     public Path getLocalPath() {
-        return null;
+        Path localPath = null;
+
+        if ( ! isVideo() ) {
+            localPath = Paths.get(path);
+        } else {
+            localPath = Paths.get( Constants.Resource.getVideoHLS(this) );
+        }
+
+        return localPath;
+    }
+
+    @Override
+    public boolean isLocal() {
+        return true;
     }
 
     public static LocalResourceBuilder builder() {
@@ -37,7 +52,7 @@ public class LocalResource extends Resource {
             return new LocalResourceBuilder();
         }
 
-        public LocalResourceBuilder withType(TYPE type) {
+        public LocalResourceBuilder withType(Constants.Resource.Type type) {
             localResource.setType(type);
             return this;
         }

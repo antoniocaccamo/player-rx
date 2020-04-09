@@ -1,9 +1,6 @@
 package me.antoniocaccamo.player.rx.ui;
 
-import com.diffplug.common.swt.CoatMux;
-import com.diffplug.common.swt.Layouts;
-import com.diffplug.common.swt.Shells;
-import com.diffplug.common.swt.SwtRx;
+import com.diffplug.common.swt.*;
 import com.diffplug.common.swt.jface.Actions;
 import com.diffplug.common.swt.jface.ImageDescriptors;
 import io.micronaut.context.annotation.Value;
@@ -114,11 +111,12 @@ public class MainUI {
             tabFolderLayer.bringToTop();
 
             tabFolderIndex = new AtomicInteger(0);
-            preference.getMonitors().stream().forEach( monitorModel -> new TabItemMonitorUI(tabFolder, monitorModel, tabFolderIndex.getAndIncrement()) );
+            preference.getMonitors().stream()
+                .forEach( monitorModel -> new TabItemMonitorUI(tabFolder, monitorModel, tabFolderIndex.getAndIncrement()) );
 
             SwtRx.addListener(cmp, SWT.Resize, SWT.Move)
                 .subscribe(event ->
-                        log.info("event : {} | cmp size : {} location : {}", event, preference.getSize().fromPoint(cmp.getSize()), preference.getLocation().fromPoint(cmp.getLocation()))
+                        log.debug("event : {} | cmp size : {} location : {}", event, preference.getSize().fromPoint(cmp.getSize()), preference.getLocation().fromPoint(cmp.getLocation()))
                 );
             menuManager((Shell) cmp);
             try {
@@ -213,7 +211,7 @@ public class MainUI {
 
         MenuManager file_menu = new MenuManager("&File");
 
-        //      Save
+//      Save
         file_menu.add(Actions.builder()
                 .setText("&Save")
                 .setStyle(Actions.Style.PUSH)
@@ -232,7 +230,10 @@ public class MainUI {
         file_menu.add(Actions.builder()
                 .setText("&Exit")
                 .setStyle(Actions.Style.PUSH)
-                .setRunnable(() -> System.exit(0))
+                .setRunnable(() -> {
+                        if ( SwtMisc.blockForQuestion("aaaaaa", "exitt ??" ) )
+                            System.exit(0);
+                })
                 .build()
         );
 

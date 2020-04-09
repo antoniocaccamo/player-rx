@@ -9,6 +9,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.persistence.*;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -35,6 +36,18 @@ public class Media implements Playable, Cloneable{
 
     @Column
     private Duration       duration;
+
+    @Column(name = "DAYS_OF_WEEK", length = 7)
+    private String daysOfWeek;
+
+    @Column(name = "LIMITED")
+    private Integer limited;
+
+    @Column(name = "DATE_START")
+    private LocalDate start;
+
+    @Column(name = "DATE_END")
+    private LocalDate end;
 
     @Column(name = "TIME_FROM")
     private LocalTime from;
@@ -78,16 +91,56 @@ public class Media implements Playable, Cloneable{
         this.path = path;
     }
 
+    public Integer getLimited() {
+        return limited;
+    }
+
+    public void setLimited(Integer limited) {
+        this.limited = limited;
+    }
+
     public Duration getDuration() {
         return duration == null ? resource.getDuration() : duration;
+    }
+
+    public LocalDate getStart() {
+        return start;
+    }
+
+    public void setStart(LocalDate start) {
+        this.start = start;
+    }
+
+    public LocalDate getEnd() {
+        return end;
+    }
+
+    public void setEnd(LocalDate end) {
+        this.end = end;
     }
 
     public LocalTime getFrom() {
         return LocalTime.of(9,0);
     }
 
+    public void setFrom(LocalTime from) {
+        this.from = from;
+    }
+
     public LocalTime getTo(){
         return LocalTime.of(20,0);
+    }
+
+    public void setTo(LocalTime to) {
+        this.to = to;
+    }
+
+    public String getDaysOfWeek() {
+        return daysOfWeek;
+    }
+
+    public void setDaysOfWeek(String daysOfWeek) {
+        this.daysOfWeek = daysOfWeek;
     }
 
     public void setDuration(Duration duration) {
@@ -177,6 +230,10 @@ public class Media implements Playable, Cloneable{
                 .append("type", type)
                 .append("path", path)
                 .append("duration", duration)
+                .append("start", start)
+                .append("end"  , end)
+                .append("from" , from)
+                .append("to"   , to)
                 .append("resource", resource)
                 .toString();
     }

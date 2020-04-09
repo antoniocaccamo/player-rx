@@ -2,6 +2,7 @@ package me.antoniocaccamo.player.rx.model.resource;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.antoniocaccamo.player.rx.config.Constants;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -16,7 +17,7 @@ import java.time.Duration;
 @Getter
 @Setter
 @Entity
-@DiscriminatorValue(Resource.LOCATION.REMOTE)
+@DiscriminatorValue(Constants.Resource.Location.Remote)
 public class RemoteResource extends Resource {
 
 
@@ -27,6 +28,11 @@ public class RemoteResource extends Resource {
     @Override @Transient
     public Path getLocalPath() {
         return null;
+    }
+
+    @Override
+    public boolean isLocal() {
+        return false;
     }
 
     @Override
@@ -46,7 +52,7 @@ public class RemoteResource extends Resource {
             return new RemoteResourceBuilder();
         }
 
-        public RemoteResourceBuilder withType(TYPE type) {
+        public RemoteResourceBuilder withType(Constants.Resource.Type type) {
             remoteResource.setType(type);
             return this;
         }

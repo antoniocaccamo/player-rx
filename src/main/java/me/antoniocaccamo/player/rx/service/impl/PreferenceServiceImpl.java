@@ -3,12 +3,12 @@ package me.antoniocaccamo.player.rx.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micronaut.context.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.model.legacy.sequences.VideoType;
 import me.antoniocaccamo.player.rx.model.preference.PreferenceModel;
-import me.antoniocaccamo.player.rx.service.LegacyPreferenceService;
+import me.antoniocaccamo.player.rx.model.sequence.Media;
+import me.antoniocaccamo.player.rx.service.LegacyService;
 import me.antoniocaccamo.player.rx.service.PreferenceService;
 import me.antoniocaccamo.player.rx.service.ResourceService;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -27,7 +27,7 @@ public class PreferenceServiceImpl implements PreferenceService {
     private ResourceService resourceService;
 
     @Inject
-    private LegacyPreferenceService legacyPreferenceService;
+    private LegacyService legacyPreferenceService;
 
     @Value("${micronaut.application.pref-file}") @NotNull
     private File prefFile;
@@ -43,8 +43,8 @@ public class PreferenceServiceImpl implements PreferenceService {
         log.info("pref file : {} exists {}", prefFile.getAbsolutePath(), prefFile.exists());
 
         if ( ! prefFile.exists() ) {
-            log.warn("reading from legacy");
-            preferenceModel = legacyPreferenceService.load();
+            log.warn(" ==>> reading from legacy <<===");
+            preferenceModel = legacyPreferenceService.loadPreferenceModel();
             save();
         } else {
             preferenceModel = mapper.readValue(prefFile, PreferenceModel.class);
@@ -70,4 +70,6 @@ public class PreferenceServiceImpl implements PreferenceService {
 
 
     }
+
+
 }

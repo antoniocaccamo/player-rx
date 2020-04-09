@@ -11,6 +11,7 @@ import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.model.sequence.Media;
 import me.antoniocaccamo.player.rx.model.sequence.Sequence;
 import me.antoniocaccamo.player.rx.service.ResourceService;
+import me.antoniocaccamo.player.rx.config.*;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -43,28 +44,28 @@ public class RepositoryTest {
     public void saveAndReadResource() {
 
         LocalResource blackResource = LocalResource.builder()
-                .withType(Resource.TYPE.BLACK)
+                .withType(Constants.Resource.Type.BLACK)
                 .build()
         ;
 
         LocalResource hiddenResource = LocalResource.builder()
-                .withType(Resource.TYPE.HIDDEN)
+                .withType(Constants.Resource.Type.HIDDEN)
                 .build()
         ;
 
         LocalResource watchResource = LocalResource.builder()
-                .withType(Resource.TYPE.WATCH)
+                .withType(Constants.Resource.Type.WATCH)
                 .build()
         ;
 
         LocalResource weatherResource = LocalResource.builder()
-                .withType(Resource.TYPE.WEATHER)
+                .withType(Constants.Resource.Type.WEATHER)
                 .build()
         ;
 
         LocalResource logo = LocalResource.builder()
                 .withPath("images/logo.jpg")
-                .withType(Resource.TYPE.PHOTO)
+                .withType(Constants.Resource.Type.PHOTO)
                 .build()
         ;
 
@@ -99,21 +100,21 @@ public class RepositoryTest {
 
         Resource resource;
 
-        resource  = resourceRepository.findByType(Resource.TYPE.PHOTO);
+        resource  = resourceRepository.findByType(Constants.Resource.Type.PHOTO);
 
         Media photohMedia = Media.builder()
                 .duration(Duration.ofSeconds(5))
                 .resource(resource)
                 .build();
 
-        resource  = resourceRepository.findByType(Resource.TYPE.WATCH);
+        resource  = resourceRepository.findByType(Constants.Resource.Type.WATCH);
 
         Media watchMedia = Media.builder()
                 .duration(Duration.ofSeconds(5))
                 .resource(resource)
                 .build();
 
-        resource = resourceRepository.findByType(Resource.TYPE.WEATHER);
+        resource = resourceRepository.findByType(Constants.Resource.Type.WEATHER);
         Media weatherMedia = Media.builder()
                 .duration(Duration.ofSeconds(10))
                 .resource(resource)

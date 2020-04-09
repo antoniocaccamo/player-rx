@@ -4,78 +4,26 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.model.Model;
-import me.antoniocaccamo.player.rx.model.resource.Resource;
-import me.antoniocaccamo.player.rx.model.resource.LocalResource;
-import me.antoniocaccamo.player.rx.model.resource.RemoteResource;
-import me.antoniocaccamo.player.rx.model.sequence.Media;
 import me.antoniocaccamo.player.rx.model.sequence.Sequence;
+import me.antoniocaccamo.player.rx.repository.SequenceRepository;
 import me.antoniocaccamo.player.rx.service.SequenceService;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Duration;
-import java.util.Arrays;
+import java.util.Optional;
+
+import me.antoniocaccamo.player.rx.config.Constants;
 
 @Singleton @Slf4j
 public class SequenceServiceImpl implements SequenceService {
 
     private final ObjectMapper mapper = new ObjectMapper();
-    private Sequence dummy;
+    private Sequence dummy = Constants.DEFAULT_SEQUENCE();
 
-
-    @PostConstruct
-    public void postConstruct(){
-        dummy = Sequence.builder()
-                .id(-1L)
-                .name("test sequence")
-                .location(Model.Location.LOCAL)
-                .medias(Arrays.asList(
-                        Media.builder()
-                                .resource(
-                                        LocalResource.builder()
-                                                .withType(Resource.TYPE.PHOTO)
-//                                                .withLocation(Resource.LOCATION.LOCAL)
-                                                .withPath("C:\\Windows\\Web\\Screen\\img100.jpg")
-                                                .withDuration(Duration.ofSeconds(5))
-                                                .build()
-                                )
-                                .build(),
-                        Media.builder()
-                                .resource(
-                                        LocalResource.builder()
-                                                .withType(Resource.TYPE.PHOTO)
-  //                                              .withLocation(Resource.LOCATION.LOCAL)
-                                                .withPath("C:\\Windows\\Web\\Screen\\img160.jpg")
-                                                .withDuration(Duration.ofSeconds(15))
-                                                .build()
-                                )
-                                .build(),
-                        Media.builder()
-                                .resource(
-                                        RemoteResource.builder()
-                                            .withType(Resource.TYPE.WEATHER)
-                                            .withDuration(Duration.ofSeconds(8))
-                                            .build()
-                                )
-                                .build(),
-                        Media.builder()
-                                .resource(
-                                        LocalResource.builder()
-                                                .withType(Resource.TYPE.VIDEO)
-//                                                .withLocation(Resource.LOCATION.LOCAL)
-                                                .withPath("C:\\Users\\antonio\\Videos\\big_buck_bunny.mp4")
-                                                .withDuration(Duration.ofSeconds(12))
-                                                .build()
-                                )
-                                .build()
-                ))
-                .build();
-    }
+    @Inject
+    private SequenceRepository sequenceRepository;
 
     @Override
     public Sequence read( Path path){
@@ -104,6 +52,11 @@ public class SequenceServiceImpl implements SequenceService {
     @Override
     public void save(Sequence sequence, Path path) {
 
+    }
+
+    @Override
+    public Optional<Sequence> getSequenceByName(String sequenceName) {
+        return sequenceRepository.findByName(sequenceName);
     }
 
     @Override

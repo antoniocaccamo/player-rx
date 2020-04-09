@@ -4,28 +4,16 @@ import com.google.common.hash.Hashing;
 import io.micronaut.context.annotation.Value;
 import io.reactivex.Observable;
 import lombok.extern.slf4j.Slf4j;
-import me.antoniocaccamo.player.rx.model.resource.RemoteResource;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
-import me.antoniocaccamo.player.rx.model.resource.LocalResource;
 import me.antoniocaccamo.player.rx.repository.ResourceRepository;
 import me.antoniocaccamo.player.rx.service.ResourceService;
-import org.yaml.snakeyaml.Yaml;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Duration;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Singleton @Slf4j
 public class ResourceServiceImpl implements ResourceService {
@@ -53,11 +41,11 @@ public class ResourceServiceImpl implements ResourceService {
         }
         */
 
-
-
-
-        resourceMap = Observable.fromIterable(resourceRepository.findAll()).toMap( x-> Hashing.sha512().hashString(x.toString(), StandardCharsets.UTF_8).toString()).blockingGet();
-
+        resourceMap =
+                Observable.fromIterable(resourceRepository.findAll())
+                        .toMap( x-> Hashing.sha512().hashString(x.toString(), StandardCharsets.UTF_8).toString())
+                        .blockingGet()
+        ;
 
     }
 

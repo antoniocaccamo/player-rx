@@ -6,6 +6,7 @@ import com.diffplug.common.swt.SwtExec;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.event.media.command.CommandEvent;
 import me.antoniocaccamo.player.rx.event.media.command.PlayCommandEvent;
 import me.antoniocaccamo.player.rx.event.media.command.StopCommandEvent;
@@ -30,7 +31,7 @@ public class MonitorUI extends CoatMux {
     private final PublishSubject<CommandEvent> commandEventSubject;
     private final PublishSubject<MediaEvent>   mediaEventSubject;
 
-    private final Map<Resource.TYPE, CoatMux.Layer<AbstractUI> > layerMap = new HashMap<>();
+    private final Map<Constants.Resource.Type, CoatMux.Layer<AbstractUI> > layerMap = new HashMap<>();
     private final int index;
 
     private  CoatMux.Layer<AbstractUI> currenLayer;
@@ -53,8 +54,8 @@ public class MonitorUI extends CoatMux {
     }
 
     private void createSubMonitor() {
-        // Resource.TYPE.BLACK
-        layerMap.putIfAbsent(Resource.TYPE.BLACK, addCoat( composite -> {
+        // Constants.Resource.Type.BLACK
+        layerMap.putIfAbsent(Constants.Resource.Type.BLACK, addCoat( composite -> {
             Layouts.setGrid(composite)
                     .numColumns(1)
                     .columnsEqualWidth(true)
@@ -67,8 +68,8 @@ public class MonitorUI extends CoatMux {
 
         }));
 
-        // Resource.TYPE.WATCH
-        layerMap.putIfAbsent(Resource.TYPE.WATCH, addCoat( composite -> {
+        // Constants.Resource.Type.WATCH
+        layerMap.putIfAbsent(Constants.Resource.Type.WATCH, addCoat( composite -> {
             Layouts.setGrid(composite)
                     .numColumns(1)
                     .columnsEqualWidth(true)
@@ -81,8 +82,8 @@ public class MonitorUI extends CoatMux {
 
         }));
 
-        // Resource.TYPE.WEATHER
-        layerMap.putIfAbsent(Resource.TYPE.WEATHER, addCoat( composite -> {
+        // Constants.Resource.Type.WEATHER
+        layerMap.putIfAbsent(Constants.Resource.Type.WEATHER, addCoat( composite -> {
             Layouts.setGrid(composite)
                     .numColumns(1)
                     .columnsEqualWidth(true)
@@ -94,8 +95,8 @@ public class MonitorUI extends CoatMux {
             return new WeatherUI(this, composite);
         }));
 
-        // Resource.TYPE.PHOTO
-        layerMap.putIfAbsent(Resource.TYPE.PHOTO, addCoat( composite -> {
+        // Constants.Resource.Type.PHOTO
+        layerMap.putIfAbsent(Constants.Resource.Type.PHOTO, addCoat( composite -> {
             Layouts.setGrid(composite)
                     .numColumns(1)
                     .columnsEqualWidth(true)
@@ -107,8 +108,8 @@ public class MonitorUI extends CoatMux {
             return new PhotoUI(this, composite);
         }));
 
-        // Resource.TYPE.VIDEO
-        layerMap.putIfAbsent(Resource.TYPE.VIDEO, addCoat( composite -> {
+        // Constants.Resource.Type.VIDEO
+        layerMap.putIfAbsent(Constants.Resource.Type.VIDEO, addCoat( composite -> {
             Layouts.setGrid(composite)
                     .numColumns(1)
                     .columnsEqualWidth(true)

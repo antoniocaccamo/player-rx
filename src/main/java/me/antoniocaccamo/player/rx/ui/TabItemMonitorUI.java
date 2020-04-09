@@ -3,6 +3,7 @@ package me.antoniocaccamo.player.rx.ui;
 import com.diffplug.common.rx.RxBox;
 import com.diffplug.common.swt.*;
 import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.PublishSubject;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,10 +47,13 @@ public class TabItemMonitorUI extends CTabItem {
 
     // monitor -> tab
     private final PublishSubject<MediaEvent> mediaEventSubject = PublishSubject.create();
-    private final ScheduledFuture<?> scheduledFuture;
-    private final RxBox<StatusEnum> statusEnumRxBox;
+
+    private ScheduledFuture<?> scheduledFuture;
+    private RxBox<StatusEnum> statusEnumRxBox;
     private ProgressBar progressBar;
-    
+
+    // -- swt
+
     private Button playButton;
     private Button pauseButton;
     private Button stopButton;
@@ -71,25 +75,44 @@ public class TabItemMonitorUI extends CTabItem {
                 .columnsEqualWidth(true)
                 .margin(0)
         ;
-
+        // screen
         Layouts.setGridData(screenGroup(composite))
                 .grabHorizontal();
 
+        // palimpsest
         Layouts.setGridData(palimpsestGroup(composite))
                 .grabAll();
 
+        // player
         Layouts.setGridData(playerGroup(composite))
                 .grabAll();
 
-        monitorUI = Shells.builder(SWT.NONE, cmp -> {
-            Layouts.setGrid(cmp).margin(0).spacing(0);
-            Layouts.setGridData( new MonitorUI(cmp, index, commandEventSubject, mediaEventSubject) )
-                    .grabAll();
-        })
-        .setSize(monitorModel.getSize().toPoint())
-        .setLocation(monitorModel.getLocation().toPoint())
-        .openOn(getParent().getShell())
+        // monitor
+        monitorUI =
+                Shells.builder(SWT.NONE, cmp -> {
+                    Layouts.setGrid(cmp).margin(0).spacing(0);
+                    Layouts.setGridData( new MonitorUI(cmp, index, commandEventSubject, mediaEventSubject) )
+                            .grabAll();
+                })
+                .setSize(monitorModel.getSize().toPoint())
+                .setLocation(monitorModel.getLocation().toPoint())
+                .openOn(getParent().getShell())
         ;
+
+        applyMonitorModel();
+
+        // create observers
+        createObservers();
+
+
+    }
+
+    private void applyMonitorModel() {
+
+
+    }
+
+    private void createObservers() {
 
         SwtExec.async().guardOn(this)
                 .subscribe(
@@ -98,13 +121,13 @@ public class TabItemMonitorUI extends CTabItem {
                         }).toObservable()
                         , value -> log.debug("===>>>sequence : {}", value)
                 );
-                
+
         scheduledFuture =  SwtExec.async().guardOn(this)
                 .scheduleAtFixedRate(
                         //()->log.debug("===>>> player #{}: check to run/stop...", this.index),
                         this::check,
-                        100L, 
-                        500L, 
+                        100L,
+                        500L,
                         TimeUnit.MILLISECONDS
                 );
 
@@ -120,7 +143,7 @@ public class TabItemMonitorUI extends CTabItem {
                         t -> log.error("error occurred on update % : {}", t)
                 );
 
-        mediaEventSubject.filter(me -> me instanceof  EndedProgressMediaEvent)
+        Disposable endedProgressMediaEventDisposable =  mediaEventSubject.filter(me -> me instanceof  EndedProgressMediaEvent)
                 .observeOn(  SwtExec.async().getRxExecutor().scheduler())
                 .subscribe(
                         evt -> {
@@ -172,12 +195,11 @@ public class TabItemMonitorUI extends CTabItem {
                     statusEnumRxBox.set(   status = StatusEnum.PLAYING );
                     commandEventSubject.onNext(
                             new PlayCommandEvent(
-                            sequenceService.dummy().next())
+                                    sequenceService.dummy().next())
                     );
                 });
     }
 
-   
 
     @NotNull
     private Group screenGroup(Composite composite) {
@@ -457,7 +479,7 @@ public class TabItemMonitorUI extends CTabItem {
      *
      */
     private void check() {
-        log.info("getIndex() [{}] - running [{}] - status [{}] - getMonitorModel().isTimed() [{}] ", getIndex(), getRunning(), getStatus() , getMonitorModel().isTimed());
+        log.debug("getIndex() [{}] - running [{}] - status [{}] - getMonitorModel().isTimed() [{}] ", getIndex(), getRunning(), getStatus() , getMonitorModel().isTimed());
 
         if ( StatusEnum.STOPPED.equals( getStatus()) ) {
             return;

@@ -2,6 +2,7 @@ package me.antoniocaccamo.player.rx.service;
 
 import io.micronaut.test.annotation.MicronautTest;
 import io.reactivex.Observable;
+import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.model.resource.LocalResource;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ class TrancodeServiceTest  {
                         transcodeService.transcode(
                                 LocalResource.builder()
                                         .withDuration(Duration.ofSeconds(i))
-                                        .withType(Resource.TYPE.VIDEO)
+                                        .withType(Constants.Resource.Type.VIDEO)
                                         .withPath("XXXX")
                                         .build()
                         ));
