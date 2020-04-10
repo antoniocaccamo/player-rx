@@ -29,6 +29,8 @@ class LegacyServiceTest {
                 legacyService.readSequence("D:\\development\\workspaces\\antoniocaccamo\\player-rx\\src\\test\\resources\\test.xseq")
         ;
         assertNotNull(sequence.get());
-        System.out.println(String.format("sequence : %s" , sequence.get()));
+        System.out.println(
+                String.format("sequence : %s" , /*sequence.get() */ mapper.writerWithDefaultPrettyPrinter().writeValueAsString(sequence.get()))
+        );
     }
 }

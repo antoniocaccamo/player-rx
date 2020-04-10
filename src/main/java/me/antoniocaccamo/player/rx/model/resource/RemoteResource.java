@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.antoniocaccamo.player.rx.config.Constants;
 
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
@@ -23,6 +24,17 @@ public class RemoteResource extends Resource {
 
     public static RemoteResourceBuilder builder() {
         return new RemoteResourceBuilder();
+    }
+
+    @Column
+    private Constants.Resource.Remote remote;
+
+    public Constants.Resource.Remote getRemote() {
+        return remote;
+    }
+
+    public void setRemote(Constants.Resource.Remote remote) {
+        this.remote = remote;
     }
 
     @Override @Transient
@@ -54,6 +66,11 @@ public class RemoteResource extends Resource {
 
         public RemoteResourceBuilder withType(Constants.Resource.Type type) {
             remoteResource.setType(type);
+            return this;
+        }
+
+        public RemoteResourceBuilder withRemote(Constants.Resource.Remote remote) {
+            remoteResource.setRemote(remote);
             return this;
         }
 

@@ -1,5 +1,6 @@
 package me.antoniocaccamo.player.rx.model.sequence;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.model.Model;
@@ -34,7 +35,7 @@ public class Sequence implements Cloneable, Playable {
     @Transient
     private Model.Location location;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
     @JoinTable(
             name = "SEQUENCE_MEDIA",
@@ -81,15 +82,6 @@ public class Sequence implements Cloneable, Playable {
         this.medias = medias;
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                .append("id", id)
-                .append("name", name)
-                .append("location", location)
-                .append("medias", medias)
-                .toString();
-    }
 
     @Override
     public Sequence clone() {
@@ -108,36 +100,40 @@ public class Sequence implements Cloneable, Playable {
         }
     }
 
-    @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient private final Lock MY_LOCK = new ReentrantLock();
-    @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient private  int _loop    = 0;
-    @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient private  int _current = 0;
-    @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient private  int _next    = -1;
+//    @JsonIgnore @Builder.Default @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient
+//    private final Lock MY_LOCK = new ReentrantLock();
+//    @JsonIgnore @Builder.Default @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient
+//    private  int _loop    = 0;
+//    @JsonIgnore @Builder.Default @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient
+//    private  int _current = 0;
+//    @JsonIgnore @Builder.Default @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient
+//    private  int _next    = -1;
 
-    public Media next()   {
-        return next(LocalDateTime.now());
-    }
-
-    private Media next(final LocalDateTime now) {
-        boolean found = false;
-        Media media = null;
-        MY_LOCK.lock();
-        try {
-            while ( ! found ) {
-                _next = ++ _next % getMedias().size();
-                media = getMedias().get(_next);
-                if (media.isPlayable(now)) {
-                    found = true;
-                } else {
-                    log.warn("@@ -- TODO --");
-                    found = true;
-                }
-                _loop += _next == 0 ? 1 : 0;
-            }
-        } finally {
-            MY_LOCK.unlock();
-        }
-        return media;
-    }
+//    public Media next()   {
+//        return next(LocalDateTime.now());
+//    }
+//
+//    private Media next(final LocalDateTime now) {
+//        boolean found = false;
+//        Media media = null;
+//        MY_LOCK.lock();
+//        try {
+//            while ( ! found ) {
+//                _next = ++ _next % getMedias().size();
+//                media = getMedias().get(_next);
+//                if (media.isPlayable(now)) {
+//                    found = true;
+//                } else {
+//                    log.warn("@@ -- TODO --");
+//                    found = true;
+//                }
+//                _loop += _next == 0 ? 1 : 0;
+//            }
+//        } finally {
+//            MY_LOCK.unlock();
+//        }
+//        return media;
+//    }
 
     @Override
     public void prepareForPlay() { }
@@ -149,5 +145,16 @@ public class Sequence implements Cloneable, Playable {
     public boolean isAvailable() {
         log.warn("--> to udpate ...");
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
+                .append("hashCode", hashCode())
+                .append("id", id)
+                .append("name", name)
+                .append("location", location)
+                .append("medias", medias)
+                .toString();
     }
 }

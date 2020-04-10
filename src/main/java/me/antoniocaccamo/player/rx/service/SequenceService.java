@@ -16,5 +16,5 @@ public interface SequenceService {
 
     Optional<Sequence> getSequenceByName(String seqeunceName);
 
-    Sequence dummy();
+    //Sequence dummy();
 }

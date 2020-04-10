@@ -189,55 +189,52 @@ public class Constants {
         }
     }
 
+    public static String DefaultSequenceName = "DEFAULT_SEQUENCE";
 
+    public static   Sequence DEFAULT_SEQUENCE() {
 
-        private static String DefaultSequenceName = "DEFAULT_SEQUENCE";
-
-        public static   Sequence DEFAULT_SEQUENCE() {
-
-            return me.antoniocaccamo.player.rx.model.sequence.Sequence.builder()
-                    .id(-1L)
-                    .name(DefaultSequenceName)
-                    .location(Model.Location.LOCAL)
-                    .medias(Arrays.asList(
-                            Media.builder()
-                                    .resource(
-                                            LocalResource.builder()
-                                                    .withType(Constants.Resource.Type.PHOTO)
+        return me.antoniocaccamo.player.rx.model.sequence.Sequence.builder()
+                .name(DefaultSequenceName)
+                .location(Model.Location.LOCAL)
+                .medias(Arrays.asList(
+                        Media.builder()
+                                .resource(
+                                        LocalResource.builder()
+                                                .withType(Constants.Resource.Type.PHOTO)
 //                                                .withLocation(Resource.LOCATION.LOCAL)
-                                                    .withPath("default/images/at.image.jpg")
-                                                    .withDuration(Duration.ofSeconds(5))
-                                                    .build()
-                                    )
-                                    .build(),
-                            Media.builder()
-                                    .resource(
-                                            RemoteResource.builder()
-                                                    .withType(Constants.Resource.Type.WEATHER)
-                                                    .withDuration(Duration.ofSeconds(8))
-                                                    .build()
-                                    )
-                                    .build(),
-                            Media.builder()
-                                    .resource(
-                                            LocalResource.builder()
-                                                    .withType(Constants.Resource.Type.VIDEO)
-                                                    .withPath("default/videos/at.video.mov")
-                                                    .withDuration(Duration.ofSeconds(12))
-                                                    .build()
-                                    )
-                                    .build(),
-                            Media.builder()
-                                    .resource(
-                                            RemoteResource.builder()
-                                                    .withType(Constants.Resource.Type.WEATHER)
-                                                    .withDuration(Duration.ofSeconds(8))
-                                                    .build()
-                                    )
-                                    .build()
-                    ))
-                    .build();
-        }
+                                                .withPath("default/images/at.image.jpg")
+                                                .withDuration(Duration.ofSeconds(5))
+                                                .build()
+                                )
+                                .build(),
+                        Media.builder()
+                                .resource(
+                                        RemoteResource.builder()
+                                                .withType(Constants.Resource.Type.WEATHER)
+                                                .withDuration(Duration.ofSeconds(8))
+                                                .build()
+                                )
+                                .build(),
+                        Media.builder()
+                                .resource(
+                                        LocalResource.builder()
+                                                .withType(Constants.Resource.Type.VIDEO)
+                                                .withPath("default/videos/at.video.mov")
+                                                .withDuration(Duration.ofSeconds(12))
+                                                .build()
+                                )
+                                .build(),
+                        Media.builder()
+                                .resource(
+                                        RemoteResource.builder()
+                                                .withType(Constants.Resource.Type.WEATHER)
+                                                .withDuration(Duration.ofSeconds(8))
+                                                .build()
+                                )
+                                .build()
+                ))
+                .build();
+    }
 
 
 }

@@ -2,6 +2,7 @@ package me.antoniocaccamo.player.rx.model.sequence;
 
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.model.Model;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -209,31 +210,33 @@ public class Media implements Playable, Cloneable{
 
     @Override
     public void prepareForPlay() {
-
+        log.warn("{} : prepareForPlay ", Constants.TODO);
     }
 
     public boolean isPlayable(LocalDateTime now) {
-        log.warn("--> to udpate ...");
+        log.warn("{} : isPlayable ", Constants.TODO);
         return true;
     }
 
     public boolean isAvailable() {
-        log.warn("--> to udpate ...");
+        log.warn("{} : isAvailable ", Constants.TODO);
         return true;
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+        return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
                 .append("id", id)
                 .append("location", location)
                 .append("type", type)
                 .append("path", path)
                 .append("duration", duration)
+                .append("daysOfWeek", daysOfWeek)
+                .append("limited", limited)
                 .append("start", start)
-                .append("end"  , end)
-                .append("from" , from)
-                .append("to"   , to)
+                .append("end", end)
+                .append("from", from)
+                .append("to", to)
                 .append("resource", resource)
                 .toString();
     }

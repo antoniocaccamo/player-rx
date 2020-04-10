@@ -38,7 +38,7 @@ public abstract class AbstractUI extends Composite {
 
     protected long startInMillis;
 
-    protected long pausedAt;
+    protected LocalDateTime pausedAt;
 
     protected Timer durationTimer = new Timer();
     protected Timer alphaTimer    = new Timer();
@@ -55,7 +55,7 @@ public abstract class AbstractUI extends Composite {
         }
         log.debug("playyyyyyyy");
         this.startInMillis = LocalDateTime.now().getNano();
-        durationTask = new ShowMediaTask(this, Float.valueOf(current.getDuration().toMillis()).intValue() );
+        durationTask = new ShowMediaTask(this, current.getDuration() );
         durationTimer.schedule( durationTask, 0, 100 );
 //		if ( playerMaster.getScreenManager().getPlayerSetting().isFade()  ) {
 //			logger.debug("init alpha timer task");
@@ -91,8 +91,7 @@ public abstract class AbstractUI extends Composite {
     }
 
     public void resume() {
-        long duration = Float.valueOf( current.getDuration().toMillis() ).intValue();
-        durationTask = new ShowMediaTask(this, this.pausedAt, duration);
+        durationTask = new ShowMediaTask(this, this.pausedAt, current.getDuration());
         durationTimer.schedule(durationTask, 0, 100);
     }
 
@@ -100,10 +99,9 @@ public abstract class AbstractUI extends Composite {
         monitorUI.errorOnPlay(throwable);
     }
 
-    public  void updatePercentageProgess(double aa, double dd) {
-         double percentage =  aa / dd * 100 ;
-        log.debug("updatePercentageProgesse : {}", percentage);
-        monitorUI.updatePercentageProgess( (int) percentage  );
+    public  void updatePercentageProgess( long actual, long total) {
+        log.debug("getIndex() [{}] - progress bar : actual {}  total {}", getMonitorUI().getIndex(), actual, total );
+        monitorUI.updatePercentageProgess( actual, total  );
     }
 
     public MonitorUI getMonitorUI() {

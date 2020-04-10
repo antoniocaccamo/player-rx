@@ -16,6 +16,7 @@ import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.model.sequence.Media;
 import me.antoniocaccamo.player.rx.model.sequence.Sequence;
 import me.antoniocaccamo.player.rx.repository.MediaRepository;
+import me.antoniocaccamo.player.rx.repository.ResourceRepository;
 import me.antoniocaccamo.player.rx.repository.SequenceRepository;
 import me.antoniocaccamo.player.rx.service.LegacyService;
 import org.apache.commons.lang3.StringUtils;
@@ -56,6 +57,9 @@ public class LegacyServiceImpl implements LegacyService {
 
     @Inject
     private MediaRepository mediaRepository;
+
+    @Inject
+    private ResourceRepository resourceRepository;
 
     @Override
     public PreferenceModel loadPreferenceModel() throws IOException {
@@ -364,7 +368,12 @@ public class LegacyServiceImpl implements LegacyService {
             List<Media> medias = sequenceType.getValue().getVideos().getVideo()
                     .stream()
                     .map(LegacyServiceImpl::video2media)
-                    .map(media -> mediaRepository.save(media))
+                    .map(media -> {
+                        Resource resource = media.getResource();
+                        resourceRepository.save(resource);
+                        media.setResource(resource);
+                        return  mediaRepository.save(media);
+                    })
                     .collect(Collectors.toList());
 
 
@@ -401,9 +410,6 @@ public class LegacyServiceImpl implements LegacyService {
         if (StringUtils.isNotEmpty(videoType.getTo()))
             media.setTo(LocalTime.from(DateTimeFormatter.ISO_TIME.parse(videoType.getTo())));
 
-
-
-
         switch (videoType.getType()) {
             case BLACK_WINDOW:
                 resource = LocalResource.builder()
@@ -422,18 +428,17 @@ public class LegacyServiceImpl implements LegacyService {
 
                 resource = RemoteResource.builder()
                         .withPath(videoType.getPath())
+                        .withRemote(Constants.Resource.Remote.FTP)
                         .withType(Constants.Resource.Type.PHOTO)
                         .build();
-
                 break;
 
             case FTP_VIDEO:
-
                 RemoteResource.builder()
                         .withPath(videoType.getPath())
+                        .withRemote(Constants.Resource.Remote.FTP)
                         .withType(Constants.Resource.Type.VIDEO)
                         .build();
-
                 break;
 
             case HIDDEN_WINDOW:

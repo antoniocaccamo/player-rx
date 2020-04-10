@@ -11,18 +11,21 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class PercentageProgressMediaEvent extends MediaEvent {
 
-    @Getter
-    final  int percentage ;
+    @Getter  private final long actual;
+    @Getter  private final long total;
 
-    public PercentageProgressMediaEvent(Media media, int percentage) {
+    public PercentageProgressMediaEvent(Media media, long actual, long total) {
         super(media);
-        this.percentage = percentage;
+        this.actual = actual;
+        this.total = total;
     }
+
 
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                .append("percentage", percentage)
+                .append("actual", actual)
+                .append("total" , total)
                 .toString();
     }
 }

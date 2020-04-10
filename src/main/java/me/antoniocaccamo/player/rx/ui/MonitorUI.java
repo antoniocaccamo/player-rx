@@ -124,7 +124,7 @@ public class MonitorUI extends CoatMux {
     }
 
     private void manageCommandEvent(CommandEvent evt) throws InterruptedException {
-        log.info("event received : {}", evt);
+        log.info("getIndex() [{}] - event received : {}", getIndex(), evt);
 
         if ( evt instanceof PlayCommandEvent ) {
             PlayCommandEvent playCommandEvent = (PlayCommandEvent) evt;
@@ -137,12 +137,12 @@ public class MonitorUI extends CoatMux {
     }
 
     public void play( Media media ) {
-        log.info("playing media : {}", media);
+        log.info("getIndex() [{}] - playing media : {}", getIndex(), media);
         currenLayer  = this.layerMap.get(  media.getResource().getType() );
         currenLayer.getHandle().setMedia(media);
         currenLayer.getHandle().play();
         currenLayer.bringToTop();
-        log.info("showing : {}", currenLayer.getHandle().getClass().getSimpleName());
+        log.info("getIndex() [{}] - showing : {}", getIndex(), currenLayer.getHandle().getClass().getSimpleName());
         mediaEventSubject.onNext( new StartedProgressMediaEvent(media));
     }
 
@@ -162,14 +162,14 @@ public class MonitorUI extends CoatMux {
         currenLayer.getHandle().stop();
     }
 
-    public void updatePercentageProgess(int percentage){
+    public void updatePercentageProgess(long actual, long total){
         mediaEventSubject
-                .onNext( new PercentageProgressMediaEvent(currenLayer.getHandle().getMedia(), percentage));
+                .onNext( new PercentageProgressMediaEvent(currenLayer.getHandle().getMedia(), actual, total));
     }
 
     @Override
     public void dispose() {
         stop();
-        log.info("dispose on monitor : {}", getIndex());
+        log.info("getIndex() [{}] - dispose on monitor", getIndex());
     }
 }

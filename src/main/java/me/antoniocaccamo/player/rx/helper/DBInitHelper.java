@@ -2,11 +2,18 @@ package me.antoniocaccamo.player.rx.helper;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.transaction.Transactional;
 
 import io.reactivex.disposables.Disposable;
 import me.antoniocaccamo.player.rx.config.Constants;
@@ -21,6 +28,7 @@ import me.antoniocaccamo.player.rx.repository.SequenceRepository;
 import me.antoniocaccamo.player.rx.service.ResourceService;
 
 import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.service.impl.LegacyServiceImpl;
 
 /**
  * @author antoniocaccamo on 10/03/2020
@@ -36,7 +44,7 @@ public class DBInitHelper {
     @Inject
     private MediaRepository mediaRepository;
 
-     @Inject
+    @Inject
     private SequenceRepository sequenceRepository;
 
     @Inject
@@ -49,112 +57,32 @@ public class DBInitHelper {
 
         Sequence sequence = null;
 
-        sequence = sequenceRepository.findByName(SEQUENCE_NAME)
+        sequence = sequenceRepository.findByName(Constants.DefaultSequenceName)
                 .orElseGet(this::createDefaultSequence)
+
         ;
 
         return sequence;
     }
 
-
+    @Transactional
     private Sequence createDefaultSequence() {
 
         log.warn("creating default sequence ..");
 
-        LocalResource blackResource = LocalResource.builder()
-                .withType(Constants.Resource.Type.BLACK)
-                .build()
-                ;
-
-        LocalResource hiddenResource = LocalResource.builder()
-                .withType(Constants.Resource.Type.HIDDEN)
-                .build()
-                ;
-
-        LocalResource watchResource = LocalResource.builder()
-                .withType(Constants.Resource.Type.WATCH)
-                .build()
-                ;
-
-        LocalResource weatherResource = LocalResource.builder()
-                .withType(Constants.Resource.Type.WEATHER)
-                .build()
-                ;
-
-        LocalResource logo = LocalResource.builder()
-                .withPath("images/logo.jpg")
-                .withType(Constants.Resource.Type.PHOTO)
-                .build()
-                ;
-
-        Observable.just(blackResource, hiddenResource, watchResource, weatherResource, logo)
-                .subscribe(new Observer<LocalResource>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        log.info("begin saving localResources");
-                    }
-
-                    @Override
-                    public void onNext(LocalResource localResource) {
-                        log.info("saving localResource : {}", localResource);
-                        LocalResource lr = resourceRepository.save(localResource);
-                        log.info("saved localResource : {}", lr);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        log.error("error occurred", e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        log.info("saved  localResources");
-                    }
+        Sequence sequence = Constants.DEFAULT_SEQUENCE();
+        sequence.getMedias()
+                .stream()
+                .forEach(media -> {
+                    Resource resource = media.getResource();
+                    resourceRepository.save(resource);
+                    //media.setResource(resource);
+                    mediaRepository.save(media);
                 });
+        sequenceRepository.save(sequence);
+        ObjectMapper mapper = new ObjectMapper();
+        log.info("default sequence saved : {} " , sequence);
 
-        resourceRepository.findAll()
-                .forEach(resource -> log.info("resource read  : {}", resource));
-
-
-        Resource resource;
-
-        resource  = resourceRepository.findByType(Constants.Resource.Type.PHOTO);
-
-        Media photohMedia = Media.builder()
-                .duration(Duration.ofSeconds(5))
-                .resource(resource)
-                .build();
-
-        resource  = resourceRepository.findByType(Constants.Resource.Type.WATCH);
-
-        Media watchMedia = Media.builder()
-                .duration(Duration.ofSeconds(5))
-                .resource(resource)
-                .build();
-
-        resource = resourceRepository.findByType(Constants.Resource.Type.WEATHER);
-        Media weatherMedia = Media.builder()
-                .duration(Duration.ofSeconds(10))
-                .resource(resource)
-                .build();
-
-        Observable.just(photohMedia, watchMedia, weatherMedia)
-                .subscribe(media -> log.info("media saved : {}", mediaRepository.save(media)));
-
-        mediaRepository.findAll()
-                .forEach( media -> log.info("media read : {}", media))
-        ;
-
-
-        Sequence sequence = Sequence.builder()
-                .name(SEQUENCE_NAME)
-                .location(Model.Location.LOCAL)
-                .medias(Arrays.asList(photohMedia, watchMedia, weatherMedia))
-                .build();
-
-        sequence = sequenceRepository.save(sequence);
-
-        log.info("sequence saved : {}", sequence);
 
         return sequence;
 

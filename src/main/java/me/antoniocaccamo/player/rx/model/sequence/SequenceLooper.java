@@ -1,27 +1,69 @@
 package me.antoniocaccamo.player.rx.model.sequence;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.persistence.Transient;
 import java.time.LocalDateTime;
-import java.util.LinkedList;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 public class SequenceLooper {
 
-    private int _loop;
+    @JsonIgnore
+    @Builder.Default @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient
+    private final Lock MY_LOCK = new ReentrantLock();
+    @JsonIgnore @Builder.Default @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient
+    private  int _loop    = 0;
+    @JsonIgnore @Builder.Default @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient
+    private  int _current = 0;
+    @JsonIgnore @Builder.Default @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient
+    private  int _next    = -1;
 
-    private  Media head;
-    private  Media tail;
+    @Getter @Setter
+    private Optional<Sequence> optionalSequence = Optional.empty();
 
-    private Media current;
 
-    private Media playing;
 
-    private Lock MY_LOCK = new ReentrantLock();
+    public Optional<Media> next()   {
+        return next(LocalDateTime.now());
+    }
 
-    private LinkedList<Media> list  ;
+    private Optional<Media> next(final LocalDateTime now) {
+
+        AtomicReference<Media> media = new AtomicReference<>();
+
+        optionalSequence.ifPresent( sq ->{
+
+            MY_LOCK.lock();
+            boolean found = false;
+            try {
+                while ( ! found ) {
+                    _next = ++ _next % sq.getMedias().size();
+                    media.set(sq.getMedias().get(_next));
+                    if (media.get().isPlayable(now)) {
+                        found = true;
+                    } else {
+                        log.warn("@@ -- TODO --");
+                        found = true;
+                    }
+                    _loop += _next == 0 ? 1 : 0;
+                }
+            } finally {
+                MY_LOCK.unlock();
+            }
+        });
+
+        return Optional.ofNullable(media.get());
+
+    }
 
 /*
     public SequenceLooper() {

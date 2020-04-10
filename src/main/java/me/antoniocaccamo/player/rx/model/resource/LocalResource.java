@@ -1,5 +1,6 @@
 package me.antoniocaccamo.player.rx.model.resource;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import me.antoniocaccamo.player.rx.config.Constants;
