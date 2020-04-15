@@ -75,6 +75,8 @@ public class Constants {
 
     public interface Screen {
 
+        public enum DefaultEnum{ N, Y}
+
         int WIDTH = 500;
 
         int HEIGHT = 400;

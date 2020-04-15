@@ -2,6 +2,7 @@ package me.antoniocaccamo.player.rx.model.resource;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.config.Constants;
 
 import javax.persistence.Column;
@@ -17,7 +18,7 @@ import java.time.Duration;
 
 @Getter
 @Setter
-@Entity
+@Entity @Slf4j
 @DiscriminatorValue(Constants.Resource.Location.Remote)
 public class RemoteResource extends Resource {
 
@@ -50,6 +51,12 @@ public class RemoteResource extends Resource {
     @Override
     public String toString() {
         return super.toString();
+    }
+
+    @Override
+    public boolean needsTrancode() {
+        log.warn("{} : needsTrancode ", Constants.TODO);
+        return isVideo();
     }
 
 

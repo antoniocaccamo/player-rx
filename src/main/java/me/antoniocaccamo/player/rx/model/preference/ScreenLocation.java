@@ -1,10 +1,7 @@
 package me.antoniocaccamo.player.rx.model.preference;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.helper.SWTHelper;
 import me.antoniocaccamo.player.rx.model.Model;
@@ -18,8 +15,8 @@ import org.eclipse.swt.graphics.Point;
  */
 @Slf4j
 @Getter @Setter @NoArgsConstructor
-@AllArgsConstructor
-public class LocationModel extends Model implements PointSWT<LocationModel> {
+@AllArgsConstructor @Builder
+public class ScreenLocation extends Model implements PointSWT<ScreenLocation> {
 
     @JsonProperty("x")
     private int top;
@@ -33,7 +30,7 @@ public class LocationModel extends Model implements PointSWT<LocationModel> {
     }
 
     @Override
-    public LocationModel fromPoint(Point point) {
+    public ScreenLocation fromPoint(Point point) {
         top  = point.y;
         left = point.x;
         return this;

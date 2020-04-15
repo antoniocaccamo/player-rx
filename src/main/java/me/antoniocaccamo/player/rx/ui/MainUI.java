@@ -10,10 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.helper.DBInitHelper;
 import me.antoniocaccamo.player.rx.helper.SWTHelper;
-import me.antoniocaccamo.player.rx.model.preference.LocationModel;
-import me.antoniocaccamo.player.rx.model.preference.MonitorModel;
+import me.antoniocaccamo.player.rx.model.preference.ScreenLocation;
+import me.antoniocaccamo.player.rx.model.preference.Screen;
 import me.antoniocaccamo.player.rx.model.preference.PreferenceModel;
-import me.antoniocaccamo.player.rx.model.preference.SizeModel;
+import me.antoniocaccamo.player.rx.model.preference.ScreenSize;
 import me.antoniocaccamo.player.rx.service.PreferenceService;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
@@ -57,7 +57,7 @@ public class MainUI {
 
     private PreferenceModel preference;
 
-    private PublishSubject<MonitorModel> monitorPublishSubject;
+    private PublishSubject<Screen> monitorPublishSubject;
 
     private CTabFolder tabFolder;
 
@@ -75,7 +75,7 @@ public class MainUI {
         preference = preferenceService.read();
         monitorPublishSubject = PublishSubject.create();
 
-        log.info("launching swt .. ");
+        log.info("launching swt");
 
         Shells shells = Shells.builder(SWT.RESIZE | SWT.ICON | SWT.CLOSE, cmp -> {
             Layouts.setGrid(cmp)
@@ -111,13 +111,18 @@ public class MainUI {
             tabFolderLayer.bringToTop();
 
             tabFolderIndex = new AtomicInteger(0);
-            preference.getMonitors().stream()
-                .forEach( monitorModel -> new TabItemMonitorUI(tabFolder, monitorModel, tabFolderIndex.getAndIncrement()) );
+
+            preference.getScreens().stream()
+                    .forEach( monitorModel -> new TabItemMonitorUI(tabFolder, monitorModel, tabFolderIndex.getAndIncrement()) );
+
+            Observable.fromArray(tabFolder.getItems())
+                    .map(i -> (TabItemMonitorUI) i)
+                    .subscribe( tabItemMonitorUI -> tabItemMonitorUI.applyMonitorModel() );
 
             SwtRx.addListener(cmp, SWT.Resize, SWT.Move)
-                .subscribe(event ->
-                        log.debug("event : {} | cmp size : {} location : {}", event, preference.getSize().fromPoint(cmp.getSize()), preference.getLocation().fromPoint(cmp.getLocation()))
-                );
+                    .subscribe(event ->
+                            log.debug("event : {} | cmp size : {} location : {}", event, preference.getSize().fromPoint(cmp.getSize()), preference.getLocation().fromPoint(cmp.getLocation()))
+                    );
             menuManager((Shell) cmp);
             try {
                 ((Shell) cmp).setImage(
@@ -138,10 +143,10 @@ public class MainUI {
                         System.exit(0);
                     });
         })
-        .setTitle(String.format("%s : %s", appname,preference.getComputer()))
-        .setSize( preference.getSize().toPoint())
-        .setLocation( preference.getLocation().toPoint() )
-        ;
+                .setTitle(String.format("%s : %s", appname,preference.getComputer()))
+                .setSize( preference.getSize().toPoint())
+                .setLocation( preference.getLocation().toPoint() )
+                ;
 
         shells.openOnDisplayBlocking();
         log.info("shell closed - > preference : {}", preference);
@@ -155,17 +160,18 @@ public class MainUI {
                 .setText("Add")
                 .setStyle(Actions.Style.PUSH)
                 .setListener(event -> {
-                    CTabItem cTabItem = new TabItemMonitorUI(tabFolder,
-                        new MonitorModel(
-                            new SizeModel(320, 280),
-                            new LocationModel( 50, 50),
-                            "", "",
-                                null, null, Constants.TimingEnum.ALL_DAY
-
-                        )
-                        , tabFolderIndex.getAndIncrement());
+                    TabItemMonitorUI cTabItem = new TabItemMonitorUI(tabFolder,
+                            Screen.builder()
+                                    .defaultScreen(Constants.Screen.DefaultEnum.N)
+                                    .size( ScreenSize.builder().width(Constants.Screen.WIDTH).height(Constants.Screen.HEIGHT).build())
+                                    .location(ScreenLocation.builder().top(Constants.Screen.TOP).left(Constants.Screen.LEFT).build() )
+                                    .sequence(Constants.DefaultSequenceName)
+                                    .timing(Constants.TimingEnum.ALL_DAY)
+                                    .build()
+                            , tabFolderIndex.getAndIncrement());
                     tabFolder.setSelection(cTabItem);
-                        })
+                    cTabItem.applyMonitorModel();
+                })
                 .build()
                 ;
 
@@ -231,14 +237,14 @@ public class MainUI {
                 .setText("&Exit")
                 .setStyle(Actions.Style.PUSH)
                 .setRunnable(() -> {
-                        if ( SwtMisc.blockForQuestion("aaaaaa", "exitt ??" ) )
-                            System.exit(0);
+                    if ( SwtMisc.blockForQuestion("aaaaaa", "exitt ??" ) )
+                        System.exit(0);
                 })
                 .build()
         );
 
 
- //       selection.set(Boolean.TRUE);
+        //       selection.set(Boolean.TRUE);
 
         manager.add(file_menu);
 

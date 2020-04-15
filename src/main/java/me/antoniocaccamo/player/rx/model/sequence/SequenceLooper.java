@@ -1,10 +1,7 @@
 package me.antoniocaccamo.player.rx.model.sequence;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.Transient;
@@ -17,14 +14,10 @@ import java.util.concurrent.locks.ReentrantLock;
 @Slf4j
 public class SequenceLooper {
 
-    @JsonIgnore
-    @Builder.Default @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient
+
     private final Lock MY_LOCK = new ReentrantLock();
-    @JsonIgnore @Builder.Default @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient
     private  int _loop    = 0;
-    @JsonIgnore @Builder.Default @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient
     private  int _current = 0;
-    @JsonIgnore @Builder.Default @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE) @Transient
     private  int _next    = -1;
 
     @Getter @Setter

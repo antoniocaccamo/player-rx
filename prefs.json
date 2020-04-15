@@ -2,16 +2,17 @@
   "uuid" : "fad153cd-b9f5-40e1-940e-5d2c7bf411c8",
   "computer" : "antonio",
   "size" : {
-    "width" : 773,
-    "height" : 782
+    "width" : 633,
+    "height" : 615
   },
   "location" : {
-    "x" : 63,
-    "y" : 811
+    "x" : 52,
+    "y" : 752
   },
   "sendAllEmail" : null,
   "weatherLatlng" : "45.08,7.40",
-  "player" : [ {
+  "screens" : [ {
+    "defaultScreen" : "Y",
     "size" : {
       "width" : 487,
       "height" : 376
@@ -26,6 +27,7 @@
     "to" : null,
     "timing" : "ALL_DAY"
   }, {
+    "defaultScreen" : "N",
     "size" : {
       "width" : 487,
       "height" : 376

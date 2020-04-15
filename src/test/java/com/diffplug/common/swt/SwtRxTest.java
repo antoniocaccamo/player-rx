@@ -84,6 +84,7 @@ public class SwtRxTest {
 
 			Rx.subscribe(boxA, boxB);
 			Rx.subscribe(boxB, boxA);
+
 		});
 	}
 

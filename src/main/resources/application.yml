@@ -15,7 +15,7 @@ micronaut:
         enabled : true
         paths :
           - "classpath:public"
-          - "file:${user.home}/.at/player/public"
+          - "file:${user.home}/.at/player-rx/resources"
 datasources:
   default:
     url: ${JDBC_URL:`jdbc:h2:~/.at/player-rx/db/player-rx.db;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE`}

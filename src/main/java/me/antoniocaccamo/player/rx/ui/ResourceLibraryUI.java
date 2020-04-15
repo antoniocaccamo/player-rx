@@ -77,7 +77,7 @@ public class ResourceLibraryUI extends Composite {
         group.setText("resources");
         //Layouts.setFill(group);
 
-       format = ColumnViewerFormat.builder();
+        format = ColumnViewerFormat.builder();
         format.addColumn().setText("id").setLabelProviderText(r -> String.valueOf(r.getId()));
         format.addColumn().setText("location").setLabelProviderText(r-> r.getClass().getSimpleName());
         format.addColumn().setText("type").setLabelProviderText(r-> r.getType().name());
@@ -85,9 +85,9 @@ public class ResourceLibraryUI extends Composite {
         format.addColumn().setText("path").setLabelProviderText(r->r.getPath());
         format.setStyle( SWT. FULL_SELECTION);
 
-         tableViewer = format.buildTable(group);
+        tableViewer = format.buildTable(group);
         tableViewer.setContentProvider(new ArrayContentProvider());
-         resourceRxBox  = ViewerMisc.singleSelection(tableViewer);
+        resourceRxBox  = ViewerMisc.singleSelection(tableViewer);
         resourceRxBox.asObservable().subscribe(or -> or.ifPresent( r->log.info("selected : {}", r)));
 
 
@@ -110,12 +110,11 @@ public class ResourceLibraryUI extends Composite {
         format.addColumn().setText("path").setLabelProviderText(r->r.getPath());
         format.setStyle( SWT. FULL_SELECTION);
 
-         tableViewer = format.buildTable(group);
+        tableViewer = format.buildTable(group);
 
-         tableViewer.setContentProvider(new ArrayContentProvider());
+        tableViewer.setContentProvider(new ArrayContentProvider());
         resourceRxBox  = ViewerMisc.singleSelection(tableViewer);
         resourceRxBox.asObservable().subscribe(or -> or.ifPresent( r->log.info("selected : {}", r)));
-
 
 
         tableViewer.setInput(resourceService.getResources());

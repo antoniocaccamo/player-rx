@@ -6,10 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.model.legacy.sequences.SequenceType;
 import me.antoniocaccamo.player.rx.model.legacy.sequences.VideoType;
-import me.antoniocaccamo.player.rx.model.preference.LocationModel;
-import me.antoniocaccamo.player.rx.model.preference.MonitorModel;
-import me.antoniocaccamo.player.rx.model.preference.PreferenceModel;
-import me.antoniocaccamo.player.rx.model.preference.SizeModel;
+import me.antoniocaccamo.player.rx.model.preference.*;
 import me.antoniocaccamo.player.rx.model.resource.LocalResource;
 import me.antoniocaccamo.player.rx.model.resource.RemoteResource;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
@@ -27,7 +24,6 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.stream.XMLInputFactory;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -153,13 +149,13 @@ public class LegacyServiceImpl implements LegacyService {
         int width = Integer.valueOf(props.getProperty(Constants.Player.APP_SIZE_WIDTH, String.valueOf(Constants.Player.WIDTH)));
         int heigth = Integer.valueOf(props.getProperty(Constants.Player.APP_SIZE_HEIGHT, String.valueOf(Constants.Player.HEIGHT)));
 
-        preferenceModel.setSize(new SizeModel(width, heigth));
+        preferenceModel.setSize(new ScreenSize(width, heigth));
 
 
         int x = Integer.valueOf(props.getProperty(Constants.Player.APP_LOCATION_X, String.valueOf(Constants.Player.TOP)));
         int y = Integer.valueOf(props.getProperty(Constants.Player.APP_LOCATION_Y, String.valueOf(Constants.Player.LEFT)));
 
-        preferenceModel.setLocation(new LocationModel(x, y));
+        preferenceModel.setLocation(new ScreenLocation(x, y));
 
         preferenceModel.setWeatherLatlng(props.getProperty(Constants.Player.APP_PLAYER_WEATHER_LATLNG, Constants.Player.DEFAULT_WEATHER_LATLNG));
 /*
@@ -174,25 +170,25 @@ public class LegacyServiceImpl implements LegacyService {
                 weatherRefresh = 180;
             }
 */
-        List<MonitorModel> monitorModels = new ArrayList<>();
+        List<Screen> monitorModels = new ArrayList<>();
         int numOfWindows = Integer.valueOf(props.getProperty(Constants.Player.APP_PLAYER_VIDEO_WINDOWS_NUMBER, String.valueOf(1)));
 
         if (numOfWindows > 0) {
 
             for (int i = 1; i <= numOfWindows; i++) {
-                MonitorModel monitorModel = new MonitorModel();
+                Screen monitorModel = new Screen();
                 Integer[] idx = new Integer[1];
                 idx[0] = new Integer(i);
 
 
                 int pw = Integer.valueOf(props.getProperty(Constants.Screen.APP_PLAYER_I_SIZE_WIDTH.format(idx), String.valueOf(Constants.Screen.WIDTH)));
                 int ph = Integer.valueOf(props.getProperty(Constants.Screen.APP_PLAYER_I_SIZE_HEIGHT.format(idx), String.valueOf(Constants.Screen.HEIGHT)));
-                monitorModel.setSize(new SizeModel(pw, ph));
+                monitorModel.setSize(new ScreenSize(pw, ph));
 
                 int pt = Integer.valueOf(props.getProperty(Constants.Screen.APP_PLAYER_I_LOCATION_X.format(idx), String.valueOf(Constants.Screen.TOP)));
                 int pl = Integer.valueOf(props.getProperty(Constants.Screen.APP_PLAYER_I_LOCATION_Y.format(idx), String.valueOf(Constants.Screen.LEFT)));
 
-                monitorModel.setLocation(new LocationModel(pt, pl));
+                monitorModel.setLocation(new ScreenLocation(pt, pl));
 
 /*
                     int loop = preferenceStore.getInt(Constants.Screen.APP_PLAYER_I_LOOP_NUMBER.format(idx));
@@ -342,12 +338,12 @@ public class LegacyServiceImpl implements LegacyService {
                 monitorModels.add(monitorModel);
             }
         } else {
-            MonitorModel monitorModelDefault = new MonitorModel();
+            Screen monitorModelDefault = new Screen();
 
             monitorModels.add(monitorModelDefault);
         }
 
-        preferenceModel.setMonitors(monitorModels);
+        preferenceModel.setScreens(monitorModels);
 
         return preferenceModel;
     }

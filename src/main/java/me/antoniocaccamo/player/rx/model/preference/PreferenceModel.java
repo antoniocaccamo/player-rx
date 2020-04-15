@@ -1,11 +1,7 @@
 package me.antoniocaccamo.player.rx.model.preference;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.model.Model;
 
@@ -25,16 +21,15 @@ public class PreferenceModel extends Model {
 
     private String computer;
 
-    private SizeModel size;
+    private ScreenSize size;
 
-    private LocationModel location;
+    private ScreenLocation location;
 
     private String sendAllEmail;
 
     private String weatherLatlng;
 
-    @JsonProperty("player")
-    private List<MonitorModel> monitors;
+    private List<Screen> screens;
 
 
     @Override
@@ -46,7 +41,7 @@ public class PreferenceModel extends Model {
                 .append("location", location)
                 .append("sendAllEmail", sendAllEmail)
                 .append("weatherLatlng", weatherLatlng)
-                .append("monitors", monitors)
+                .append("screens", screens)
                 .toString();
     }
 }

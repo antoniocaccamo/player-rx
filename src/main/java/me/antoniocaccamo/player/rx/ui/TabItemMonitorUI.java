@@ -1,8 +1,8 @@
 package me.antoniocaccamo.player.rx.ui;
 
+import com.diffplug.common.collect.ImmutableList;
 import com.diffplug.common.rx.RxBox;
 import com.diffplug.common.swt.*;
-import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.PublishSubject;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import me.antoniocaccamo.player.rx.event.media.command.*;
 import me.antoniocaccamo.player.rx.event.media.progress.EndedProgressMediaEvent;
 import me.antoniocaccamo.player.rx.event.media.progress.MediaEvent;
 import me.antoniocaccamo.player.rx.event.media.progress.PercentageProgressMediaEvent;
-import me.antoniocaccamo.player.rx.model.preference.MonitorModel;
+import me.antoniocaccamo.player.rx.model.preference.Screen;
 import me.antoniocaccamo.player.rx.model.resource.LocalResource;
 import me.antoniocaccamo.player.rx.model.sequence.Media;
 import me.antoniocaccamo.player.rx.model.sequence.Sequence;
@@ -27,7 +27,6 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.*;
 
 import javax.validation.constraints.NotNull;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Optional;
@@ -43,7 +42,7 @@ public class TabItemMonitorUI extends CTabItem {
     @Getter
     private final int index;
     @Getter
-    private final MonitorModel monitorModel;
+    private final Screen monitorModel;
 
     private final Shell monitorUI;
 
@@ -68,8 +67,9 @@ public class TabItemMonitorUI extends CTabItem {
     private Button playButton;
     private Button pauseButton;
     private Button stopButton;
+    private Combo sequenceCombo ;
 
-    public TabItemMonitorUI(CTabFolder tabFolder, MonitorModel monitorModel,  int index) {
+    public TabItemMonitorUI(CTabFolder tabFolder, Screen monitorModel, int index) {
         super(tabFolder, SWT.NONE);
 
         sequenceService = Main.CONTEXT.findBean(SequenceService.class).get();
@@ -110,23 +110,36 @@ public class TabItemMonitorUI extends CTabItem {
                         .openOn(getParent().getShell())
         ;
 
-        applyMonitorModel();
+        sequenceLooper.setOptionalSequence(sequenceService.getSequenceByName( monitorModel.getSequence()));
 
         // create observers
 
 
-        SwtExec.async().guardOn(this)
-                .subscribe(
-                        Single.create(emitter -> {
-                            emitter.onSuccess(sequenceService.getSequenceByName( monitorModel.getSequence())  );
-                        }).toObservable()
-                        , value -> {
-                            Optional<Sequence> sequence = (Optional<Sequence>) value;
-                        //    selectedSequence = sequence;
-                            sequenceLooper.setOptionalSequence(sequence);
-                            sequence.ifPresent(sq -> log.info("getIndex() [{}] - sequence : {}" , getIndex(), sq));
-                        }
-                );
+//        SwtExec.async().guardOn(this)
+//                .subscribe(
+//                        Single.create(emitter -> {
+//                            emitter.onSuccess(sequenceService.getSequenceByName( monitorModel.getSequence())  );
+//                        }).toObservable()
+//                        , value -> {
+//                            Optional<Sequence> sequence = (Optional<Sequence>) value;
+//                        //    selectedSequence = sequence;
+//                            sequenceLooper.setOptionalSequence(sequence);
+//                            sequence.ifPresent(sq -> log.info("getIndex() [{}] - sequence : {}" , getIndex(), sq));
+//                        }
+//                );
+
+
+
+    }
+
+    public void applyMonitorModel() {
+
+        log.info("getIndex() [{}] - applyMonitorModel",getIndex() );
+
+        ImmutableList<Sequence> values = ImmutableList.copyOf(sequenceService.getLoadedSequences());
+        values.stream().forEach(sq -> sequenceCombo.add(sq.getName()));
+
+        SwtRx.combo(sequenceCombo,values, Sequence::getName);
 
         createObservers();
 
@@ -134,12 +147,9 @@ public class TabItemMonitorUI extends CTabItem {
 
     }
 
-    private void applyMonitorModel() {
-
-
-    }
-
     private void createObservers() {
+
+        log.info("getIndex() [{}] - createObservers", getIndex() );
 
         this.mediaEventSubject.subscribe(
                 mediaEvent -> log.debug("getIndex() [{}] - media event received : {}", getIndex(),  mediaEvent)
@@ -223,14 +233,9 @@ public class TabItemMonitorUI extends CTabItem {
                 });
     }
 
-    private Media getWhenNotActiveMedia() {
-        return Media.builder()
-                .duration(Duration.ofSeconds(5))
-                .resource(LocalResource.builder().withType(Constants.Resource.Type.WATCH).build())
-                .build();
-    }
-
     private void createTimers() {
+
+        log.info("getIndex() [{}] - createTimers", getIndex() );
 
         scheduledFuture =  SwtExec.async().guardOn(this)
                 .scheduleAtFixedRate(
@@ -241,6 +246,15 @@ public class TabItemMonitorUI extends CTabItem {
                         TimeUnit.MILLISECONDS
                 );
     }
+
+    private Media getWhenNotActiveMedia() {
+        return Media.builder()
+                .duration(Duration.ofSeconds(5))
+                .resource(LocalResource.builder().withType(Constants.Resource.Type.WATCH).build())
+                .build();
+    }
+
+
 
 
     @NotNull
@@ -412,7 +426,9 @@ public class TabItemMonitorUI extends CTabItem {
         label = new Label(group, SWT.NONE);
         label.setText(LocaleManager.getText(LocaleManager.Application.Group.Sequence.Sequence));
 
-        Layouts.setGridData(new Combo(group, SWT.NONE)).grabHorizontal();
+        sequenceCombo = new Combo(group, SWT.NONE);
+
+        Layouts.setGridData(sequenceCombo).grabHorizontal();
 
         label = new Label(group, SWT.NONE);
         label.setText(LocaleManager.getText("Numero video"));
@@ -587,7 +603,8 @@ public class TabItemMonitorUI extends CTabItem {
         log.warn("getIndex() [{}] - disposing tabItemMonitorUI ", getIndex());
         this.commandEventSubject.onComplete();
         this.mediaEventSubject.onComplete();
-        scheduledFuture.cancel(true);
+        if ( scheduledFuture != null)
+            scheduledFuture.cancel(true);
         monitorUI.dispose();
         super.dispose();
     }

@@ -1,9 +1,6 @@
 package me.antoniocaccamo.player.rx.model.preference;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.helper.SWTHelper;
 import me.antoniocaccamo.player.rx.model.Model;
@@ -16,9 +13,9 @@ import org.eclipse.swt.graphics.Point;
  * @author antoniocaccamo on 07/02/2020
  */
 @Slf4j
-@Getter @Setter @NoArgsConstructor
+@Getter @Setter @NoArgsConstructor @Builder
 @AllArgsConstructor
-public class SizeModel extends Model implements PointSWT<SizeModel> {
+public class ScreenSize extends Model implements PointSWT<ScreenSize> {
 
     private int width;
 
@@ -30,7 +27,7 @@ public class SizeModel extends Model implements PointSWT<SizeModel> {
     }
 
     @Override
-    public SizeModel fromPoint(Point point) {
+    public ScreenSize fromPoint(Point point) {
         width  = point.x;
         height = point.y;
         return this;

@@ -4,6 +4,7 @@ import me.antoniocaccamo.player.rx.model.Model;
 import me.antoniocaccamo.player.rx.model.sequence.Sequence;
 
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Optional;
 
 public interface SequenceService {
@@ -15,6 +16,8 @@ public interface SequenceService {
     void save(Sequence sequence, Path path);
 
     Optional<Sequence> getSequenceByName(String seqeunceName);
+
+    Collection<Sequence> getLoadedSequences();
 
     //Sequence dummy();
 }

@@ -3,6 +3,7 @@ package me.antoniocaccamo.player.rx.model.resource;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.config.Constants;
 
 import javax.persistence.DiscriminatorValue;
@@ -14,7 +15,7 @@ import java.time.Duration;
 /**
  * @author antoniocaccamo on 18/02/2020
  */
-@Getter
+@Getter @Slf4j
 @Setter
 @Entity @DiscriminatorValue(Constants.Resource.Location.Local)
 public class LocalResource extends Resource {
@@ -81,5 +82,11 @@ public class LocalResource extends Resource {
     @Override
     public String toString() {
         return super.toString();
+    }
+
+    @Override
+    public boolean needsTrancode() {
+        log.warn("{} : needsTrancode ", Constants.TODO);
+        return isVideo();
     }
 }

@@ -95,4 +95,7 @@ public abstract class Resource {
                 .append("duration", duration)
                 .toString();
     }
+
+    @Transient @JsonIgnore
+    public abstract boolean needsTrancode();
 }
