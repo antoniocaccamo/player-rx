@@ -2,6 +2,7 @@ package me.antoniocaccamo.player.rx.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -9,7 +10,10 @@ import io.reactivex.Observable;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.model.Model;
+import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.model.sequence.Sequence;
+import me.antoniocaccamo.player.rx.repository.MediaRepository;
+import me.antoniocaccamo.player.rx.repository.ResourceRepository;
 import me.antoniocaccamo.player.rx.repository.SequenceRepository;
 import me.antoniocaccamo.player.rx.service.SequenceService;
 import me.antoniocaccamo.player.rx.service.TranscodeService;
@@ -33,10 +37,16 @@ public class SequenceServiceImpl implements SequenceService {
 
     private final ConcurrentMap<String, Optional<Sequence>> sequenceMap= new ConcurrentSkipListMap<>();
 
-    private LoadingCache<String, Sequence> sequenceCache = null;
+    private Cache<String, Sequence> sequenceCache = null;
 
     @Inject
     private SequenceRepository sequenceRepository;
+
+    @Inject
+    private ResourceRepository resourceRepository;
+
+    @Inject
+    private MediaRepository mediaRepository;
 
     @Inject
     private TranscodeService transcodeService;
@@ -45,21 +55,15 @@ public class SequenceServiceImpl implements SequenceService {
     public void postConstuct(){
         sequenceCache = CacheBuilder.newBuilder()
                 .recordStats()
-                .build( new CacheLoader<String, Sequence>() {
-                            @Override
-                            public Sequence load(String sequenceName) throws Exception {
-                                log.info("repo reading  sequence  : {}", sequenceName);
-                                return sequenceRepository.findByName(sequenceName).orElseThrow(RuntimeException::new);
-                            }
-                        }
-                )
+                .build()
         ;
 
-        sequenceCache.putAll(
-                Observable.fromIterable(sequenceRepository.findAll())
-                        .toMap( sq -> sq.getName())
-                        .blockingGet()
-        );
+
+//        sequenceCache.putAll(
+//                Observable.fromIterable(sequenceRepository.findAll())
+//                        .toMap( sq -> sq.getName())
+//                        .blockingGet()
+//        );
 
     }
 
@@ -88,30 +92,40 @@ public class SequenceServiceImpl implements SequenceService {
     }
 
     @Override
-    public void save(Sequence sequence, Path path) {
+    public Sequence save(Sequence sequence, Path path) {
 
+        sequence.getMedias()
+                .stream()
+                .forEach(media -> {
+                    Resource resource = media.getResource();
+                    resourceRepository.save(resource);
+                    //media.setResource(resource);
+                    mediaRepository.save(media);
+                });
+        sequenceRepository.save(sequence);
+        sequenceCache.put(sequence.getName(), sequence);
+        return sequence;
     }
 
     @Override
     public Optional<Sequence> getSequenceByName(String sequenceName) {
-        Optional<Sequence> sequence = null;
+        Optional<Sequence> sequence = Optional.empty();
 //        if ( ! sequenceMap.containsKey(sequenceName)) {
 //            log.info("loading sequence : {}", sequenceName);
 //            sequenceMap.put(sequenceName, sequenceRepository.findByName(sequenceName));
 //        }
 //        sequence = sequenceMap.get(sequenceName);
 
-        try {
-            sequence = Optional.ofNullable(sequenceCache.get(sequenceName));
-            sequence.ifPresent(sq -> sq.getMedias()
-                    .stream()
-                    .filter(media -> media.getResource().isVideo() &&  media.getResource().needsTrancode())
-                    .forEach(media -> transcodeService.transcode(media.getResource()))
 
-            );
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+        log.warn("sequence by name : {}", sequenceName);
+        sequence = Optional.ofNullable(sequenceCache.getIfPresent(sequenceName));
+        sequence.ifPresent(sq -> sq.getMedias()
+                .stream()
+                .filter(media -> media.getResource().isVideo() &&  media.getResource().needsTrancode())
+                .forEach(media -> transcodeService.transcode(media.getResource()))
+
+        );
+
         return sequence;
     }
 

@@ -6,16 +6,18 @@ import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.model.legacy.sequences.SequenceType;
 import me.antoniocaccamo.player.rx.model.legacy.sequences.VideoType;
-import me.antoniocaccamo.player.rx.model.preference.*;
+import me.antoniocaccamo.player.rx.model.preference.PreferenceModel;
+import me.antoniocaccamo.player.rx.model.preference.Screen;
+import me.antoniocaccamo.player.rx.model.preference.ScreenLocation;
+import me.antoniocaccamo.player.rx.model.preference.ScreenSize;
 import me.antoniocaccamo.player.rx.model.resource.LocalResource;
 import me.antoniocaccamo.player.rx.model.resource.RemoteResource;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.model.sequence.Media;
 import me.antoniocaccamo.player.rx.model.sequence.Sequence;
-import me.antoniocaccamo.player.rx.repository.MediaRepository;
-import me.antoniocaccamo.player.rx.repository.ResourceRepository;
-import me.antoniocaccamo.player.rx.repository.SequenceRepository;
 import me.antoniocaccamo.player.rx.service.LegacyService;
+import me.antoniocaccamo.player.rx.service.ResourceService;
+import me.antoniocaccamo.player.rx.service.SequenceService;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
@@ -48,14 +50,20 @@ public class LegacyServiceImpl implements LegacyService {
     @NotNull
     private String prefFile;
 
-    @Inject
-    private SequenceRepository sequenceRepository;
+//    @Inject
+//    private SequenceRepository sequenceRepository;
+//
+//    @Inject
+//    private MediaRepository mediaRepository;
+//
+//    @Inject
+//    private ResourceRepository resourceRepository;
 
     @Inject
-    private MediaRepository mediaRepository;
+    private SequenceService sequenceService;
 
     @Inject
-    private ResourceRepository resourceRepository;
+    private ResourceService resourceService;
 
     @Override
     public PreferenceModel loadPreferenceModel() throws IOException {
@@ -355,28 +363,37 @@ public class LegacyServiceImpl implements LegacyService {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(SequenceType.class);
 
+
             JAXBElement<SequenceType> sequenceType = (JAXBElement<SequenceType>) jaxbContext.createUnmarshaller()
                 .unmarshal(
                         XMLInputFactory.newInstance().createXMLEventReader(new FileReader(path)),
                         SequenceType.class
                 );
 
-            List<Media> medias = sequenceType.getValue().getVideos().getVideo()
-                    .stream()
-                    .map(LegacyServiceImpl::video2media)
-                    .map(media -> {
-                        Resource resource = media.getResource();
-                        resourceRepository.save(resource);
-                        media.setResource(resource);
-                        return  mediaRepository.save(media);
-                    })
-                    .collect(Collectors.toList());
+            Optional<Sequence> os =  sequenceService.getSequenceByName(sequenceType.getValue().getName());
+
+            if ( os.isPresent() ) {
+                sequence = os.get();
+            } else {
+
+                List<Media> medias = sequenceType.getValue().getVideos().getVideo()
+                        .stream()
+                        .map(this::video2media)
+//                    .map(media -> {
+//                        Resource resource = media.getResource();
+//                        resourceRepository.save(resource);
+//                        media.setResource(resource);
+//                        return  mediaRepository.save(media);
+//                    })
+                        .collect(Collectors.toList());
 
 
-            sequence = new Sequence();
-            sequence.setMedias(medias);
+                sequence = new Sequence();
+                sequence.setName(sequenceType.getValue().getName());
+                sequence.setMedias(medias);
 
-            sequence = sequenceRepository.save(sequence);
+                sequence = sequenceService.save(sequence, null);
+            }
 
         } catch (Exception e) {
             log.error("error reading from file : {}", path , e);
@@ -385,7 +402,7 @@ public class LegacyServiceImpl implements LegacyService {
         return Optional.ofNullable(sequence);
     }
 
-    private static Media video2media(VideoType videoType) {
+    private  Media video2media(VideoType videoType) {
         Media media = new Media();
         Resource resource = null;
 
@@ -459,6 +476,7 @@ public class LegacyServiceImpl implements LegacyService {
                         .withType(Constants.Resource.Type.WATCH)
                         .build();
                 break;
+
             case WEATHER:
                 resource = LocalResource.builder()
                         .withType(Constants.Resource.Type.WEATHER)
@@ -467,6 +485,10 @@ public class LegacyServiceImpl implements LegacyService {
 
             default:
         }
+
+        Optional<Resource> or = this.resourceService.getResourceByHash(resource);
+        if ( or.isPresent() )
+            resource = or.get();
 
         media.setResource(resource);
 

@@ -4,7 +4,6 @@ package me.antoniocaccamo.player.rx.model.resource;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
-import me.antoniocaccamo.player.rx.config.Constants;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -31,7 +30,7 @@ public abstract class Resource {
     protected Long id;
 
     @Column
-    protected Constants.Resource.Type type;
+    protected me.antoniocaccamo.player.rx.config.Constants.Resource.Type type;
 
     //@Column
     //protected LOCATION location;
@@ -51,11 +50,11 @@ public abstract class Resource {
         this.id = id;
     }
 
-    public Constants.Resource.Type getType() {
+    public me.antoniocaccamo.player.rx.config.Constants.Resource.Type getType() {
         return type;
     }
 
-    public void setType(Constants.Resource.Type type) {
+    public void setType(me.antoniocaccamo.player.rx.config.Constants.Resource.Type type) {
         this.type = type;
     }
 
@@ -80,7 +79,7 @@ public abstract class Resource {
 
     @Transient
     public boolean isVideo(){
-        return Constants.Resource.Type.VIDEO.equals(getType());
+        return me.antoniocaccamo.player.rx.config.Constants.Resource.Type.VIDEO.equals(getType());
     }
 
     @Transient
@@ -98,4 +97,7 @@ public abstract class Resource {
 
     @Transient @JsonIgnore
     public abstract boolean needsTrancode();
+
+    @Transient @JsonIgnore
+    public abstract String getHash();
 }

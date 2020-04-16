@@ -1,6 +1,7 @@
 package me.antoniocaccamo.player.rx.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.micronaut.context.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.model.legacy.sequences.VideoType;
@@ -34,7 +35,7 @@ public class PreferenceServiceImpl implements PreferenceService {
 
     private PreferenceModel preferenceModel;
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
 
 

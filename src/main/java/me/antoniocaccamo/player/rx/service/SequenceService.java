@@ -13,7 +13,7 @@ public interface SequenceService {
 
     Sequence read(Model.Location location, Path path);
 
-    void save(Sequence sequence, Path path);
+    Sequence save(Sequence sequence, Path path);
 
     Optional<Sequence> getSequenceByName(String seqeunceName);
 

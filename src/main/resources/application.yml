@@ -2,7 +2,7 @@
 micronaut:
   application:
     name: player-rx
-    pref-file : prefs.json
+    pref-file : prefs.yaml
     res-library-file : res-library-file.yaml
     legacy-pref-file : prefs.properties
   server:

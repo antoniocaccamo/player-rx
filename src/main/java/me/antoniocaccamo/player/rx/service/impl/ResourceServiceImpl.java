@@ -1,10 +1,14 @@
 package me.antoniocaccamo.player.rx.service.impl;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.LoadingCache;
 import com.google.common.hash.Hashing;
 import io.micronaut.context.annotation.Value;
 import io.reactivex.Observable;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
+import me.antoniocaccamo.player.rx.model.sequence.Sequence;
 import me.antoniocaccamo.player.rx.repository.ResourceRepository;
 import me.antoniocaccamo.player.rx.service.ResourceService;
 
@@ -14,6 +18,7 @@ import javax.inject.Singleton;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 
 @Singleton @Slf4j
 public class ResourceServiceImpl implements ResourceService {
@@ -25,6 +30,8 @@ public class ResourceServiceImpl implements ResourceService {
     private ResourceRepository resourceRepository;
 
     private Map<String, Resource> resourceMap;
+
+    private Cache<String, Resource> resourceCache = null;
 
     @PostConstruct
     public void postConstruct() throws FileNotFoundException {
@@ -47,10 +54,20 @@ public class ResourceServiceImpl implements ResourceService {
                         .blockingGet()
         ;
 
+        resourceCache =  CacheBuilder.newBuilder()
+                .recordStats()
+                .build();
+
+    }
+
+    public Optional<Resource> getResourceByHash(Resource resource) {
+        Optional<Resource> optionalResource = Optional.ofNullable(resourceCache.getIfPresent(resource.getHash() ));
+        return optionalResource;
+
     }
 
     public Map getResourceMap() {
-       return resourceMap;
+        return resourceMap;
     }
 
     @Override
@@ -59,14 +76,14 @@ public class ResourceServiceImpl implements ResourceService {
     }
 
     //@PreDestroy
-   //public void preDestroy() {
-   //    log.info("{} service destroying", getClass().getSimpleName());
+    //public void preDestroy() {
+    //    log.info("{} service destroying", getClass().getSimpleName());
 
-   //    log.info("saving resources...");
-   //    try ( FileWriter fw = new FileWriter(new File(resLibraryFile)) ) {
-   //        new Yaml().dump(getResourceMap(), fw);
-   //    } catch (Exception e) {
-   //        log.error("error occurred", e);
-   //    }
-   //}
+    //    log.info("saving resources...");
+    //    try ( FileWriter fw = new FileWriter(new File(resLibraryFile)) ) {
+    //        new Yaml().dump(getResourceMap(), fw);
+    //    } catch (Exception e) {
+    //        log.error("error occurred", e);
+    //    }
+    //}
 }

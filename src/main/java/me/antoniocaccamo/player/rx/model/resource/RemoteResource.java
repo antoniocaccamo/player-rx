@@ -9,6 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Duration;
 
@@ -21,7 +22,6 @@ import java.time.Duration;
 @Entity @Slf4j
 @DiscriminatorValue(Constants.Resource.Location.Remote)
 public class RemoteResource extends Resource {
-
 
     public static RemoteResourceBuilder builder() {
         return new RemoteResourceBuilder();
@@ -99,5 +99,12 @@ public class RemoteResource extends Resource {
         public RemoteResource build() {
             return remoteResource;
         }
+    }
+
+    @Override
+    public String getHash() {
+        return me.antoniocaccamo.player.rx.config.Constants.Resource.HASH_FUNCTION
+                .hashString(String.format("REMOTE|%s|%s|s", String.valueOf(getType()), String.valueOf( getRemote()), getPath()), StandardCharsets.UTF_8)
+                .toString();
     }
 }

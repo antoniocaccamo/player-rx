@@ -146,7 +146,8 @@ public class Media implements Playable, Cloneable{
 
     public void setDuration(Duration duration) {
         this.duration = duration;
-        this.getResource().setDuration(duration);
+        if ( getResource().isVideo())
+            getResource().setDuration(duration);
     }
 
     public Resource getResource() {

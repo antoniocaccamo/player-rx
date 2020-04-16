@@ -1,6 +1,9 @@
 package me.antoniocaccamo.player.rx.config;
 
 
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.model.Model;
 import me.antoniocaccamo.player.rx.model.resource.LocalResource;
@@ -189,6 +192,8 @@ public class Constants {
             FTP,
             S3
         }
+
+        static HashFunction HASH_FUNCTION  = Hashing.sha512();
     }
 
     public static String DefaultSequenceName = "DEFAULT_SEQUENCE";
