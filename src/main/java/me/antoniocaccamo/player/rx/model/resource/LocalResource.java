@@ -25,15 +25,15 @@ public class LocalResource extends Resource {
 
     @Override
     public Path getLocalPath() {
-        Path localPath = null;
+//        Path localPath = null;
+//        if ( ! isVideo() ) {
+//            localPath = Paths.get(path);
+//        } else {
+//            localPath = Paths.get( Constants.Resource.getVideoHLS(this) );
+//        }
+//        return localPath;
 
-        if ( ! isVideo() ) {
-            localPath = Paths.get(path);
-        } else {
-            localPath = Paths.get( me.antoniocaccamo.player.rx.config.Constants.Resource.getVideoHLS(this) );
-        }
-
-        return localPath;
+        return Paths.get(path);
     }
 
     @Override

@@ -109,24 +109,27 @@ public class SequenceServiceImpl implements SequenceService {
 
     @Override
     public Optional<Sequence> getSequenceByName(String sequenceName) {
-        Optional<Sequence> sequence = Optional.empty();
+        Optional<Sequence> optionalSequence = Optional.empty();
 //        if ( ! sequenceMap.containsKey(sequenceName)) {
-//            log.info("loading sequence : {}", sequenceName);
+//            log.info("loading optionalSequence : {}", sequenceName);
 //            sequenceMap.put(sequenceName, sequenceRepository.findByName(sequenceName));
 //        }
-//        sequence = sequenceMap.get(sequenceName);
+//        optionalSequence = sequenceMap.get(sequenceName);
 
 
-        log.warn("sequence by name : {}", sequenceName);
-        sequence = Optional.ofNullable(sequenceCache.getIfPresent(sequenceName));
-        sequence.ifPresent(sq -> sq.getMedias()
+        log.warn("optionalSequence by name : {}", sequenceName);
+        optionalSequence = Optional.ofNullable(sequenceCache.getIfPresent(sequenceName));
+        if ( ! optionalSequence.isPresent() ) {
+            optionalSequence = sequenceRepository.findByName(sequenceName);
+            sequenceCache.put(sequenceName, optionalSequence.get());
+        }
+        optionalSequence.ifPresent(sq -> sq.getMedias()
                 .stream()
                 .filter(media -> media.getResource().isVideo() &&  media.getResource().needsTrancode())
                 .forEach(media -> transcodeService.transcode(media.getResource()))
 
         );
-
-        return sequence;
+        return optionalSequence;
     }
 
     @Override

@@ -21,9 +21,6 @@ import java.time.Duration;
 
 public abstract class Resource {
 
-
-
-
     @Id
     @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="RESOURCE_SEQ")
     @SequenceGenerator(name="RESOURCE_SEQ", sequenceName="RESOURCE_SEQ", allocationSize=1)
@@ -77,6 +74,9 @@ public abstract class Resource {
     @Transient @JsonIgnore
     public abstract Path getLocalPath() ;
 
+    //@Transient @JsonIgnore
+    //public abstract Path getHLSPath() ;
+
     @Transient
     public boolean isVideo(){
         return me.antoniocaccamo.player.rx.config.Constants.Resource.Type.VIDEO.equals(getType());
@@ -90,8 +90,10 @@ public abstract class Resource {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
                 .append("id", id)
                 .append("type", type)
-                .append("path", path)
-                .append("duration", duration)
+                .append("path", getPath())
+                .append("duration", getDuration())
+                .append("hash", getHash())
+                .append("localpath", getLocalPath())
                 .toString();
     }
 

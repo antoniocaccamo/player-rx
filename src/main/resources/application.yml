@@ -5,6 +5,7 @@ micronaut:
     pref-file : prefs.yaml
     res-library-file : res-library-file.yaml
     legacy-pref-file : prefs.properties
+    resource-prefix-path : ${user.home}/.at/player-rx/resources
   server:
     port: 9000
     cors:

@@ -57,6 +57,7 @@ dependencies {
     runtimeOnly                 "ch.qos.logback:logback-classic:1.2.3"
     runtimeOnly                 "com.h2database:h2"
 
+    implementation              "net.bramp.ffmpeg:ffmpeg:0.6.2"
     implementation              'com.fasterxml.jackson.dataformat:jackson-dataformats-text:2.9.8'
     implementation              'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.8'
     implementation              'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.8'

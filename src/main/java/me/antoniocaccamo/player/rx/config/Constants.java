@@ -11,6 +11,7 @@ import me.antoniocaccamo.player.rx.model.resource.RemoteResource;
 import me.antoniocaccamo.player.rx.model.sequence.Media;
 import me.antoniocaccamo.player.rx.model.sequence.Sequence;
 
+import java.io.File;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Arrays;
@@ -167,9 +168,9 @@ public class Constants {
     public interface Resource {
 
         // @TODO
-        public static String getVideoHLS(LocalResource localResource) {
-            String hls = null;
-            log.warn(TODO);
+        static String getVideoHLS(String prefixPath, me.antoniocaccamo.player.rx.model.resource.Resource resource) {
+            String hls = String.format("%s%s%s%s%s", prefixPath, File.separator, resource.getType(), File.separator, resource.getHash());
+            log.warn("{} : getVideoHLS : {}", TODO, hls);
             return hls;
         }
 
@@ -184,7 +185,7 @@ public class Constants {
         }
 
         public interface Location {
-            String Local = "LOCAL";
+            String Local  = "LOCAL";
             String Remote = "REMOTE";
         }
 

@@ -1,5 +1,6 @@
 package me.antoniocaccamo.player.rx.service.impl;
 
+import io.micronaut.context.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.service.TranscodeService;
@@ -11,6 +12,19 @@ import javax.inject.Singleton;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+
+import net.bramp.ffmpeg.FFmpeg;
+import net.bramp.ffmpeg.FFmpegExecutor;
+import net.bramp.ffmpeg.FFmpegUtils;
+import net.bramp.ffmpeg.FFprobe;
+import net.bramp.ffmpeg.builder.FFmpegBuilder;
+import net.bramp.ffmpeg.job.FFmpegJob;
+import net.bramp.ffmpeg.job.FFmpegJob.State;
+import net.bramp.ffmpeg.options.EncodingOptions;
+import net.bramp.ffmpeg.probe.FFmpegFormat;
+import net.bramp.ffmpeg.probe.FFmpegProbeResult;
+import net.bramp.ffmpeg.progress.Progress;
+import net.bramp.ffmpeg.progress.ProgressListener;
 /**
  * @author antoniocaccamo on 19/02/2020
  */
@@ -18,9 +32,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class HLSTrancodeServiceImpl implements TranscodeService {
 
+    private  FFmpeg   ffmpeg;
+    private  FFprobe ffprobe;
+
+    @Value("${micronaut.application.resource-prefix-path}")
+    private String resourcePrefixPath;
+
     private final AtomicBoolean running = new AtomicBoolean(Boolean.FALSE);
 
-    private BlockingQueue<Resource> trancodingQueue;
+    private BlockingQueue<Resource> toTrancodegQueue     = new LinkedBlockingQueue<>();
+    private final BlockingQueue<String> trancodingQueue  = new LinkedBlockingQueue<>();
 
     private ExecutorService executorService;
 
@@ -28,11 +49,14 @@ public class HLSTrancodeServiceImpl implements TranscodeService {
 
     @PostConstruct
     public void postConstruct(){
-        trancodingQueue = new LinkedBlockingQueue<>();
+
+        ffmpeg  = new FFmpeg("");
+        ffprobe = new FFprobe("");
+
         running.set(Boolean.TRUE);
         executorService = Executors.newCachedThreadPool();
         for (int i = 0; i < transcoders; i++  ) {
-            executorService.submit( new TrancoderTask(trancodingQueue));
+            executorService.submit( new TrancoderTask(toTrancodegQueue,trancodingQueue));
         }
         log.info("{}} service started", getClass().getSimpleName());
     }
@@ -56,18 +80,20 @@ public class HLSTrancodeServiceImpl implements TranscodeService {
 
     @Override
     public void transcode(Resource resource) {
-        if ( Constants.Resource.Type.VIDEO.equals(resource.getType())){
+        if ( Constants.Resource.Type.VIDEO.equals(resource.getType()) &&  resource.needsTrancode()){
             log.info("add video resource to trancode : {}", resource);
-            trancodingQueue.offer(resource);
+            toTrancodegQueue.offer(resource);
         }
     }
 
 
     private class TrancoderTask implements Runnable {
 
-        private final BlockingQueue<Resource> trancodingQueue;
+        private BlockingQueue<Resource> toTrancodegQueue;
+        private final BlockingQueue<String> trancodingQueue;
 
-        private TrancoderTask(BlockingQueue<Resource> trancodingQueue) {
+        private TrancoderTask(BlockingQueue<Resource> toTrancodegQueue, BlockingQueue<String> trancodingQueue) {
+            this.toTrancodegQueue = toTrancodegQueue;
             this.trancodingQueue = trancodingQueue;
         }
 
@@ -77,14 +103,20 @@ public class HLSTrancodeServiceImpl implements TranscodeService {
             Resource resource = null;
             while ( running.get() ){
                 try {
-                    resource = trancodingQueue.poll(5, TimeUnit.SECONDS);
+                    resource = toTrancodegQueue.poll(5, TimeUnit.SECONDS);
                     if ( resource == null)
                         continue;
-                    log.info("{} : video resource to trancode : {}", Thread.currentThread().getName(), resource);
-                    Thread.sleep(resource.getDuration().toMillis());
-                    log.info("{} :  trancoded : {}", Thread.currentThread().getName(), resource);
+                    if (  ! trancodingQueue.contains(resource.getHash()) ) {
+                        trancodingQueue.offer(resource.getHash());
+                        log.info("{} : video resource to trancode : {}", Thread.currentThread().getName(), resource);
+                        Thread.sleep(resource.getDuration().toMillis());
+                        log.info("{} :  trancoded : {}", Thread.currentThread().getName(), resource);
+                    }
                 } catch (InterruptedException e) {
                     log.info("{} interrupted" , Thread.currentThread().getName());
+                } catch (Exception e) {
+                    if ( resource != null)
+                        trancodingQueue.remove(resource.getHash());
                 }
             }
         }
