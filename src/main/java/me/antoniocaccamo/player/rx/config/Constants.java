@@ -1,7 +1,6 @@
 package me.antoniocaccamo.player.rx.config;
 
 
-import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import lombok.extern.slf4j.Slf4j;
@@ -167,9 +166,20 @@ public class Constants {
 
     public interface Resource {
 
+        //
+        static String getResourceLocationTypeParentPath(String prefixPath, me.antoniocaccamo.player.rx.model.resource.Resource resource) {
+            String hls = String.format("%s%s%s%s%s%s%s", prefixPath,
+                    File.separator, resource instanceof LocalResource ? Location.Local: Location.Remote,
+                    File.separator, resource.getType(),
+                    File.separator, resource.getHash()
+            );
+            log.warn("{} : getResourceLocationTypeParentPath : {}", TODO, hls);
+            return hls;
+        }
+
         // @TODO
         static String getVideoHLS(String prefixPath, me.antoniocaccamo.player.rx.model.resource.Resource resource) {
-            String hls = String.format("%s%s%s%s%s", prefixPath, File.separator, resource.getType(), File.separator, resource.getHash());
+            String hls = String.format("%s%s%s%s%s", getResourceLocationTypeParentPath(prefixPath, resource), File.separator, "hls", File.separator, "index.m3u8");
             log.warn("{} : getVideoHLS : {}", TODO, hls);
             return hls;
         }
@@ -194,7 +204,7 @@ public class Constants {
             S3
         }
 
-        static HashFunction HASH_FUNCTION  = Hashing.sha512();
+        static HashFunction HASH_FUNCTION  = Hashing.crc32();
     }
 
     public static String DefaultSequenceName = "DEFAULT_SEQUENCE";

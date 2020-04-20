@@ -13,27 +13,14 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
-import net.bramp.ffmpeg.FFmpeg;
-import net.bramp.ffmpeg.FFmpegExecutor;
-import net.bramp.ffmpeg.FFmpegUtils;
-import net.bramp.ffmpeg.FFprobe;
-import net.bramp.ffmpeg.builder.FFmpegBuilder;
-import net.bramp.ffmpeg.job.FFmpegJob;
-import net.bramp.ffmpeg.job.FFmpegJob.State;
-import net.bramp.ffmpeg.options.EncodingOptions;
-import net.bramp.ffmpeg.probe.FFmpegFormat;
-import net.bramp.ffmpeg.probe.FFmpegProbeResult;
-import net.bramp.ffmpeg.progress.Progress;
-import net.bramp.ffmpeg.progress.ProgressListener;
+import ws.schild.jave.DefaultFFMPEGLocator;
+
 /**
  * @author antoniocaccamo on 19/02/2020
  */
 @Singleton
 @Slf4j
 public class HLSTrancodeServiceImpl implements TranscodeService {
-
-    private  FFmpeg   ffmpeg;
-    private  FFprobe ffprobe;
 
     @Value("${micronaut.application.resource-prefix-path}")
     private String resourcePrefixPath;
@@ -50,15 +37,14 @@ public class HLSTrancodeServiceImpl implements TranscodeService {
     @PostConstruct
     public void postConstruct(){
 
-        ffmpeg  = new FFmpeg("");
-        ffprobe = new FFprobe("");
-
         running.set(Boolean.TRUE);
         executorService = Executors.newCachedThreadPool();
         for (int i = 0; i < transcoders; i++  ) {
             executorService.submit( new TrancoderTask(toTrancodegQueue,trancodingQueue));
         }
-        log.info("{}} service started", getClass().getSimpleName());
+        DefaultFFMPEGLocator locator= new  DefaultFFMPEGLocator();
+        String exePath= locator.getFFMPEGExecutablePath();
+        log.info("{} service started : ffmpeg location : {}", getClass().getSimpleName(), exePath);
     }
 
     @PreDestroy
@@ -109,7 +95,9 @@ public class HLSTrancodeServiceImpl implements TranscodeService {
                     if (  ! trancodingQueue.contains(resource.getHash()) ) {
                         trancodingQueue.offer(resource.getHash());
                         log.info("{} : video resource to trancode : {}", Thread.currentThread().getName(), resource);
-                        Thread.sleep(resource.getDuration().toMillis());
+
+                         Thread.sleep(resource.getDuration().toMillis());
+
                         log.info("{} :  trancoded : {}", Thread.currentThread().getName(), resource);
                     }
                 } catch (InterruptedException e) {
