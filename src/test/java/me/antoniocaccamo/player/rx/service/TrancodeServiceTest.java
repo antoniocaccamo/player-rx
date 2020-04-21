@@ -83,15 +83,44 @@ class TrancodeServiceTest  {
         audioAttr.setBitRate(128000);
         audioAttr.setSamplingRate(44100);
 
-        videoAttr.setCodec("libx264");
-        videoAttr.setBitRate(4000000);
-
         encodingAttr.setAudioAttributes(audioAttr);
+
+
+
+        videoAttr.setCodec("libx264");
+
+        videoAttr.setBitRate(4000000);
+        videoAttr.setX264Profile(VideoAttributes.X264_PROFILE.BASELINE);
+
+
+
         encodingAttr.setVideoAttributes(videoAttr);
-        encodingAttr.setFormat("mp4");
+        encodingAttr.setFormat("hls");
+
+        log.info("encoding attributes : {}", encodingAttr.toString());
 
         Encoder encoder = new Encoder();
-        encoder.encode(new MultimediaObject(source), target, encodingAttr);
+
+        log.info("list of video enconder");
+        Stream.of(encoder.getVideoEncoders())
+                .forEach(enc -> log.info("\t{}", enc));
+
+        encoder.encode(new MultimediaObject(source), target, encodingAttr, new EncoderProgressListener() {
+            @Override
+            public void sourceInfo(MultimediaInfo multimediaInfo) {
+                log.info("multimediaInfo : {}", multimediaInfo);
+            }
+
+            @Override
+            public void progress(int i) {
+                log.info("progress : {}", i);
+            }
+
+            @Override
+            public void message(String s) {
+                log.info("message : {}", s);
+            }
+        });
 
 
 

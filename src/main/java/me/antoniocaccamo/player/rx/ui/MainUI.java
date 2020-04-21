@@ -3,10 +3,17 @@ package me.antoniocaccamo.player.rx.ui;
 import com.diffplug.common.swt.*;
 import com.diffplug.common.swt.jface.Actions;
 import com.diffplug.common.swt.jface.ImageDescriptors;
+import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Value;
+import io.micronaut.context.event.ApplicationEvent;
+import io.micronaut.context.event.ApplicationEventListener;
+import io.micronaut.context.event.StartupEvent;
+import io.micronaut.runtime.event.annotation.EventListener;
+import io.micronaut.scheduling.annotation.Async;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.Main;
 import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.helper.DBInitHelper;
 import me.antoniocaccamo.player.rx.helper.SWTHelper;
@@ -31,6 +38,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //import picocli.CommandLine;
@@ -39,7 +47,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author antoniocaccamo on 20/02/2020
  */
 @Singleton @Slf4j
-public class MainUI {
+public class MainUI  {
+
+    @Inject
+    private ApplicationContext applicationContext;
 
     @Value("${micronaut.application.name}")
     @NotNull
@@ -68,8 +79,10 @@ public class MainUI {
     private CoatMux.Layer<Composite> tabFolderLayer;
     private CoatMux.Layer<Composite> resourceLibraryLayer;
 
-    @PostConstruct
+
     public void show() {
+
+        Main.CONTEXT = applicationContext;
 
         dbInitHelper.getDefaultSquence();
         preference = preferenceService.read();
@@ -135,13 +148,7 @@ public class MainUI {
             }
 
             SwtRx.addListener(cmp, SWT.Dispose)
-                    .subscribe(event -> {
-                        for (CTabItem item: tabFolder.getItems()) {
-                            item.getControl().dispose();
-                            item.dispose();
-                        }
-                        System.exit(0);
-                    });
+                    .subscribe(event -> dispose() );
         })
                 .setTitle(String.format("%s : %s", appname,preference.getComputer()))
                 .setSize( preference.getSize().toPoint())
@@ -151,6 +158,18 @@ public class MainUI {
         shells.openOnDisplayBlocking();
         log.info("shell closed - > preference : {}", preference);
     }
+
+    public void dispose() {
+        log.info("disposing ");
+            for (CTabItem item: tabFolder.getItems()) {
+                item.getControl().dispose();
+                item.dispose();
+            }
+            Main.CONTEXT.stop();
+            System.exit(0);
+        }
+
+
 
     private void toolbarManager(Composite cmp) {
         ToolBarManager manager = new ToolBarManager();
@@ -237,8 +256,8 @@ public class MainUI {
                 .setText("&Exit")
                 .setStyle(Actions.Style.PUSH)
                 .setRunnable(() -> {
-                    if ( SwtMisc.blockForQuestion("aaaaaa", "exitt ??" ) )
-                        System.exit(0);
+                    if ( SwtMisc.blockForQuestion("aaaaaa", "exit ?" ) )
+                        dispose();
                 })
                 .build()
         );
@@ -252,6 +271,15 @@ public class MainUI {
 
         shell.setMenuBar(menu);
     }
+
+
+    @EventListener @Async
+    public void onStartupEvent(StartupEvent event) {
+        // startup logic here
+        log.info(" shooooooooooooooooooooooooooooooooooowwwwwwwwwwwwwww");
+        Executors.newSingleThreadExecutor().submit(() -> show());
+    }
+
 
 
 }
