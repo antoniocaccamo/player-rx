@@ -1,4 +1,4 @@
-package me.antoniocaccamo.player.rx.bundle;
+package me.antoniocaccamo.player.rx.helper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,9 +7,9 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-public class LocaleManager {
+public class LocaleHelper {
 
-	private static Logger logger = LoggerFactory.getLogger(LocaleManager.class);
+	private static Logger logger = LoggerFactory.getLogger(LocaleHelper.class);
 
 	private static String BUNDLE_NAME = "bundle/labels";
 
@@ -43,12 +43,12 @@ public class LocaleManager {
 	public static void changeLocale( String localeString) {
 		logger.info("changing locale ..");
 		try {
-			LocaleManager.LOCALE = new Locale(localeString);
-			LocaleManager.RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME, LocaleManager.LOCALE);
+			LocaleHelper.LOCALE = new Locale(localeString);
+			LocaleHelper.RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME, LocaleHelper.LOCALE);
 		} catch (Exception e) {
 			logger.error("error changing locale to " + localeString, e);
 		}
-		logger.info("locale changed to " + LocaleManager.RESOURCE_BUNDLE.getLocale().getLanguage() );
+		logger.info("locale changed to " + LocaleHelper.RESOURCE_BUNDLE.getLocale().getLanguage() );
 	}
 
 	public static Locale getLocale() {
@@ -69,12 +69,12 @@ public class LocaleManager {
 
 		public static class Menu {
 
-			public static String File = "app.menu.file";
-
 			public static class File {
-				public static String Save 	= String.join( DELIMETER, Menu.File, "save");
-				public static String Prefs 	= String.join(DELIMETER, Menu.File, "prefs");
-				public static String Exit 	= String.join(DELIMETER, Menu.File, "exit");
+				private static String prefix = "app.menu.file";
+				public static String File   = getText( prefix);
+				public static String Save 	= getText( String.join( DELIMETER, prefix, "save"));
+				public static String Prefs 	= getText( String.join(DELIMETER, prefix, "prefs"));
+				public static String Exit 	= getText( String.join(DELIMETER, prefix, "exit"));
 			}
 		}
 
@@ -82,53 +82,63 @@ public class LocaleManager {
 
 			public static String Search = "app.search";
 
-			public static String File = String.join(DELIMETER, Application.Search.Search, "file");
+			public static String File = getText( String.join(DELIMETER, Application.Search.Search, "file"));
 		}
 
 		public static class Group {
 
-			public static String Group = "app.group";
+			 protected static String prefix = "app.group";
+
+			 // public static final String Group = getText(prefix);
 
 			public static class Activation {
-				public static String Activation = String.join(DELIMETER, Application.Group.Group, "activation");
+				public static String Activation = getText(String.join(DELIMETER, Application.Group.prefix, "activation"));
 			}
 
 			public static class Screen {
-				public static String Screen     = String.join(DELIMETER, Application.Group.Group, "screen");
+				protected static String prefix  = String.join(DELIMETER, Application.Group.prefix, "screen");
 
-				public static String Lock 	= String.join(DELIMETER, Screen, "lock");
-				public static String Fade 	= String.join(DELIMETER, Screen, "fade");
-				public static String View 	= String.join(DELIMETER, Screen, "view");
+				public static String Screen = getText( prefix );
+				public static String Lock 	= getText( String.join(DELIMETER, prefix, "lock") );
+				public static String Fade 	= getText( String.join(DELIMETER, prefix, "fade") );
+				public static String View 	= getText( String.join(DELIMETER, prefix, "view") );
 
 
 				public static class Size {
-					public static String Size = String.join(DELIMETER, Application.Group.Screen.Screen, "size");
+					protected static String prefix  = String.join(DELIMETER, Application.Group.Screen.prefix, "size");
 
-					public static String Width 	= String.join(DELIMETER, Size, "width");
-					public static String Height = String.join(DELIMETER, Size, "height");
+					public static String Size   = getText( prefix );
+					public static String Width 	= getText( String.join(DELIMETER, prefix, "width") );
+					public static String Height = getText( String.join(DELIMETER, prefix, "height") );
 				}
 
 				public static class Location {
-					public static String Location = String.join(DELIMETER, Application.Group.Screen.Screen, "location");
+					protected static String prefix  = String.join(DELIMETER, Application.Group.Screen.prefix, "location");
 
-					public static String Top 	= String.join(DELIMETER, Location, "top");
-					public static String Left   = String.join(DELIMETER, Location, "left");
+					public static String Location = getText( prefix);
+					public static String Top 	  = getText( String.join(DELIMETER, prefix, "top") );
+					public static String Left     = getText( String.join(DELIMETER, prefix, "left") );
 				}
 
 				public static class Watch {
-					public static String Watch = String.join(DELIMETER, Application.Group.Screen.Screen, "watch");
+					private static String prefix = String.join(DELIMETER, Application.Group.Screen.prefix, "watch");
 
-					public static String Background 	= String.join(DELIMETER, Watch, "background");
-					public static String BackgroundImage   = String.join(DELIMETER, Watch, "background", "image");
+					public static String Watch           = getText(prefix);
+					public static String Background 	 = getText( String.join(DELIMETER, prefix, "background") );
+					public static String BackgroundImage = getText( String.join(DELIMETER, prefix, "background", "image") );
 
-					public static String Font 	     = String.join(DELIMETER, Watch, "font");
-					public static String FontDate 	= String.join(DELIMETER, Font, "date");
-					public static String FontTime 	= String.join(DELIMETER, Font,  "time");
+					public static class Font {
+						private static String prefix = String.join(DELIMETER, Application.Group.Screen.Watch.prefix, "font");
+
+						public static String Font     = getText( prefix );
+						public static String FontDate = getText(String.join(DELIMETER, prefix, "date") );
+						public static String FontTime = getText(String.join(DELIMETER, prefix, "time") );
+					}
 				}
 			}
 
 			public static class Sequence {
-				public static String Sequence = String.join(DELIMETER, Application.Group.Group, "sequence");
+				public static String Sequence = String.join(DELIMETER, Application.Group.prefix, "sequence");
 			}
 
 		}

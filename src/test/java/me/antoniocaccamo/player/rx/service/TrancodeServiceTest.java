@@ -94,6 +94,7 @@ class TrancodeServiceTest  {
 
 
 
+
         encodingAttr.setVideoAttributes(videoAttr);
         encodingAttr.setFormat("hls");
 

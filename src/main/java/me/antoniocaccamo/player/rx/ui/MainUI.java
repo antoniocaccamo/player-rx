@@ -5,8 +5,6 @@ import com.diffplug.common.swt.jface.Actions;
 import com.diffplug.common.swt.jface.ImageDescriptors;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Value;
-import io.micronaut.context.event.ApplicationEvent;
-import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.context.event.StartupEvent;
 import io.micronaut.runtime.event.annotation.EventListener;
 import io.micronaut.scheduling.annotation.Async;
@@ -14,6 +12,7 @@ import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.Main;
+import me.antoniocaccamo.player.rx.helper.LocaleHelper;
 import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.helper.DBInitHelper;
 import me.antoniocaccamo.player.rx.helper.SWTHelper;
@@ -33,7 +32,6 @@ import org.eclipse.swt.widgets.Decorations;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
@@ -83,6 +81,7 @@ public class MainUI  {
     public void show() {
 
         Main.CONTEXT = applicationContext;
+        Main.port    = port;
 
         dbInitHelper.getDefaultSquence();
         preference = preferenceService.read();
@@ -160,14 +159,17 @@ public class MainUI  {
     }
 
     public void dispose() {
-        log.info("disposing ");
-            for (CTabItem item: tabFolder.getItems()) {
+
+
+            log.info("disposing ..");
+            for (CTabItem item : tabFolder.getItems()) {
                 item.getControl().dispose();
                 item.dispose();
             }
             Main.CONTEXT.stop();
             System.exit(0);
-        }
+
+    }
 
 
 
@@ -234,11 +236,11 @@ public class MainUI  {
     private void menuManager(Shell shell) {
         MenuManager manager = new MenuManager();
 
-        MenuManager file_menu = new MenuManager("&File");
+        MenuManager file_menu = new MenuManager(LocaleHelper.Application.Menu.File.File);
 
 //      Save
         file_menu.add(Actions.builder()
-                .setText("&Save")
+                .setText(LocaleHelper.Application.Menu.File.Save)
                 .setStyle(Actions.Style.PUSH)
                 .setRunnable(() -> {
                     try {
@@ -253,10 +255,12 @@ public class MainUI  {
 
 //      Exit
         file_menu.add(Actions.builder()
-                .setText("&Exit")
+                .setText(  LocaleHelper.Application.Menu.File.Exit )
                 .setStyle(Actions.Style.PUSH)
                 .setRunnable(() -> {
-                    if ( SwtMisc.blockForQuestion("aaaaaa", "exit ?" ) )
+                    if ( SwtMisc.blockForQuestion(
+                            String.format("%s : %s", appname,preference.getComputer()), LocaleHelper.Application.Menu.File.Exit )
+                    )
                         dispose();
                 })
                 .build()

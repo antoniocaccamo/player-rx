@@ -13,7 +13,6 @@ micronaut:
   router:
     static-resources:
       default:
-        enabled : true
         paths :
           - "classpath:public"
           - "file:${user.home}/.at/player-rx/resources"

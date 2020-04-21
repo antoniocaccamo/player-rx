@@ -13,6 +13,8 @@ public class Main {
 
     public static ApplicationContext CONTEXT ;
 
+    public static int port;
+
     public static void main(String[] args) {
 
         DurianPlugins.register(RxTracingPolicy.class, new RxTracingPolicy.LogSubscriptionTrace());

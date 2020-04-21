@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.Main;
-import me.antoniocaccamo.player.rx.bundle.LocaleManager;
+import me.antoniocaccamo.player.rx.helper.LocaleHelper;
 import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.event.media.command.*;
 import me.antoniocaccamo.player.rx.event.media.progress.EndedProgressMediaEvent;
@@ -201,12 +201,14 @@ public class TabItemMonitorUI extends CTabItem {
                             stopButton.setEnabled(false);
                             pauseButton.setEnabled(false);
                             playButton.setEnabled(true);
+                            sequenceCombo.setEnabled(true);
                             break;
                         case PAUSED:
                         case PLAYING:
                             stopButton.setEnabled(true);
                             pauseButton.setEnabled(true);
                             playButton.setEnabled(false);
+                            sequenceCombo.setEnabled(false);
                             break;
                         default:
                     }
@@ -263,7 +265,7 @@ public class TabItemMonitorUI extends CTabItem {
         Spinner spinner = null;
 
         final Group group = new Group(composite, SWT.SHADOW_ETCHED_IN);
-        group.setText(LocaleManager.getText(LocaleManager.Application.Group.Screen.Screen));
+        group.setText(LocaleHelper.Application.Group.Screen.Screen);
 
         Layouts.setGrid(group)
                 .numColumns(2)
@@ -273,7 +275,7 @@ public class TabItemMonitorUI extends CTabItem {
 
         // -- size
         final Group sizeGroup = new Group(group, SWT.NONE);
-        sizeGroup.setText(LocaleManager.getText(LocaleManager.Application.Group.Screen.Size.Size));
+        sizeGroup.setText(LocaleHelper.Application.Group.Screen.Size.Size);
         Layouts.setGrid(sizeGroup)
                 .numColumns(2)
                 .columnsEqualWidth(true)
@@ -281,7 +283,7 @@ public class TabItemMonitorUI extends CTabItem {
         ;
         Layouts.setGridData(sizeGroup).grabHorizontal();
         label = new Label(sizeGroup, SWT.NONE);
-        label.setText(LocaleManager.getText(LocaleManager.Application.Group.Screen.Size.Width));
+        label.setText(LocaleHelper.Application.Group.Screen.Size.Width);
         Layouts.setGridData(label).grabAll();
         spinner = new Spinner(sizeGroup, SWT.NONE);
         spinner.setMinimum(0);spinner.setMaximum(Integer.MAX_VALUE);
@@ -296,7 +298,7 @@ public class TabItemMonitorUI extends CTabItem {
                         });
 
         label = new Label(sizeGroup, SWT.NONE);
-        label.setText(LocaleManager.getText(LocaleManager.Application.Group.Screen.Size.Height));
+        label.setText(LocaleHelper.Application.Group.Screen.Size.Height);
         Layouts.setGridData(label).grabAll();
         spinner = new Spinner(sizeGroup, SWT.NONE);
         spinner.setMinimum(0); spinner.setMaximum(Integer.MAX_VALUE);
@@ -312,7 +314,7 @@ public class TabItemMonitorUI extends CTabItem {
 
         // -- location
         final Group locationGroup = new Group(group, SWT.NONE);
-        locationGroup.setText(LocaleManager.getText(LocaleManager.Application.Group.Screen.Location.Location));
+        locationGroup.setText(LocaleHelper.Application.Group.Screen.Location.Location);
         Layouts.setGrid(locationGroup)
                 .numColumns(2)
                 .columnsEqualWidth(true)
@@ -320,7 +322,7 @@ public class TabItemMonitorUI extends CTabItem {
         ;
         Layouts.setGridData(locationGroup).grabHorizontal();
         label = new Label(locationGroup, SWT.NONE);
-        label.setText(LocaleManager.getText(LocaleManager.Application.Group.Screen.Location.Top));
+        label.setText(LocaleHelper.Application.Group.Screen.Location.Top);
         Layouts.setGridData(label).grabAll();
         spinner = new Spinner(locationGroup, SWT.NONE);
         spinner.setMinimum(0);spinner.setMaximum(Integer.MAX_VALUE);
@@ -335,7 +337,7 @@ public class TabItemMonitorUI extends CTabItem {
                         });
 
         label = new Label(locationGroup, SWT.NONE);
-        label.setText(LocaleManager.getText(LocaleManager.Application.Group.Screen.Location.Left));
+        label.setText(LocaleHelper.Application.Group.Screen.Location.Left);
         Layouts.setGridData(label).grabAll();
         spinner = new Spinner(locationGroup, SWT.NONE);
         spinner.setMinimum(0); spinner.setMaximum(Integer.MAX_VALUE);
@@ -351,7 +353,7 @@ public class TabItemMonitorUI extends CTabItem {
 
         // watch
         final Group watchGroup = new Group(group, SWT.NONE);
-        watchGroup.setText(LocaleManager.getText(LocaleManager.Application.Group.Screen.Watch.Watch));
+        watchGroup.setText(LocaleHelper.Application.Group.Screen.Watch.Watch);
         Layouts.setGrid(watchGroup)
                 .numColumns(2)
                 .columnsEqualWidth(true)
@@ -359,22 +361,22 @@ public class TabItemMonitorUI extends CTabItem {
         ;
         Layouts.setGridData(watchGroup).horizontalSpan(2).grabHorizontal();
         final Group watchBackgroundGroup = new Group(watchGroup, SWT.NONE);
-        watchBackgroundGroup.setText(LocaleManager.getText(LocaleManager.Application.Group.Screen.Watch.Background));
+        watchBackgroundGroup.setText(LocaleHelper.Application.Group.Screen.Watch.Background);
         Layouts.setGrid(watchBackgroundGroup)
                 .numColumns(2)
                 .columnsEqualWidth(true)
                 .margin(0);
 
         Button watchBackgroundImageButton = new Button(watchBackgroundGroup, SWT.CHECK);
-        watchBackgroundImageButton.setText(LocaleManager.getText(LocaleManager.Application.Group.Screen.Watch.BackgroundImage));
+        watchBackgroundImageButton.setText(LocaleHelper.Application.Group.Screen.Watch.BackgroundImage);
         Layouts.setGridData(watchBackgroundGroup).grabHorizontal();
 
         Button watchBackgroundImageFileButton = new Button(watchBackgroundGroup, SWT.PUSH);
-        watchBackgroundImageFileButton.setText(LocaleManager.getText(LocaleManager.Application.Search.File));
+        watchBackgroundImageFileButton.setText(LocaleHelper.Application.Search.File);
         Layouts.setGridData(watchBackgroundImageFileButton).grabHorizontal();
 
         final Group watchFontGroup = new Group(watchGroup, SWT.NONE);
-        watchFontGroup.setText(LocaleManager.getText(LocaleManager.Application.Group.Screen.Watch.Font));
+        watchFontGroup.setText(LocaleHelper.Application.Group.Screen.Watch.Font.Font);
         Layouts.setGrid(watchFontGroup)
                 .numColumns(2)
                 .columnsEqualWidth(true)
@@ -382,11 +384,11 @@ public class TabItemMonitorUI extends CTabItem {
         Layouts.setGridData(watchFontGroup).grabHorizontal();
 
         Button watchFontDataButton = new Button(watchFontGroup, SWT.PUSH);
-        watchFontDataButton.setText(LocaleManager.getText(LocaleManager.Application.Group.Screen.Watch.FontDate));
+        watchFontDataButton.setText(LocaleHelper.Application.Group.Screen.Watch.Font.FontDate);
         Layouts.setGridData(watchFontDataButton).grabHorizontal();
 
         Button watchFontTimeButton = new Button(watchFontGroup, SWT.PUSH);
-        watchFontTimeButton.setText(LocaleManager.getText(LocaleManager.Application.Group.Screen.Watch.FontTime));
+        watchFontTimeButton.setText(LocaleHelper.Application.Group.Screen.Watch.Font.FontTime);
         Layouts.setGridData(watchFontTimeButton).grabHorizontal();
 
         return group;
@@ -397,7 +399,7 @@ public class TabItemMonitorUI extends CTabItem {
         Spinner spinner = null;
 
         final Group group = new Group(composite, SWT.NONE);
-        group.setText(LocaleManager.getText(LocaleManager.Application.Group.Activation.Activation));
+        group.setText(LocaleHelper.Application.Group.Activation.Activation);
 
         Layouts.setGrid(group)
                 .numColumns(2)
@@ -415,7 +417,7 @@ public class TabItemMonitorUI extends CTabItem {
         Button button =null;
 
         Group group = new Group(composite, SWT.NONE);
-        group.setText(LocaleManager.getText(LocaleManager.Application.Group.Sequence.Sequence));
+        group.setText(LocaleHelper.Application.Group.Sequence.Sequence);
 
         Layouts.setGrid(group)
                 .numColumns(2)
@@ -424,26 +426,26 @@ public class TabItemMonitorUI extends CTabItem {
         ;
 
         label = new Label(group, SWT.NONE);
-        label.setText(LocaleManager.getText(LocaleManager.Application.Group.Sequence.Sequence));
+        label.setText(LocaleHelper.Application.Group.Sequence.Sequence);
 
         sequenceCombo = new Combo(group, SWT.NONE);
 
         Layouts.setGridData(sequenceCombo).grabHorizontal();
 
         label = new Label(group, SWT.NONE);
-        label.setText(LocaleManager.getText("Numero video"));
+        label.setText("Numero video");
 
         label = new Label(group, SWT.NONE);
-        label.setText(LocaleManager.getText("3"));
+        label.setText("3");
 
         label = new Label(group, SWT.NONE);
-        label.setText(LocaleManager.getText("Durata"));
+        label.setText("Durata");
 
         label = new Label(group, SWT.NONE);
         label.setText("00:00:09,000");
 
         label = new Label(group, SWT.NONE);
-        label.setText(LocaleManager.getText("Nome file"));
+        label.setText("Nome file");
 
         label = new Label(group, SWT.NONE);
         label.setText("default.xsq");
@@ -502,19 +504,19 @@ public class TabItemMonitorUI extends CTabItem {
         ;
 
         label = new Label(mediaGroup, SWT.NONE);
-        label.setText(LocaleManager.getText("Numero video"));
+        label.setText("Numero video");
 
         label = new Label(mediaGroup, SWT.NONE);
-        label.setText(LocaleManager.getText("3"));
+        label.setText("3");
 
         label = new Label(mediaGroup, SWT.NONE);
-        label.setText(LocaleManager.getText("Durata"));
+        label.setText("Durata");
 
         label = new Label(mediaGroup, SWT.NONE);
         label.setText("00:00:09,000");
 
         label = new Label(mediaGroup, SWT.NONE);
-        label.setText(LocaleManager.getText("Nome file"));
+        label.setText("Nome file");
 
         label = new Label(mediaGroup, SWT.NONE);
         label.setText("default.xsq");
