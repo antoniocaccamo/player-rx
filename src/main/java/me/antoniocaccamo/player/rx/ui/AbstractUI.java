@@ -76,12 +76,12 @@ public abstract class AbstractUI extends Composite {
         durationTimer.purge();
     }
 
-    public Media getMedia(){
+    public Media getCurrent(){
         return current;
     }
 
-    public void setMedia(Media movie) {
-        this.current = movie ;
+    public void setCurrent(Media media) {
+        this.current = media ;
     }
 
     public void pause() {

@@ -1,22 +1,23 @@
 package me.antoniocaccamo.player.rx.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.LoadingCache;
-import com.google.common.hash.Hashing;
 import io.micronaut.context.annotation.Value;
 import io.reactivex.Observable;
 import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.model.jackson.ResourceCollectionWrapprer;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
-import me.antoniocaccamo.player.rx.model.sequence.Sequence;
 import me.antoniocaccamo.player.rx.repository.ResourceRepository;
 import me.antoniocaccamo.player.rx.service.ResourceService;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,7 +25,7 @@ import java.util.Optional;
 public class ResourceServiceImpl implements ResourceService {
 
     @Value("${micronaut.application.res-library-file}")
-    private String resLibraryFile;
+    private File resLibraryFile;
 
     @Inject
     private ResourceRepository resourceRepository;
@@ -32,6 +33,8 @@ public class ResourceServiceImpl implements ResourceService {
     private Map<String, Resource> resourceMap;
 
     private Cache<String, Resource> resourceCache = null;
+
+    private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
     @PostConstruct
     public void postConstruct() throws FileNotFoundException {
@@ -48,15 +51,13 @@ public class ResourceServiceImpl implements ResourceService {
         }
         */
 
-        resourceMap =
-                Observable.fromIterable(resourceRepository.findAll())
-                        .toMap( x-> Hashing.sha512().hashString(x.toString(), StandardCharsets.UTF_8).toString())
-                        .blockingGet()
-        ;
 
         resourceCache =  CacheBuilder.newBuilder()
                 .recordStats()
                 .build();
+
+        Observable.fromIterable(resourceRepository.findAll())
+                .subscribe( resource -> resourceCache.put(resource.getHash(), resource));
 
     }
 
@@ -64,6 +65,12 @@ public class ResourceServiceImpl implements ResourceService {
         Optional<Resource> optionalResource = Optional.ofNullable(resourceCache.getIfPresent(resource.getHash() ));
         return optionalResource;
 
+    }
+
+    @Override
+    public void save(Resource resource) {
+        resourceCache.put(resource.getHash(), resource);
+        resourceRepository.save(resource);
     }
 
     public Map getResourceMap() {
@@ -75,15 +82,16 @@ public class ResourceServiceImpl implements ResourceService {
         return resourceRepository.findAll();
     }
 
-    //@PreDestroy
-    //public void preDestroy() {
-    //    log.info("{} service destroying", getClass().getSimpleName());
+    @PreDestroy
+    public void preDestroy() {
 
-    //    log.info("saving resources...");
-    //    try ( FileWriter fw = new FileWriter(new File(resLibraryFile)) ) {
-    //        new Yaml().dump(getResourceMap(), fw);
-    //    } catch (Exception e) {
-    //        log.error("error occurred", e);
-    //    }
-    //}
+        log.info("saving resources file : {}", resLibraryFile.getAbsolutePath());
+        try  {
+            ResourceCollectionWrapprer wrapper = new ResourceCollectionWrapprer();
+            wrapper.setCollection(resourceCache.asMap().values());
+            mapper.writerWithDefaultPrettyPrinter().writeValue( this.resLibraryFile, wrapper);
+        } catch (Exception e) {
+            log.error("error occurred", e);
+        }
+    }
 }

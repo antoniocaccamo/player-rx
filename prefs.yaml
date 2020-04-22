@@ -2,11 +2,11 @@
 uuid: "dc44beac-7d5e-4e97-a065-a7cba61a606e"
 computer: "antonio"
 size:
-  width: 494
-  height: 533
+  width: 1440
+  height: 767
 location:
-  x: 56
-  y: 744
+  x: 52
+  y: 52
 sendAllEmail: null
 weatherLatlng: "45.08,7.40"
 screens:
@@ -19,18 +19,6 @@ screens:
     y: 250
   name: null
   sequence: "DEFAULT_SEQUENCE"
-  from: null
-  to: null
-  timing: "ALL_DAY"
-- defaultScreen: null
-  size:
-    width: 200
-    height: 180
-  location:
-    x: 500
-    y: 250
-  name: null
-  sequence: "test"
   from: null
   to: null
   timing: "ALL_DAY"

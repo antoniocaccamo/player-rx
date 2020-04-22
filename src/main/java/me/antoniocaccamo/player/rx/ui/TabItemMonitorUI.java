@@ -139,7 +139,10 @@ public class TabItemMonitorUI extends CTabItem {
         ImmutableList<Sequence> values = ImmutableList.copyOf(sequenceService.getLoadedSequences());
         values.stream().forEach(sq -> sequenceCombo.add(sq.getName()));
 
-        SwtRx.combo(sequenceCombo,values, Sequence::getName);
+        SwtRx.combo(sequenceCombo,values, Sequence::getName)
+                .asObservable()
+                .subscribe( sq-> sequenceLooper.setOptionalSequence(Optional.ofNullable(sq)))
+        ;
 
         createObservers();
 
@@ -219,9 +222,11 @@ public class TabItemMonitorUI extends CTabItem {
                 .map(commandEvent -> (StartCommandEvent) commandEvent)
                 .observeOn(  SwtExec.async().getRxExecutor().scheduler())
                 .subscribe(startCommandEvent -> {
-                    log.info("getIndex() [{}] - startCommandEvent : {}", getIndex(), startCommandEvent);
+                    log.info("getIndex() [{}] - startCommandEvent  {}", getIndex(), startCommandEvent);
                     sequenceLooper.getOptionalSequence().ifPresent( sq -> {
+                        log.info("getIndex() [{}] - start playing sequence : {} ", getIndex(),  sq.getName());
                         running = RunningEnum.Y;
+                        sequenceCombo.setText(sq.getName());
                         statusEnumRxBox.set(   status = StatusEnum.PLAYING );
                         Optional<Media> optionalMedia = sequenceLooper.next();
                         Media media = null;

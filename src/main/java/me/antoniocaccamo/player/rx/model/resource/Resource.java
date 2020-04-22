@@ -2,6 +2,13 @@ package me.antoniocaccamo.player.rx.model.resource;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.DurationDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.DurationSerializer;
+import io.micronaut.context.annotation.Type;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -18,7 +25,14 @@ import java.time.Duration;
 @Inheritance @DiscriminatorColumn(name = "LOCATION")
 @Entity
 @Table(name = "RESOURCE")
-
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        property = "resource-type"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = LocalResource.class, name = "local"),
+        @JsonSubTypes.Type(value = RemoteResource.class, name = "remote")
+})
 public abstract class Resource {
 
     @Id
@@ -36,6 +50,8 @@ public abstract class Resource {
     protected String path;
 
     @Column
+    @JsonSerialize(using = DurationSerializer.class)
+    @JsonDeserialize(using = DurationDeserializer.class)
     protected Duration duration;
 
 
@@ -77,12 +93,12 @@ public abstract class Resource {
     //@Transient @JsonIgnore
     //public abstract Path getHLSPath() ;
 
-    @Transient
+    @Transient @JsonIgnore
     public boolean isVideo(){
         return me.antoniocaccamo.player.rx.config.Constants.Resource.Type.VIDEO.equals(getType());
     }
 
-    @Transient
+    @Transient @JsonIgnore
     public abstract boolean isLocal();
 
     @Override

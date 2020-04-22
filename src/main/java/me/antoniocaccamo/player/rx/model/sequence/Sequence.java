@@ -142,6 +142,8 @@ public class Sequence implements Cloneable, Playable {
         log.warn("--> to udpate ...");
         return getMedias() != null ;
     }
+
+    @JsonIgnore
     public boolean isAvailable() {
         log.warn("--> to udpate ...");
         return true;

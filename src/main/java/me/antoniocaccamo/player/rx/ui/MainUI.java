@@ -6,6 +6,7 @@ import com.diffplug.common.swt.jface.ImageDescriptors;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.context.event.StartupEvent;
+import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
 import io.micronaut.scheduling.annotation.Async;
 import io.reactivex.Observable;
@@ -281,6 +282,7 @@ public class MainUI  {
     public void onStartupEvent(StartupEvent event) {
         // startup logic here
         log.info(" shooooooooooooooooooooooooooooooooooowwwwwwwwwwwwwww");
+
         Executors.newSingleThreadExecutor().submit(() -> show());
     }
 

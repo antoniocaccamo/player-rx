@@ -1,37 +1,44 @@
 package me.antoniocaccamo.player.rx.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import io.micronaut.context.annotation.Value;
 import io.micronaut.test.annotation.MicronautTest;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.config.Constants;
+import me.antoniocaccamo.player.rx.model.jackson.ResourceCollectionWrapprer;
 import me.antoniocaccamo.player.rx.model.resource.RemoteResource;
+import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.model.sequence.Media;
 import me.antoniocaccamo.player.rx.model.sequence.Sequence;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.nio.file.Files;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.Optional;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author antoniocaccamo on 09/04/2020
+ * @author antoniocaccamo on 22/04/2020
  */
-
 @MicronautTest @Slf4j
-class LegacyServiceTest {
+public class ResourceServiceTest {
 
     @Inject
     private LegacyService legacyService;
 
+    @Value("${micronaut.application.res-library-file}")
+    private File resLibraryFile;
+
     @Test
-    void readSequence() throws JsonProcessingException {
+    public void load() throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
         File  file = Paths.get("test.xseq").toFile();
@@ -41,9 +48,10 @@ class LegacyServiceTest {
 
         Optional<Sequence> sequence =
                 legacyService.readSequence(file.getAbsolutePath())
-        ;
+                ;
         assertNotNull(sequence.get());
         Sequence sq = sequence.get();
+
 
         sq.getMedias().add(
                 Media.builder()
@@ -56,11 +64,21 @@ class LegacyServiceTest {
                         .build()
         );
 
-        String serialization = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(sq);
+        Cache<String, Resource> resourceCache =  CacheBuilder.newBuilder()
+                .recordStats()
+                .build();
 
-       log.info("sequence serialization: {}" , serialization );
+        sq.getMedias().stream().forEach(media -> resourceCache.put(media.getResource().getHash(),media.getResource()));
 
-       log.info("from serialization: {}" , mapper.readValue(serialization, Sequence.class) );
+        ResourceCollectionWrapprer wrapper = new ResourceCollectionWrapprer();
 
+        wrapper.setCollection(resourceCache.asMap().values());
+
+        mapper.writerWithDefaultPrettyPrinter().writeValue( this.resLibraryFile, wrapper);
+
+        wrapper = mapper.readValue(resLibraryFile, ResourceCollectionWrapprer.class);
+
+        log.info( "deserialized : {}", wrapper );
     }
+
 }

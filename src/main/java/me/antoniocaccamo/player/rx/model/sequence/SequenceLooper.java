@@ -20,13 +20,24 @@ public class SequenceLooper {
     private  int _current = 0;
     private  int _next    = -1;
 
-    @Getter @Setter
+    @Getter
     private Optional<Sequence> optionalSequence = Optional.empty();
 
 
 
     public Optional<Media> next()   {
         return next(LocalDateTime.now());
+    }
+
+    public void setOptionalSequence(Optional<Sequence> optioanlSequence){
+        this.optionalSequence = optioanlSequence;
+        reset();
+    }
+
+    private void reset() {
+        _loop    =  0;
+        _current =  0;
+        _next    = -1;
     }
 
     private Optional<Media> next(final LocalDateTime now) {

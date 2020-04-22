@@ -1,5 +1,15 @@
 package me.antoniocaccamo.player.rx.model.sequence;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.DurationSerializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.DurationDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.config.Constants;
@@ -14,6 +24,20 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+@JsonPropertyOrder({
+        "id",
+        "location",
+        "type",
+        "path",
+        "daysOfWeek",
+        "limited",
+        "start",
+        "end",
+        "from",
+        "to",
+        "resource",
+        "duration"
+})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -36,6 +60,8 @@ public class Media implements Playable, Cloneable{
     private String             path;
 
     @Column
+    @JsonSerialize(using = DurationSerializer.class)
+    @JsonDeserialize(using = DurationDeserializer.class)
     private Duration       duration;
 
     @Column(name = "DAYS_OF_WEEK", length = 7)
@@ -45,15 +71,23 @@ public class Media implements Playable, Cloneable{
     private Integer limited;
 
     @Column(name = "DATE_START")
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate start;
 
     @Column(name = "DATE_END")
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate end;
 
     @Column(name = "TIME_FROM")
+    @JsonSerialize(using = LocalTimeSerializer.class)
+    @JsonDeserialize(using = LocalTimeDeserializer.class)
     private LocalTime from;
 
     @Column(name = "TIME_TO")
+    @JsonSerialize(using = LocalTimeSerializer.class)
+    @JsonDeserialize(using = LocalTimeDeserializer.class)
     private LocalTime to;
 
     @ManyToOne
@@ -214,11 +248,13 @@ public class Media implements Playable, Cloneable{
         log.warn("{} : prepareForPlay ", Constants.TODO);
     }
 
+
     public boolean isPlayable(LocalDateTime now) {
         log.warn("{} : isPlayable ", Constants.TODO);
         return true;
     }
 
+    @JsonIgnore
     public boolean isAvailable() {
         log.warn("{} : isAvailable ", Constants.TODO);
         return true;

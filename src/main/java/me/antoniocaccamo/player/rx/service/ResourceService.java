@@ -13,4 +13,6 @@ public interface ResourceService {
     Iterable<Resource> getResources();
 
     Optional<Resource> getResourceByHash(Resource resource);
+
+    void save(Resource resource);
 }

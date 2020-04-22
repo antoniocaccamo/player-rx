@@ -4,9 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import io.reactivex.Observable;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.model.Model;
@@ -15,6 +12,8 @@ import me.antoniocaccamo.player.rx.model.sequence.Sequence;
 import me.antoniocaccamo.player.rx.repository.MediaRepository;
 import me.antoniocaccamo.player.rx.repository.ResourceRepository;
 import me.antoniocaccamo.player.rx.repository.SequenceRepository;
+import me.antoniocaccamo.player.rx.service.MediaService;
+import me.antoniocaccamo.player.rx.service.ResourceService;
 import me.antoniocaccamo.player.rx.service.SequenceService;
 import me.antoniocaccamo.player.rx.service.TranscodeService;
 
@@ -27,7 +26,6 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.ExecutionException;
 
 @Singleton @Slf4j
 public class SequenceServiceImpl implements SequenceService {
@@ -43,10 +41,10 @@ public class SequenceServiceImpl implements SequenceService {
     private SequenceRepository sequenceRepository;
 
     @Inject
-    private ResourceRepository resourceRepository;
+    private ResourceService resourceService;
 
     @Inject
-    private MediaRepository mediaRepository;
+    private MediaService mediaService;
 
     @Inject
     private TranscodeService transcodeService;
@@ -98,9 +96,9 @@ public class SequenceServiceImpl implements SequenceService {
                 .stream()
                 .forEach(media -> {
                     Resource resource = media.getResource();
-                    resourceRepository.save(resource);
+                    resourceService.save(resource);
                     //media.setResource(resource);
-                    mediaRepository.save(media);
+                    mediaService.save(media);
                 });
         sequenceRepository.save(sequence);
         sequenceCache.put(sequence.getName(), sequence);
@@ -121,6 +119,9 @@ public class SequenceServiceImpl implements SequenceService {
         optionalSequence = Optional.ofNullable(sequenceCache.getIfPresent(sequenceName));
         if ( ! optionalSequence.isPresent() ) {
             optionalSequence = sequenceRepository.findByName(sequenceName);
+            optionalSequence.ifPresent( sq-> sq.getMedias().stream().forEach(
+                    media ->  resourceService.getResourceByHash(media.getResource()).ifPresent(resource -> media.setResource(resource))
+            ));
             sequenceCache.put(sequenceName, optionalSequence.get());
         }
         optionalSequence.ifPresent(sq -> sq.getMedias()
