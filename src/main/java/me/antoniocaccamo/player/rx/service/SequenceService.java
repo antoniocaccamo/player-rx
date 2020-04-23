@@ -3,17 +3,18 @@ package me.antoniocaccamo.player.rx.service;
 import me.antoniocaccamo.player.rx.model.Model;
 import me.antoniocaccamo.player.rx.model.sequence.Sequence;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
 
 public interface SequenceService {
 
-    Sequence read( Path path);
+    Optional<Sequence> read( Path path);
 
-    Sequence read(Model.Location location, Path path);
+    Optional<Sequence> read(Model.Location location, Path path);
 
-    Sequence save(Sequence sequence, Path path);
+    Sequence save(Sequence sequence, Path path) throws IOException;
 
     Optional<Sequence> getSequenceByName(String seqeunceName);
 

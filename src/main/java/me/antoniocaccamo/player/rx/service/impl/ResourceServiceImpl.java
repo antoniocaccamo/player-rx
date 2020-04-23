@@ -69,8 +69,8 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public void save(Resource resource) {
-        resourceCache.put(resource.getHash(), resource);
         resourceRepository.save(resource);
+        resourceCache.put(resource.getHash(), resource);
     }
 
     public Map getResourceMap() {

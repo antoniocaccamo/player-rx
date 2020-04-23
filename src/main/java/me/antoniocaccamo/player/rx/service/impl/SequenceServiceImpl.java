@@ -2,8 +2,10 @@ package me.antoniocaccamo.player.rx.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.io.Files;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.model.Model;
@@ -21,6 +23,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
@@ -30,12 +33,12 @@ import java.util.concurrent.ConcurrentSkipListMap;
 @Singleton @Slf4j
 public class SequenceServiceImpl implements SequenceService {
 
-    private final ObjectMapper mapper = new ObjectMapper();
-    private Sequence dummy = Constants.DEFAULT_SEQUENCE();
+    private final Cache<String, Sequence> sequenceCache = CacheBuilder.newBuilder()
+            .recordStats()
+            .build()
+            ;
 
-    private final ConcurrentMap<String, Optional<Sequence>> sequenceMap= new ConcurrentSkipListMap<>();
-
-    private Cache<String, Sequence> sequenceCache = null;
+    private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
     @Inject
     private SequenceRepository sequenceRepository;
@@ -49,59 +52,47 @@ public class SequenceServiceImpl implements SequenceService {
     @Inject
     private TranscodeService transcodeService;
 
-    @PostConstruct
-    public void postConstuct(){
-        sequenceCache = CacheBuilder.newBuilder()
-                .recordStats()
-                .build()
-        ;
 
-
-//        sequenceCache.putAll(
-//                Observable.fromIterable(sequenceRepository.findAll())
-//                        .toMap( sq -> sq.getName())
-//                        .blockingGet()
-//        );
-
-    }
 
     @Override
-    public Sequence read( Path path){
+    public  Optional<Sequence>  read( Path path ){
         return read(Model.Location.LOCAL, path);
     }
 
 
     @Override
-    public Sequence read(Model.Location location, Path path) {
+    public Optional<Sequence> read(Model.Location location, Path path) {
 
-        log.info("reading sequence from location {} and  path : {}", location, path);
+        log.info("reading sequence from location {} and path : {} => exists ? : {}", location, path, path.toFile().exists());
 
-        dummy.clone();
-        dummy.setName(path.toFile().getName());
-
-        try {
-            log.info("dummy : {}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dummy) );
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        Sequence sequence = null;
+        if ( path.toFile().exists() ) {
+            try {
+                sequence = mapper.readValue(path.toFile(), Sequence.class);
+            } catch (IOException e) {
+                log.error("error occurred", e);
+            }
         }
+        return Optional.ofNullable(sequence);
 
-        return dummy
-                ;
     }
 
     @Override
-    public Sequence save(Sequence sequence, Path path) {
-
-        sequence.getMedias()
-                .stream()
-                .forEach(media -> {
-                    Resource resource = media.getResource();
-                    resourceService.save(resource);
-                    //media.setResource(resource);
-                    mediaService.save(media);
-                });
-        sequenceRepository.save(sequence);
-        sequenceCache.put(sequence.getName(), sequence);
+    public Sequence save(Sequence sequence, Path path) throws IOException {
+//        sequence.getMedias()
+//                .stream()
+//                .forEach(media -> {
+//                    Resource resource = media.getResource();
+//                    resourceService.save(resource);
+//                    //media.setResource(resource);
+//                    mediaService.save(media);
+//                });
+//        sequenceRepository.save(sequence);
+//        sequenceCache.put(sequence.getName(), sequence);
+//        return sequence;
+        log.info("saving seguence {} to file : {}", sequence, path);
+        path.toFile().mkdirs();
+        mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), sequence);
         return sequence;
     }
 
