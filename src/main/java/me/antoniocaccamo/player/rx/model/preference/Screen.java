@@ -1,7 +1,6 @@
 package me.antoniocaccamo.player.rx.model.preference;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.config.Constants;

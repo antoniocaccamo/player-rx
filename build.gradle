@@ -39,10 +39,10 @@ configurations {
 }
 
 dependencies {
+    annotationProcessor         "org.projectlombok:lombok:1.18.10"
     annotationProcessor         platform("io.micronaut:micronaut-bom:$micronautVersion")
     annotationProcessor         "io.micronaut:micronaut-inject-java"
-    annotationProcessor         "io.micronaut:micronaut-validation"
-    annotationProcessor         "org.projectlombok:lombok:1.18.10"
+    annotationProcessor         "io.micronaut:micronaut-validation"    
     annotationProcessor         "io.micronaut.data:micronaut-data-processor:1.0.0"
 
     implementation              platform("io.micronaut:micronaut-bom:$micronautVersion")
@@ -86,9 +86,9 @@ dependencies {
 
     implementation              "org.apache.commons:commons-lang3:3.9"
 
-    testAnnotationProcessor     platform("io.micronaut:micronaut-bom:$micronautVersion")
-    testAnnotationProcessor     "io.micronaut:micronaut-inject-java"
     testAnnotationProcessor     "org.projectlombok:lombok:1.18.10"
+    testAnnotationProcessor     platform("io.micronaut:micronaut-bom:$micronautVersion")
+    testAnnotationProcessor     "io.micronaut:micronaut-inject-java"    
     testAnnotationProcessor     "io.micronaut.data:micronaut-data-processor:1.0.0"
 
     testImplementation          platform("io.micronaut:micronaut-bom:$micronautVersion")
@@ -113,7 +113,7 @@ dependencies {
 
 test.classpath += configurations.developmentOnly
 
-mainClassName = "me.antoniocaccamo.player.rx.Main"
+mainClassName = "me.antoniocaccamo.player.rx.Application"
 // use JUnit 5 platform
 test {
     useJUnitPlatform()

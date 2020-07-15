@@ -1,22 +1,50 @@
 ---
-uuid: "dc44beac-7d5e-4e97-a065-a7cba61a606e"
 computer: "antonio"
 size:
-  width: 1440
-  height: 767
+  width: 1049
+  height: 741
 location:
-  x: 130
-  y: 130
+  x: 100
+  y: 607
 sendAllEmail: null
 weatherLatlng: "45.08,7.40"
+loadedSequences:
+- name: "TEST_SEQUENCE"
+  path: "file:///D:/development/workspaces/antoniocaccamo/player-rx-boot/test.seq.yaml"
+- name: "DEFAULT_SEQUENCE"
+  path: "file:///D:/development/workspaces/antoniocaccamo/player-rx-boot/DEFAULT_SEQUENCE.yaml"
 screens:
-- defaultScreen: null
+- defaultScreen: "Y"
   size:
-    width: 487
-    height: 376
+    width: 400
+    height: 277
   location:
-    x: 50
-    y: 250
+    x: 420
+    y: 30
+  name: null
+  sequence: "TEST_SEQUENCE"
+  from: null
+  to: null
+  timing: "ALL_DAY"
+- defaultScreen: "N"
+  size:
+    width: 400
+    height: 280
+  location:
+    x: 100
+    y: 30
+  name: null
+  sequence: "DEFAULT_SEQUENCE"
+  from: null
+  to: null
+  timing: "ALL_DAY"
+- defaultScreen: "N"
+  size:
+    width: 500
+    height: 400
+  location:
+    x: 100
+    y: 100
   name: null
   sequence: "DEFAULT_SEQUENCE"
   from: null

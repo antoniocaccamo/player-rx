@@ -1,10 +1,8 @@
 package me.antoniocaccamo.player.rx.service.impl;
 
 import me.antoniocaccamo.player.rx.model.sequence.Media;
-import me.antoniocaccamo.player.rx.repository.MediaRepository;
 import me.antoniocaccamo.player.rx.service.MediaService;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
@@ -13,12 +11,12 @@ import javax.inject.Singleton;
 @Singleton
 public class MediaServiceImpl implements MediaService {
 
-    @Inject
-    private MediaRepository mediaRepository;
+//    @Autowired
+//    private MediaRepository mediaRepository;
 
 
     @Override
     public void save(Media media) {
-        mediaRepository.save(media);
+//        mediaRepository.save(media);
     }
 }

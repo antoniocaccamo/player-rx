@@ -1,10 +1,9 @@
 package me.antoniocaccamo.player.rx.model.sequence;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.model.preference.LoadedSequence;
 
-import javax.persistence.Transient;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -21,7 +20,7 @@ public class SequenceLooper {
     private  int _next    = -1;
 
     @Getter
-    private Optional<Sequence> optionalSequence = Optional.empty();
+    private Optional<LoadedSequence> optionalSequence = Optional.empty();
 
 
 
@@ -29,9 +28,10 @@ public class SequenceLooper {
         return next(LocalDateTime.now());
     }
 
-    public void setOptionalSequence(Optional<Sequence> optioanlSequence){
+    public void setOptionalSequence(Optional<LoadedSequence> optioanlSequence){
         this.optionalSequence = optioanlSequence;
         reset();
+        log.info("sequence to loop : {}", optioanlSequence.isPresent() ? optioanlSequence.get().getName() : "NOT FOUND !");
     }
 
     private void reset() {
@@ -50,8 +50,8 @@ public class SequenceLooper {
             boolean found = false;
             try {
                 while ( ! found ) {
-                    _next = ++ _next % sq.getMedias().size();
-                    media.set(sq.getMedias().get(_next));
+                    _next = ++ _next % sq.getSequence().getMedias().size();
+                    media.set(sq.getSequence().getMedias().get(_next));
                     if (media.get().isPlayable(now)) {
                         found = true;
                     } else {

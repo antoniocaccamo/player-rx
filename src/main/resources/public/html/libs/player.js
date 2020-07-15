@@ -43,7 +43,7 @@ Player.weather = {} || Player.weather;
 
 //Player.addNameSpace("weather");
 
-Player.weather.apikey = "AIzaSyD9ROF-twnrhiOLUhXzoSRH-N0EdoEYPYo";
+Player.weather.apikey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 
 Player.weather.template = 0;
 Player.weather.map;

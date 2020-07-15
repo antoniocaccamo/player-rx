@@ -8,4 +8,5 @@ import me.antoniocaccamo.player.rx.model.resource.Resource;
 public interface TranscodeService {
 
     void transcode(Resource resource);
+
 }

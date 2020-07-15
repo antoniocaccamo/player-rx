@@ -5,13 +5,11 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.config.Constants;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.Transient;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Duration;
+
+//import javax.persistence.*;
 
 /**
  * @author antoniocaccamo on 18/02/2020
@@ -19,15 +17,16 @@ import java.time.Duration;
 
 @Getter
 @Setter
-@Entity @Slf4j
-@DiscriminatorValue(Constants.Resource.Location.Remote)
+//@Entity
+@Slf4j
+//@DiscriminatorValue(Constants.Resource.Location.Remote)
 public class RemoteResource extends Resource {
 
     public static RemoteResourceBuilder builder() {
         return new RemoteResourceBuilder();
     }
 
-    @Column
+//   @Column
     private Constants.Resource.Remote remote;
 
     public Constants.Resource.Remote getRemote() {
@@ -38,7 +37,7 @@ public class RemoteResource extends Resource {
         this.remote = remote;
     }
 
-    @Override @Transient
+    @Override //@Transient
     public Path getLocalPath() {
         return null;
     }
@@ -103,7 +102,7 @@ public class RemoteResource extends Resource {
 
     @Override
     public String getHash() {
-        return me.antoniocaccamo.player.rx.config.Constants.Resource.HASH_FUNCTION
+        return Constants.Resource.HASH_FUNCTION
                 .hashString(String.format("REMOTE|%s|%s|s", String.valueOf(getType()), String.valueOf( getRemote()), getPath()), StandardCharsets.UTF_8)
                 .toString();
     }

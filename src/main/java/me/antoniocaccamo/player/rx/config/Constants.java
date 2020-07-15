@@ -5,23 +5,26 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.model.Model;
+import me.antoniocaccamo.player.rx.model.jackson.ResourceCollectionWrapprer;
 import me.antoniocaccamo.player.rx.model.resource.LocalResource;
 import me.antoniocaccamo.player.rx.model.resource.RemoteResource;
 import me.antoniocaccamo.player.rx.model.sequence.Media;
-import me.antoniocaccamo.player.rx.model.sequence.Sequence;
 
+import javax.inject.Singleton;
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Arrays;
 
-
+@Singleton
 @Slf4j
 public class Constants {
 
     public static final String TODO = "===>> @@ TODO @@ <<===";
 
-    public interface Player {
+    public interface Preference {
 
         String COMPUTER = "!!! must change me !!!";
 
@@ -184,7 +187,7 @@ public class Constants {
             return hls;
         }
 
-        public enum Type {
+        enum Type {
             BLACK,
             BROWSER,
             HIDDEN,
@@ -194,65 +197,74 @@ public class Constants {
             VIDEO;
         }
 
-        public interface Location {
+        interface Location {
             String Local  = "LOCAL";
             String Remote = "REMOTE";
         }
 
-        public enum Remote {
+        enum Remote {
             FTP,
             S3
         }
 
-        static HashFunction HASH_FUNCTION  = Hashing.crc32();
+        HashFunction HASH_FUNCTION  = Hashing.crc32();
+
+        me.antoniocaccamo.player.rx.model.resource.Resource DefaultRemoteResourcetWeather = RemoteResource.builder()
+                .withType(Constants.Resource.Type.WEATHER)
+                .build();
+
+        me.antoniocaccamo.player.rx.model.resource.Resource DefaultLocalResourcetImage =
+                LocalResource.builder()
+                        .withType(Type.PHOTO)
+                        .withPath("default/images/at.image.jpg")
+                        .build();
+
+        me.antoniocaccamo.player.rx.model.resource.Resource DefaultLocalResourcetVideo =
+                LocalResource.builder()
+                        .withType(Constants.Resource.Type.VIDEO)
+                        .withPath("default/videos/at.video.mov")
+                        .build();
+
+        me.antoniocaccamo.player.rx.model.jackson.ResourceCollectionWrapprer DefaultResourceCollectionWrapprer = ResourceCollectionWrapprer
+                .builder()
+                .item(Resource.DefaultLocalResourcetImage)
+                .item(Resource.DefaultLocalResourcetVideo)
+                .item(Resource.DefaultRemoteResourcetWeather)
+                .build();
+
     }
 
-    public static String DefaultSequenceName = "DEFAULT_SEQUENCE";
+    public interface Sequence {
+        String DefaultSequenceName = "DEFAULT_SEQUENCE";
+        String Extension = ".seq.yaml";
+        Path DefaultSequenceNamePath = Paths.get( String.format("%s%s", DefaultSequenceName, Extension) );
 
-    public static   Sequence DEFAULT_SEQUENCE() {
-
-        return me.antoniocaccamo.player.rx.model.sequence.Sequence.builder()
+        me.antoniocaccamo.player.rx.model.sequence.Sequence  DEFAULT_SEQUENCE =  me.antoniocaccamo.player.rx.model.sequence.Sequence.builder()
                 .name(DefaultSequenceName)
                 .location(Model.Location.LOCAL)
                 .medias(Arrays.asList(
                         Media.builder()
-                                .resource(
-                                        LocalResource.builder()
-                                                .withType(Constants.Resource.Type.PHOTO)
-//                                                .withLocation(Resource.LOCATION.LOCAL)
-                                                .withPath("default/images/at.image.jpg")
-                                                .withDuration(Duration.ofSeconds(5))
-                                                .build()
-                                )
+                                .duration(Duration.ofSeconds(10))
+                                .resourceHash( Resource.DefaultLocalResourcetImage.getHash())
+                                .resource(Resource.DefaultLocalResourcetImage)
                                 .build(),
                         Media.builder()
-                                .resource(
-                                        RemoteResource.builder()
-                                                .withType(Constants.Resource.Type.WEATHER)
-                                                .withDuration(Duration.ofSeconds(8))
-                                                .build()
-                                )
+                                .duration(Duration.ofSeconds(7))
+                                .resourceHash(Resource.DefaultRemoteResourcetWeather.getHash())
+                                .resource(Resource.DefaultRemoteResourcetWeather)
                                 .build(),
                         Media.builder()
-                                .resource(
-                                        LocalResource.builder()
-                                                .withType(Constants.Resource.Type.VIDEO)
-                                                .withPath("default/videos/at.video.mov")
-                                                .withDuration(Duration.ofSeconds(12))
-                                                .build()
-                                )
+                                .duration(Duration.ofSeconds(8))
+                                .resourceHash(Resource.DefaultLocalResourcetVideo.getHash())
+                                .resource(Resource.DefaultLocalResourcetVideo)
                                 .build(),
                         Media.builder()
-                                .resource(
-                                        RemoteResource.builder()
-                                                .withType(Constants.Resource.Type.WEATHER)
-                                                .withDuration(Duration.ofSeconds(8))
-                                                .build()
-                                )
+                                .duration(Duration.ofSeconds(9))
+                                .resourceHash(Resource.DefaultRemoteResourcetWeather.getHash())
+                                .resource(Resource.DefaultRemoteResourcetWeather)
                                 .build()
                 ))
                 .build();
     }
-
 
 }

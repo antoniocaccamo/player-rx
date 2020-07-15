@@ -1,26 +1,24 @@
 package me.antoniocaccamo.player.rx.model.resource;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.config.Constants;
-import me.antoniocaccamo.player.rx.config.Constants;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+
+//import javax.persistence.DiscriminatorValue;
+//import javax.persistence.Entity;
 
 /**
  * @author antoniocaccamo on 18/02/2020
  */
 @Getter @Slf4j
 @Setter
-@Entity @DiscriminatorValue(me.antoniocaccamo.player.rx.config.Constants.Resource.Location.Local)
+//@Entity @DiscriminatorValue(Constants.Resource.Location.Local)
 public class LocalResource extends Resource {
 
     @Override
@@ -57,7 +55,7 @@ public class LocalResource extends Resource {
             return new LocalResourceBuilder();
         }
 
-        public LocalResourceBuilder withType(me.antoniocaccamo.player.rx.config.Constants.Resource.Type type) {
+        public LocalResourceBuilder withType(Constants.Resource.Type type) {
             localResource.setType(type);
             return this;
         }
@@ -89,13 +87,13 @@ public class LocalResource extends Resource {
 
     @Override
     public boolean needsTrancode() {
-        log.warn("{} : needsTrancode ",me.antoniocaccamo.player.rx.config.Constants.TODO);
+        log.warn("{} : needsTrancode ", Constants.TODO);
         return isVideo();
     }
 
     @Override
     public String getHash() {
-        return me.antoniocaccamo.player.rx.config.Constants.Resource.HASH_FUNCTION
+        return Constants.Resource.HASH_FUNCTION
                 .hashString(String.format("LOCAL|%s|%s", String.valueOf(getType()), getPath()), StandardCharsets.UTF_8)
                 .toString();
     }

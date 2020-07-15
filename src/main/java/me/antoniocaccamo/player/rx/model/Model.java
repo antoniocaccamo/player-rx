@@ -1,8 +1,6 @@
 package me.antoniocaccamo.player.rx.model;
 
 
-import java.time.LocalTime;
-
 /**
  * @author antoniocaccamo on 07/02/2020
  */

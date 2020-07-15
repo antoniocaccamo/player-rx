@@ -7,12 +7,16 @@ import me.antoniocaccamo.player.rx.model.sequence.Sequence;
 
 import java.util.Optional;
 
-@Repository
-public interface SequenceRepository extends CrudRepository<Sequence, Long> {
+//@Repository
+public interface SequenceRepository //extends CrudRepository<Sequence, Long>
+{
+    /*
 
     @NonNull
     @Override
     Optional<Sequence> findById(@NonNull  Long aLong);
 
     Optional<Sequence> findByName(String name);
+
+     */
 }

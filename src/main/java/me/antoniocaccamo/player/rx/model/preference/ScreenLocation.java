@@ -25,7 +25,7 @@ public class ScreenLocation extends Model implements PointSWT<ScreenLocation> {
     private int left;
 
     @Override
-    public org.eclipse.swt.graphics.Point toPoint() {
+    public Point toPoint() {
         return SWTHelper.toPoint(left, top);
     }
 

@@ -1,27 +1,27 @@
-package me.antoniocaccamo.player.rx.ui;
+package me.antoniocaccamo.player.rx;
 
 import com.diffplug.common.swt.*;
 import com.diffplug.common.swt.jface.Actions;
 import com.diffplug.common.swt.jface.ImageDescriptors;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Value;
-import io.micronaut.context.event.StartupEvent;
-import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.event.annotation.EventListener;
-import io.micronaut.scheduling.annotation.Async;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
-import me.antoniocaccamo.player.rx.Main;
-import me.antoniocaccamo.player.rx.helper.LocaleHelper;
 import me.antoniocaccamo.player.rx.config.Constants;
-import me.antoniocaccamo.player.rx.helper.DBInitHelper;
+import me.antoniocaccamo.player.rx.event.application.ApplicationEvent;
+import me.antoniocaccamo.player.rx.event.application.StartApplicationEvent;
+import me.antoniocaccamo.player.rx.helper.InitHelper;
+import me.antoniocaccamo.player.rx.helper.LocaleHelper;
 import me.antoniocaccamo.player.rx.helper.SWTHelper;
-import me.antoniocaccamo.player.rx.model.preference.ScreenLocation;
+import me.antoniocaccamo.player.rx.model.preference.Preference;
 import me.antoniocaccamo.player.rx.model.preference.Screen;
-import me.antoniocaccamo.player.rx.model.preference.PreferenceModel;
+import me.antoniocaccamo.player.rx.model.preference.ScreenLocation;
 import me.antoniocaccamo.player.rx.model.preference.ScreenSize;
 import me.antoniocaccamo.player.rx.service.PreferenceService;
+import me.antoniocaccamo.player.rx.ui.LibraryUI;
+import me.antoniocaccamo.player.rx.ui.TabItemMonitorUI;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.ToolBarManager;
@@ -37,7 +37,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //import picocli.CommandLine;
@@ -45,8 +44,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author antoniocaccamo on 20/02/2020
  */
-@Singleton @Slf4j
-public class MainUI  {
+ @Slf4j @Singleton
+public class ApplicationUI {
 
     @Inject
     private ApplicationContext applicationContext;
@@ -60,14 +59,14 @@ public class MainUI  {
     private int port;
 
     @Inject
-    private PreferenceService preferenceService;
+    private  PreferenceService preferenceService;
 
     @Inject
-    private DBInitHelper dbInitHelper;
+    private  InitHelper dbInitHelper;
 
-    private PreferenceModel preference;
+    private Preference preference;
 
-    private PublishSubject<Screen> monitorPublishSubject;
+    private PublishSubject<ApplicationEvent> applicationEventPublishSubject;
 
     private CTabFolder tabFolder;
 
@@ -76,17 +75,33 @@ public class MainUI  {
     private AtomicInteger tabFolderIndex;
 
     private CoatMux.Layer<Composite> tabFolderLayer;
+
     private CoatMux.Layer<Composite> resourceLibraryLayer;
+
+//    public ApplicationUI(PreferenceService preferenceService, InitHelper dbInitHelper, String appname) {
+//        this.preferenceService = preferenceService;
+//        this.dbInitHelper = dbInitHelper;
+//        this.appname = appname;
+//    }
+
+
+    @EventListener
+    public void onApplicationEvent(StartApplicationEvent event) {
+        // startup logic here
+        Application.CONTEXT = applicationContext;
+        Application.SERVER_PORT    = port;
+        log.info(" show ui");
+        show();
+
+    }
 
 
     public void show() {
 
-        Main.CONTEXT = applicationContext;
-        Main.port    = port;
 
         dbInitHelper.getDefaultSquence();
         preference = preferenceService.read();
-        monitorPublishSubject = PublishSubject.create();
+        applicationEventPublishSubject = PublishSubject.create();
 
         log.info("launching swt");
 
@@ -117,7 +132,7 @@ public class MainUI  {
 
             resourceLibraryLayer = coatMux.addCoat(cmpResLib ->{
                 Layouts.setGrid(cmpResLib).horizontalSpacing(0).verticalSpacing(0);
-                Layouts.setGridData(new ResourceLibraryUI(cmpResLib)).grabAll();
+                Layouts.setGridData(new LibraryUI(cmpResLib)).grabAll();
                 return cmpResLib;
             });
 
@@ -126,11 +141,13 @@ public class MainUI  {
             tabFolderIndex = new AtomicInteger(0);
 
             preference.getScreens().stream()
-                    .forEach( monitorModel -> new TabItemMonitorUI(tabFolder, monitorModel, tabFolderIndex.getAndIncrement()) );
+                    .forEach( monitorModel -> new TabItemMonitorUI(tabFolder, monitorModel, tabFolderIndex.getAndIncrement()).applyScreen() );
 
+                    /*
             Observable.fromArray(tabFolder.getItems())
                     .map(i -> (TabItemMonitorUI) i)
                     .subscribe( tabItemMonitorUI -> tabItemMonitorUI.applyMonitorModel() );
+                    */
 
             SwtRx.addListener(cmp, SWT.Resize, SWT.Move)
                     .subscribe(event ->
@@ -167,7 +184,7 @@ public class MainUI  {
                 item.getControl().dispose();
                 item.dispose();
             }
-            Main.CONTEXT.stop();
+            Application.CONTEXT.stop();
             System.exit(0);
 
     }
@@ -182,17 +199,17 @@ public class MainUI  {
                 .setText("Add")
                 .setStyle(Actions.Style.PUSH)
                 .setListener(event -> {
-                    TabItemMonitorUI cTabItem = new TabItemMonitorUI(tabFolder,
-                            Screen.builder()
-                                    .defaultScreen(Constants.Screen.DefaultEnum.N)
-                                    .size( ScreenSize.builder().width(Constants.Screen.WIDTH).height(Constants.Screen.HEIGHT).build())
-                                    .location(ScreenLocation.builder().top(Constants.Screen.TOP).left(Constants.Screen.LEFT).build() )
-                                    .sequence(Constants.DefaultSequenceName)
-                                    .timing(Constants.TimingEnum.ALL_DAY)
-                                    .build()
-                            , tabFolderIndex.getAndIncrement());
+                    Screen screen = Screen.builder()
+                            .defaultScreen(Constants.Screen.DefaultEnum.N)
+                            .size( ScreenSize.builder().width(Constants.Screen.WIDTH).height(Constants.Screen.HEIGHT).build())
+                            .location(ScreenLocation.builder().top(Constants.Screen.TOP).left(Constants.Screen.LEFT).build() )
+                            .sequence(Constants.Sequence.DefaultSequenceName)
+                            .timing(Constants.TimingEnum.ALL_DAY)
+                            .build();
+                    TabItemMonitorUI cTabItem = new TabItemMonitorUI(tabFolder, screen, tabFolderIndex.getAndIncrement());
                     tabFolder.setSelection(cTabItem);
-                    cTabItem.applyMonitorModel();
+                    cTabItem.applyScreen();
+                    preference.addScreen(screen);
                 })
                 .build()
                 ;
@@ -201,19 +218,20 @@ public class MainUI  {
                 //.setImage(ImageDescriptors.createManagedImage(SWTHelper.getImage("images/logo.jpg").getImageData(), cmp).)
                 .setText("Remove")
                 .setStyle(Actions.Style.PUSH)
-                .setListener(evt ->
-                        Observable.fromArray(tabFolder.getItems())
-                                .count()
-                                .filter(cnt -> cnt > 1)
-                                .subscribe( cnt -> {
-                                    tabFolder.getSelection().dispose();
-                                    tabFolderIndex.decrementAndGet();
-                                })
+                .setListener(evt -> Observable.fromArray(tabFolder.getItems())
+                        .count()
+                        .filter(cnt -> cnt > 1)
+                        .subscribe(cnt -> {
+                            TabItemMonitorUI cTabItem = (TabItemMonitorUI) Observable.fromArray(tabFolder.getItems()).blockingLast();
+                            preference.removeScreen(cTabItem.getScreen());
+                            cTabItem.dispose();
+                            tabFolderIndex.decrementAndGet();
+                        })
                 )
                 .build()
                 ;
 
-        monitorPublishSubject.count()
+        applicationEventPublishSubject.count()
                 .subscribe( cnt -> removeMonitor.setEnabled( Boolean.valueOf(cnt > 1)));
 
         manager.add(addMonitor);
@@ -278,13 +296,7 @@ public class MainUI  {
     }
 
 
-    @EventListener @Async
-    public void onStartupEvent(StartupEvent event) {
-        // startup logic here
-        log.info(" shooooooooooooooooooooooooooooooooooowwwwwwwwwwwwwww");
 
-        Executors.newSingleThreadExecutor().submit(() -> show());
-    }
 
 
 

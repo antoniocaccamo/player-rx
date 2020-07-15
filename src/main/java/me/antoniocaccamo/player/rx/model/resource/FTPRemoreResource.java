@@ -1,6 +1,5 @@
 package me.antoniocaccamo.player.rx.model.resource;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
