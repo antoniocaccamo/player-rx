@@ -133,9 +133,14 @@ shadowJar {
 }
 
 run.classpath += configurations.developmentOnly
-run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote',
-//        '-XstartOnFirstThread', "-Xdock:name=player-rx", "-Xdock:icon=player-rx.ico"
-        )
+run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+
+
+if ( System.properties["os.name"].toLowerCase().contains("mac") ) {
+	run.jvmArgs = run.jvmArgs << "-XstartOnFirstThread";
+	run.jvmArgs = run.jvmArgs << "-Xdock:name=player-rx"
+	run.jvmArgs = run.jvmArgs << "-Xdock:icon=player-rx.ico"
+}
 
 tasks.withType(JavaCompile){
     options.encoding = "UTF-8"
