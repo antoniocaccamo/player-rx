@@ -9,24 +9,27 @@
     <title>player-rx : ui</title>
 
     <!-- Required Stylesheets -->
-    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css"/>
-    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"/>
+    <link type="text/css" rel="stylesheet" href="/webjars/bootstrap/4.4.1/dist/css/bootstrap.min.css"/>
+    <link type="text/css" rel="stylesheet" href="/webjars/bootstrap-vue/2.9.0/dist/bootstrap-vue.min.css"/>
 
     <!-- Required scripts -->
-    <script src="https://unpkg.com/vue"></script>
-    <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
-    <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+    <script src="/webjars/vue/2.6.11/dist/vue.min.js"></script>
+    <script src="/webjars/babel__polyfill/7.8.7/dist//polyfill.min.js"></script>
+    <script src="/webjars/bootstrap-vue/2.9.0/dist/bootstrap-vue.min.js"></script>
 
     <!-- leaflet -->
-    <link rel="stylesheet" href="//unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="//unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="//unpkg.com/vue2-leaflet"></script>
+    <link rel="stylesheet" href="/webjars/leaflet/1.6.0/dist/leaflet.css" />
+    <script src="/webjars/leaflet/1.6.0/dist/leaflet.js"></script>
+    <script src="/webjars/vue2-leaflet/2.5.2/dist/vue2-leaflet.min.js"></script>
+
+    <!-- axios -->
+    <script src="/webjars/axios/0.19.2/dist/axios.min.js"></script>
 
 
     <style>
        html, body, #app, .container-fluid, .row, .col {
         height: 100%;
-        width: : 100%;
+        width:  100%;
         overflow: hidden;
         background-color: black;
         font-family: Tahoma;
@@ -34,13 +37,21 @@
         /*
             background: #1E1E1E;
             color: #f9f9f9;
-            */
-    }
+        */
+        }
 
     .vue2leaflet-map {
         height: 100% !important;
-        width: : 100%;
-        }
+        width:  100%;
+    }
+
+    .fade-enter-active, .fade-leave-active {
+        transition: opacity .25s ease-in-out;
+    }
+
+    .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+        opacity: 0;
+    }
 
     </style>
 </head>
@@ -49,73 +60,91 @@
 <!-- Our application root element -->
 <div id="app">
     <b-container fluid style="margin:0px; padding:0px">
-<!--        <b-jumbotron header="Bootstrap Vue"-->
-<!--                     lead="Bootstrap 4 Components for Vue.js 2"-->
-<!--        >-->
-<!--            <p>For more information visit our website</p>-->
-<!--            <b-btn variant="primary" href="https://bootstrap-vue.js.org/">More Info</b-btn>-->
-<!--        </b-jumbotron>-->
-
-<!--        <b-form-group horizontal-->
-<!--                      :label-cols="4"-->
-<!--                      description="Let us know your name."-->
-<!--                      label="Enter your name"-->
-<!--        >-->
-<!--            <b-form-input v-model.trim="name"></b-form-input>-->
-<!--        </b-form-group>-->
-
-<!--        <b-alert variant="success" :show="showAlert">-->
-<!--            Hello {{ name }}-->
-<!--        </b-alert>-->
-
         <!-- browser -->
-        <b-row no-gutters v-show="show.browser">
-            <b-col>
-                <b-alert variant="success" show>browser</b-alert>
-            </b-col>
-        </b-row>
+        <transition name="fade">
+            <b-row no-gutters v-show="ui == 'browser'">
+                <b-col>
+                    <b-alert variant="success" show>browser</b-alert>
+                    <b-img :src="show.browser" style="width:100%; height:100%"></b-img>
+                </b-col>
+            </b-row>
+        </transition>
 
         <!-- photo -->
-        <b-row no-gutters v-show="show.photo">
-            <b-col>
-                <b-alert variant="info" show>photo</b-alert>
-                <b-img :src="resource.photo" style="width:100%; height:100%"/>
-            </b-col>
-        </b-row>
+        <transition name="fade">
+            <b-row no-gutters v-show="ui == 'photo'">
+                <b-col>
+                    <b-alert variant="success" show>photo</b-alert>
+                    <b-img :src="show.photo" style="width:100%; height:100%"></b-img>
+                </b-col>
+            </b-row>
+        </transition>
 
         <!-- video -->
-        <b-row no-gutters v-show="show.video">
-            <b-col>
-                <b-alert variant="info" show>video</b-alert>
-            </b-col>
-        </b-row>
+        <transition name="fade">
+            <b-row no-gutters v-show="ui == 'video'">
+                <b-col>
+                    <b-alert variant="success" show>video</b-alert>
+                    <b-img :src="show.video" style="width:100%; height:100%"></b-img>
+                </b-col>
+            </b-row>
+        </transition>
 
         <!-- weather -->
-        <b-row no-gutters v-show="show.weather">
-            <b-col>
-                <b-alert variant="error" show >weather</b-alert>
-            </b-col>
-        </b-row>
+        <transition name="fade">
+            <b-row no-gutters v-show="ui == 'weather'">
+                <b-col>
+                    <b-row no-gutters v-if="data.weather.conditions">
+
+                        <b-col>
+                            <b-alert variant="success" show>weather</b-alert>
+                            <b-img :src="show.browser" style="width:100%; height:100%"></b-img>
+                        </b-col>
+
+                    </b-row>
+
+                    <b-row no-gutters style="height: 100%;">
+
+                        <b-col>
+
+                            <b-row no-gutters style="height: 100%;">
+
+                                <b-col v-for="w in data.weather.conditions.weather" v-bind:key="w.date">
+                                    <b-img :src=weatherImage(w.hourly[0].weatherIconUrl[0].value.split('/').pop()) fluid-grow ></b-img>
+                                </b-col>
+                            </b-row>
+
+                        </b-col>
+
+                    </b-row>
+
+                </b-col>
+            </b-row>
+        </transition>
 
         <!-- geo -->
-        <b-row no-gutters v-show="show.geo">
-            <b-col>
-                <b-alert variant="error" show >geo</b-alert>
-                <l-map  ref="lmap"
-                        v-if="show.geo"
-                        :zoom="leaftObject.zoom"
-                        :center="leaftObject.center"
-                        :options="leaftObject.mapOptions"
-                        @update:center="centerUpdate"
-                        @update:zoom="zoomUpdate"
-                >
-                    <l-tile-layer
-                            :url="leaftObject.url"
-                            :attribution="leaftObject.attribution"
-                    />
-                </l-map>
-            </b-col>
-        </b-row>
+        <transition name="fade">
+            <b-row no-gutters v-show="ui == 'geo'">
+                <b-col>
+                    <b-alert variant="success" show >geo</b-alert>
+
+                    <l-map  ref="lmap"
+                            v-if="show.geo"
+                            :zoom="leaftObject.zoom"
+                            :center="leaftObject.center"
+                            :options="leaftObject.mapOptions"
+                            @update:center="centerUpdate"
+                            @update:zoom="zoomUpdate"
+                    >
+                        <l-tile-layer
+                                :url="leaftObject.url"
+                                :attribution="leaftObject.attribution"
+                        ></l-tile-layer>
+                    </l-map>
+
+                </b-col>
+            </b-row>
+        </transition>
 
     </b-container>
 </div>
@@ -124,16 +153,18 @@
 <script>
 
 
-var data = {
+const data = {
 
     'name' : '',
 
+    'ui' : '',
+
     'show' : {
-        'browser': false,
-        'photo'  : false,
-        'video'  : false,
-        'weather': false,
-        'geo'    : true
+        'browser': 'https://picsum.photos/900/250/?image=1',
+        'photo'  : 'https://picsum.photos/900/250/?image=2',
+        'video'  : 'https://picsum.photos/900/250/?image=3',
+        'weather': 'https://picsum.photos/900/250/?image=4',
+        'geo'    : 'https://picsum.photos/900/250/?image=5'
     },
 
     'resource' : {
@@ -200,10 +231,22 @@ window.app = new Vue({
             return lft
           }
         },
+        mounted : function() {
+          console.log("....");
+          axios.get("weather.json")
+            .then( function(resp) {
+                    data.weather.conditions = resp.data.data;
+                 });
+        },
         methods : {
+            weatherImage :  function(img) {
+                return '../weather/images/' + img;
+            },
+
             centerUpdate : function() {
                 console.log( 'center @ : ' + this.$refs.lmap.mapObject.getCenter());
             },
+
             zoomUpdate : function() {}
         }
       })
@@ -211,3 +254,4 @@ window.app = new Vue({
 
 </body>
 </html>
+

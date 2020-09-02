@@ -137,7 +137,6 @@ public class ScreenUI extends CoatMux {
         log.debug("getIndex() [{}] - event received : {}", getIndex(), evt);
 
         switch (evt.getType()) {
-
             case START:
             case DEATIVATE:
                 break;
@@ -158,9 +157,7 @@ public class ScreenUI extends CoatMux {
             case STOP:
                 stop();
         }
-
     }
-
 
 
     protected void play( Media media ) {
