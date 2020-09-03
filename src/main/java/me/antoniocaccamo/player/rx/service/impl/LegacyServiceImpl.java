@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -413,7 +414,7 @@ public class LegacyServiceImpl implements LegacyService {
                 sequence = os.get().getSequence();
             } else {
 
-                List<Media> medias = sequenceType.getValue().getVideos().getVideo()
+                CopyOnWriteArrayList<Media> medias = sequenceType.getValue().getVideos().getVideo()
                         .stream()
                         .map(this::video2media)
                         //                    .map(media -> {
@@ -422,11 +423,11 @@ public class LegacyServiceImpl implements LegacyService {
                         //                        media.setResource(resource);
                         //                        return  mediaRepository.save(media);
                         //                    })
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toCollection(CopyOnWriteArrayList::new));
 
                 sequence = new Sequence();
                 sequence.setName(sequenceType.getValue().getName());
-                sequence.setMedias(medias);
+                sequence.setMedias( medias );
 
                 //sequence = sequenceService.save(sequence, null);
             }

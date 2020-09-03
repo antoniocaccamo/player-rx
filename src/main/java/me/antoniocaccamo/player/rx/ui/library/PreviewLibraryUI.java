@@ -1,6 +1,11 @@
 package me.antoniocaccamo.player.rx.ui.library;
 
+import com.diffplug.common.rx.RxBox;
 import com.diffplug.common.swt.Layouts;
+import com.diffplug.common.swt.SwtMisc;
+import com.diffplug.common.swt.SwtRx;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.Application;
@@ -38,30 +43,32 @@ public class PreviewLibraryUI extends Composite {
         MonitorBrowserUI composite = new MonitorBrowserUI(null, group);
         Layouts.setGridData(composite).grabAll();
 
-        
-
         Composite buttoComposite = new Composite(group, SWT.SHADOW_ETCHED_OUT | SWT.CENTER);
         Layouts.setGrid(buttoComposite).numColumns(3);
         Layouts.setGridData(buttoComposite).grabHorizontal().horizontalAlignment(SWT.CENTER);
 
+        RxBox<Boolean> visibleBox = RxBox.of(Boolean.FALSE);
+
         Button button = new Button(buttoComposite, SWT.PUSH );
-        button.setText("button 01");
-
-        button = new Button(buttoComposite, SWT.PUSH );
-        button.setText("button 02");
-
-        button = new Button(buttoComposite, SWT.PUSH );
-        button.setText("button 03");
+        button.setText("play");
 
         this.resourcePublishSubject = resourcePublishSubject;
 
-        this.resourcePublishSubject.subscribe( resource -> composite.setCurrent(
-                Media.builder()
-                    .resource(resource)
-                    .resourceHash(resource.getHash())
-                    .duration( resource.getDuration() != null ? resource.getDuration() : java.time.Duration.ofSeconds(5))
-                    .build()
-            )
+        this.resourcePublishSubject.subscribe( resource -> {
+                    composite.setCurrent(
+                            Media.builder()
+                                    .resource(resource)
+                                    .resourceHash(resource.getHash())
+                                    .duration( resource.getDuration() != null ? resource.getDuration() : java.time.Duration.ofSeconds(5))
+                                    .build()
+                    );
+                    visibleBox.set(resource.isVideo());
+
+                }
         );
+
+        visibleBox.asObservable().subscribe(b -> button.setEnabled(b));
+
+        visibleBox.set(Boolean.FALSE);
     }
 }

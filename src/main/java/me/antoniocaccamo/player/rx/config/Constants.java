@@ -17,6 +17,8 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 @Singleton
 @Slf4j
@@ -242,7 +244,7 @@ public class Constants {
         me.antoniocaccamo.player.rx.model.sequence.Sequence  DEFAULT_SEQUENCE =  me.antoniocaccamo.player.rx.model.sequence.Sequence.builder()
                 .name(DefaultSequenceName)
                 .location(Model.Location.LOCAL)
-                .medias(Arrays.asList(
+                .medias(  Arrays.asList(
                         Media.builder()
                                 .duration(Duration.ofSeconds(10))
                                 .resourceHash( Resource.DefaultLocalResourcetImage.getHash())
@@ -263,7 +265,8 @@ public class Constants {
                                 .resourceHash(Resource.DefaultRemoteResourcetWeather.getHash())
                                 .resource(Resource.DefaultRemoteResourcetWeather)
                                 .build()
-                ))
+                ).stream().collect(Collectors.toCollection(CopyOnWriteArrayList::new))
+                )
                 .build();
     }
 

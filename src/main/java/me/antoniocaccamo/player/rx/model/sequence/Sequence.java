@@ -12,6 +12,7 @@ import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 //import org.hibernate.annotations.Fetch;
 //import org.hibernate.annotations.FetchMode;
@@ -42,8 +43,8 @@ public class Sequence implements Cloneable, Playable {
 //            joinColumns        = { @JoinColumn(name = "SEQUENCE_ID", referencedColumnName = "ID")},
 //            inverseJoinColumns = { @JoinColumn(name = "MEDIA_ID"   , referencedColumnName = "ID")}
 //    )
-    @Singular
-    private List<Media> medias;
+
+    private CopyOnWriteArrayList<Media> medias;
 
     @JsonIgnore
     private LoadedSequence loadedSequence;
@@ -97,7 +98,7 @@ public class Sequence implements Cloneable, Playable {
             log.error("error occurred", e);
             sequence = Sequence.builder()
                     .name("errorrr")
-                    .medias(Collections.emptyList())
+                    .medias( new CopyOnWriteArrayList<>())
                     .build();
         } finally {
             return sequence;

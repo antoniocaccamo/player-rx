@@ -26,10 +26,10 @@ public class LibraryUI extends Composite {
 
         Layouts.setGrid(this).numColumns(1).columnsEqualWidth(false).margin(0).spacing(0);
 
-        SashForm parentSashForm = new SashForm(this, SWT.HORIZONTAL);
+        SashForm parentSashForm = new SashForm(this, SWT.VERTICAL);
         Layouts.setGridData(parentSashForm).grabAll();
 
-        SashForm sashForm = new SashForm(parentSashForm, SWT.VERTICAL);
+
         //Layouts.setGridData(sashForm).grabAll();
 
         //Layouts.setGridData(new ResourceLibraryUI(sashForm)).grabAll();
@@ -37,11 +37,14 @@ public class LibraryUI extends Composite {
         //Layouts.setGridData(new ResourceLibraryUI(sashForm)).grabAll();
 
 
-        new SequenceLibraryUI(sashForm, resourcePublishSubject);
+        new SequenceLibraryUI(parentSashForm, resourcePublishSubject);
+
+        SashForm sashForm = new SashForm(parentSashForm, SWT.HORIZONTAL);
+
         new ResourceLibraryUI(sashForm, resourcePublishSubject);
 
 
-        sashForm = new SashForm(parentSashForm, SWT.VERTICAL);
+//        sashForm = new SashForm(parentSashForm, SWT.VERTICAL);
         //Layouts.setGridData(sashForm).grabAll();
 
         //Layouts.setGridData(new ResourceLibraryUI(sashForm)).grabAll();
@@ -51,7 +54,7 @@ public class LibraryUI extends Composite {
         new PreviewLibraryUI(sashForm, resourcePublishSubject);
 
         int [] weights = {3,1};
-        parentSashForm.setWeights(weights);
+        sashForm.setWeights(weights);
 
     }
 }

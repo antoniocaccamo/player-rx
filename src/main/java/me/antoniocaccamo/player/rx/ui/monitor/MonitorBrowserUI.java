@@ -88,7 +88,7 @@ public class MonitorBrowserUI extends AbstractMonitorUI {
             case PHOTO:
                 ui  = ShowEnum.PHOTO;
         }
-        final String execute = String.format("data.ui = '%s'", ui);
+        final String execute = String.format("data.ui = '%s'", media.getResource().getType().name().toLowerCase());
         SwtExec.async().guardOn(browser).execute(
                 () -> log.info("getIndex() [{}] - browser.execute({}) : result {}",
                         getMonitorUI().isPresent() ?

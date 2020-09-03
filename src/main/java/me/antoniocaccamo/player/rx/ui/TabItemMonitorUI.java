@@ -111,7 +111,8 @@ public class TabItemMonitorUI extends CTabItem {
                 })
                         .setSize(screen.getSize().toPoint())
                         .setLocation(screen.getLocation().toPoint())
-                        .openOn(getParent().getShell())
+                        //.openOn(getParent().getShell())
+                        .openOnActive()
         ;
 
         sequenceLooper.setOptionalSequence(sequenceService.getLoadedSequenceByName( screen.getSequence()));
