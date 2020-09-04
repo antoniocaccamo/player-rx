@@ -13,10 +13,10 @@ import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.service.SequenceService;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.dnd.*;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 
@@ -27,13 +27,16 @@ import java.util.List;
 public class SequenceLibraryUI extends Composite {
 
     private final PublishSubject<Resource> resourcePublishSubject;
+    private final SequenceService sequenceService;
+    private TreeViewer treeViewer;
+    private CTabFolder tabFolder;
 
     public SequenceLibraryUI(Composite parent, PublishSubject<Resource> resourcePublishSubject) {
         super(parent, SWT.NONE);
 
         Layouts.setGrid(this).numColumns(1).columnsEqualWidth(false).margin(0).spacing(0);
 
-        SequenceService sequenceService = Application.CONTEXT.getBean(SequenceService.class);
+         sequenceService = Application.CONTEXT.getBean(SequenceService.class);
 
         Group group = new Group(this, SWT.NONE);
         Layouts.setGrid(group).numColumns(1).spacing(0).margin(0);
@@ -43,6 +46,43 @@ public class SequenceLibraryUI extends Composite {
         Layouts.setGrid(group).numColumns(1);
         Layouts.setGridData(group).grabAll();
         Composite composite = new Composite(group, SWT.NONE);
+
+
+        this.resourcePublishSubject = resourcePublishSubject;
+
+
+        //createTreeViewer(group, composite);
+
+        createTabFolder(group, composite);
+    }
+
+    private void createTabFolder(Group group, Composite composite) {
+        Layouts.setGrid(composite).numColumns(1);
+        Layouts.setGridData(composite).grabAll();
+
+        tabFolder = new CTabFolder(composite, SWT.NONE);
+
+        Layouts.setGrid(tabFolder);
+        Layouts.setGridData(tabFolder).grabAll();
+
+        Observable.fromIterable(
+                    sequenceService.getLoadedSequences())
+                    .sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName())
+                )
+                .subscribe(
+                        loadedSequence -> new SequenceLibraryUITabLoadedSequence(tabFolder, loadedSequence),
+                        Throwable::printStackTrace
+                );
+    }
+
+    private void createTabItem(LoadedSequence loadedSequence){
+        CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
+
+
+    }
+
+    private void createTreeViewer(Group group, Composite composite) {
+
         Layouts.setFill(composite);
         Layouts.setGridData(composite).grabAll();
 
@@ -52,7 +92,7 @@ public class SequenceLibraryUI extends Composite {
         format.addColumn().setText("media");
         format.setStyle( SWT. FULL_SELECTION | SWT.MULTI);
 
-        final TreeViewer treeViewer = format.buildTree(new Composite(composite, SWT.BORDER));
+        treeViewer = format.buildTree(new Composite(composite, SWT.BORDER));
         treeViewer.setContentProvider( new SequenceLibraryUITreeContentProvider());
         treeViewer.setLabelProvider(   new SequenceLibraryUITreeTableLabelProvider());
 //        ViewerMisc.singleSelection(treeViewer)
@@ -74,14 +114,14 @@ public class SequenceLibraryUI extends Composite {
 
         button = new Button(buttoComposite, SWT.PUSH );
         button.setText("button 03");
-        this.resourcePublishSubject = resourcePublishSubject;
+
 
         this.resourcePublishSubject.subscribe( resource -> {
             List<Object> mediaList =
                     Observable.fromIterable(loadedSequenceIterable).flatMap(
-                        loadedSequence -> Observable.fromIterable(loadedSequence.getSequence().getMedias())
-                                                .filter(media -> media.getResource().equals(resource))
-                                                .map(media -> (Object) media)
+                            loadedSequence -> Observable.fromIterable(loadedSequence.getSequence().getMedias())
+                                    .filter(media -> media.getResource().equals(resource))
+                                    .map(media -> (Object) media)
 
                     ).toList().blockingGet();
             ViewerMisc.multiSelectionList(treeViewer).set(ImmutableList.builder().addAll(mediaList).build());

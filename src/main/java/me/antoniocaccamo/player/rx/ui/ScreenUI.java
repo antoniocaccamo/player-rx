@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author antoniocaccamo on 20/02/2020
@@ -31,10 +32,12 @@ public class ScreenUI extends CoatMux {
     private final int index;
 
     private  Layer<AbstractMonitorUI> currenLayer;
+    private final CountDownLatch latch;
 
     public ScreenUI(Composite wrapped, int index, PublishSubject<CommandEvent> commandEventSubject, PublishSubject<MediaEvent> mediaEventSubject) {
         super(wrapped, SWT.NONE);
         this.index = index;
+        latch = new CountDownLatch(1);
         log.info("monitor # {}", getIndex() );
         this.commandEventSubject = commandEventSubject;
         this.mediaEventSubject   = mediaEventSubject;
@@ -43,6 +46,10 @@ public class ScreenUI extends CoatMux {
                 .subscribe(this::manageCommandEvent);
         createSubMonitor();
 
+    }
+
+    public CountDownLatch getLatch() {
+        return latch;
     }
 
     public int getIndex() {
@@ -65,6 +72,7 @@ public class ScreenUI extends CoatMux {
 //        }));
 
         // Constants.Resource.Type.BLACK
+
         layerMap.putIfAbsent(Constants.Resource.Type.BROWSER, addCoat( composite -> {
             Layouts.setGrid(composite)
                     .numColumns(1)
@@ -74,9 +82,10 @@ public class ScreenUI extends CoatMux {
                     .spacing(0)
                     .margin(0)
             ;
-            return new MonitorBrowserUI(this, composite);
-
+            return new MonitorBrowserUI(this, composite, latch);
         }));
+
+        layerMap.get(  Constants.Resource.Type.BROWSER ).bringToTop();
 
         // Constants.Resource.Type.WATCH
 //        layerMap.putIfAbsent(Constants.Resource.Type.WATCH, addCoat( composite -> {
@@ -134,6 +143,9 @@ public class ScreenUI extends CoatMux {
     }
 
     private void manageCommandEvent(CommandEvent evt) throws InterruptedException {
+
+
+
         log.debug("getIndex() [{}] - event received : {}", getIndex(), evt);
 
         switch (evt.getType()) {

@@ -49,7 +49,7 @@ public class ShowMediaTask extends TimerTask {
 
 		if ( log.isDebugEnabled())
 			log.debug( "getIndex() [{}] => started @ [{}] paused @ [{}] duration [{}]",
-					abstractMonitorUI.getMonitorUI().isPresent() ? abstractMonitorUI.getMonitorUI().get().getIndex() : Constants.Screen.COLOR_SEPARATOR,
+					abstractMonitorUI.getScreenUI().isPresent() ? abstractMonitorUI.getScreenUI().get().getIndex() : Constants.Screen.COLOR_SEPARATOR,
 					DateTimeFormatter.ISO_LOCAL_TIME.format(startedAt),
 					shown,
 					duration
@@ -80,7 +80,7 @@ public class ShowMediaTask extends TimerTask {
 
 		if ( log.isDebugEnabled())
 			log.debug( "getIndex() [{}] - started @ [{}] shown @ [{}] showing [{}] duration [{}]",
-					abstractMonitorUI.getMonitorUI().isPresent() ? abstractMonitorUI.getMonitorUI().get().getIndex() : Constants.Screen.COLOR_SEPARATOR,
+					abstractMonitorUI.getScreenUI().isPresent() ? abstractMonitorUI.getScreenUI().get().getIndex() : Constants.Screen.COLOR_SEPARATOR,
 					DateTimeFormatter.ISO_LOCAL_TIME.format(startedAt),
 					shown,
 					showing,

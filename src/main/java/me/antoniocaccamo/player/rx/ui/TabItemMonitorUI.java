@@ -1,7 +1,9 @@
 package me.antoniocaccamo.player.rx.ui;
 
+import com.diffplug.common.collect.Immutables;
 import com.diffplug.common.rx.RxBox;
 import com.diffplug.common.swt.*;
+import com.google.common.collect.ImmutableList;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.PublishSubject;
@@ -59,6 +61,9 @@ public class TabItemMonitorUI extends CTabItem {
 
     private final SequenceLooper sequenceLooper = new SequenceLooper();
 
+    @Getter
+    private ScreenUI screenUI;
+
     //private Optional<Sequence> selectedSequence;
 
     private ScheduledFuture<?> scheduledFuture;
@@ -78,7 +83,7 @@ public class TabItemMonitorUI extends CTabItem {
         sequenceService = Application.CONTEXT.getBean(SequenceService.class);
         //log.info( "sequenceService == null : {}", sequenceService == null   );
 
-        setText(String.format("screen %s", index + 1));
+        setText(String.format("screen %s", index));
         this.screen = screen;
         this.index = index;
 
@@ -106,8 +111,8 @@ public class TabItemMonitorUI extends CTabItem {
         monitorUI =
                 Shells.builder(SWT.NONE, cmp -> {
                     Layouts.setGrid(cmp).margin(0).spacing(0);
-                    Layouts.setGridData( new ScreenUI(cmp, index, commandEventSubject, mediaEventSubject) )
-                            .grabAll();
+                    this.screenUI= new ScreenUI(cmp, index, commandEventSubject, mediaEventSubject);
+                    Layouts.setGridData( screenUI ).grabAll();
                 })
                         .setSize(screen.getSize().toPoint())
                         .setLocation(screen.getLocation().toPoint())
@@ -137,7 +142,9 @@ public class TabItemMonitorUI extends CTabItem {
 
     }
 
-    public void applyScreen() {
+    public boolean applyScreen() {
+
+
 
         log.info("getIndex() [{}] - apply screen : {}" , getIndex(), getScreen() );
 
@@ -148,6 +155,8 @@ public class TabItemMonitorUI extends CTabItem {
         createObservers();
 
         createTimers();
+
+        return true;
 
     }
 
@@ -223,7 +232,9 @@ public class TabItemMonitorUI extends CTabItem {
         sequenceCombo.addModifyListener( e -> {
             if ( StringUtils.isEmpty(sequenceCombo.getText()) )
                 return;
-            sequenceLooper.setOptionalSequence(sequenceService.getLoadedSequenceByName(sequenceCombo.getText()));
+            sequenceLooper.setOptionalSequence(
+                    sequenceService.getLoadedSequenceByName(sequenceCombo.getText())
+            );
             screen.setSequence(sequenceCombo.getText());
         });
 

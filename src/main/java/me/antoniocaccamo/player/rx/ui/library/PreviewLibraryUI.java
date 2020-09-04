@@ -18,6 +18,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
+import java.util.concurrent.CountDownLatch;
+
 /**
  * @author antoniocaccamo on 05/05/2020
  */
@@ -40,7 +42,8 @@ public class PreviewLibraryUI extends Composite {
         group.setText("preview");
         Layouts.setGrid(group).numColumns(1);
         Layouts.setGridData(group).grabAll();
-        MonitorBrowserUI composite = new MonitorBrowserUI(null, group);
+        final CountDownLatch latch = new CountDownLatch(1);
+        MonitorBrowserUI composite = new MonitorBrowserUI(null, group, latch);
         Layouts.setGridData(composite).grabAll();
 
         Composite buttoComposite = new Composite(group, SWT.SHADOW_ETCHED_OUT | SWT.CENTER);

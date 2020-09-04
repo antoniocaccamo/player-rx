@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Timer;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author antoniocaccamo on 19/02/2020
@@ -21,16 +22,19 @@ import java.util.Timer;
 @Slf4j
 public abstract class AbstractMonitorUI extends Composite {
 
-    private final Optional<ScreenUI> monitorUI;
+    private final Optional<ScreenUI> screenUI;
     private ShowMediaTask durationTask;
 
-    public AbstractMonitorUI(ScreenUI screenUI, Composite parent) {
+    protected final CountDownLatch latch;
+
+    public AbstractMonitorUI(ScreenUI screenUI, Composite parent, CountDownLatch latch) {
         super(parent, SWT.NONE);
         Layouts.setGrid(this).margin(0).spacing(0).numColumns(1).columnsEqualWidth(true);
         Layouts.setGridData(this).grabAll();
         setBackground(ColorPool.forWidget(this).getSystemColor(SWT.COLOR_BLACK));
 
-        this.monitorUI = Optional.ofNullable(screenUI);
+        this.screenUI = Optional.ofNullable(screenUI);
+        this.latch = latch;
     }
 
     protected long startInMillis;
@@ -67,7 +71,7 @@ public abstract class AbstractMonitorUI extends Composite {
 
     public void next() {
         durationTimer.purge();
-        monitorUI.ifPresent( ui -> ui.next());
+        screenUI.ifPresent(ui -> ui.next());
     }
 
     public void stop() {
@@ -96,15 +100,15 @@ public abstract class AbstractMonitorUI extends Composite {
     }
 
     public void errorOnPlay(Throwable throwable) {
-        monitorUI.ifPresent( ui -> ui.errorOnPlay(throwable));
+        screenUI.ifPresent(ui -> ui.errorOnPlay(throwable));
     }
 
     public  void updatePercentageProgess( long actual, long total) {
-        log.debug("getIndex() [{}] - progress bar : actual {}  total {}", getMonitorUI().isPresent() ? getMonitorUI().get().getIndex() : Constants.Screen.COLOR_SEPARATOR, actual, total );
-        monitorUI.ifPresent( ui -> ui.updatePercentageProgess( actual, total  ));
+        log.debug("getIndex() [{}] - progress bar : actual {}  total {}", getScreenUI().isPresent() ? getScreenUI().get().getIndex() : Constants.Screen.COLOR_SEPARATOR, actual, total );
+        screenUI.ifPresent(ui -> ui.updatePercentageProgess( actual, total  ));
     }
 
-    public Optional<ScreenUI> getMonitorUI() {
-        return monitorUI;
+    public Optional<ScreenUI> getScreenUI() {
+        return screenUI;
     }
 }

@@ -7,6 +7,7 @@ import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.runtime.event.annotation.EventListener;
 import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.config.Constants;
@@ -37,7 +38,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 //import picocli.CommandLine;
 
@@ -140,8 +143,25 @@ public class ApplicationUI {
 
             tabFolderIndex = new AtomicInteger(0);
 
-            preference.getScreens().stream()
-                    .forEach( monitorModel -> new TabItemMonitorUI(tabFolder, monitorModel, tabFolderIndex.getAndIncrement()).applyScreen() );
+            List<TabItemMonitorUI> monitorUIS = preference.getScreens().stream()
+                    .map( monitorModel -> new TabItemMonitorUI(tabFolder, monitorModel, tabFolderIndex.incrementAndGet()) )
+                    .collect(Collectors.toList()
+            );
+
+            Observable.fromIterable(monitorUIS)
+                    .subscribeOn(Schedulers.computation())
+                    .map(t -> {
+                        log.info("getIndex() [{}] - waiting for all stuff..", t.getIndex());
+                        try {
+                            t.getScreenUI().getLatch().await();
+                        } catch (InterruptedException e) {
+                            log.error("", e);
+                        }
+                        return t;
+                    })
+                    .observeOn(SwtExec.async().getRxExecutor().scheduler())
+                    .subscribe( TabItemMonitorUI::applyScreen  , Throwable::printStackTrace)
+                    ;
 
                     /*
             Observable.fromArray(tabFolder.getItems())
