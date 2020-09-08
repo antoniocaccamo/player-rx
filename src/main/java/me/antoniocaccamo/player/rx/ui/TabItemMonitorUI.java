@@ -1,9 +1,33 @@
 package me.antoniocaccamo.player.rx.ui;
 
-import com.diffplug.common.collect.Immutables;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.util.Optional;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import javax.validation.constraints.NotNull;
+
 import com.diffplug.common.rx.RxBox;
-import com.diffplug.common.swt.*;
-import com.google.common.collect.ImmutableList;
+import com.diffplug.common.swt.Layouts;
+import com.diffplug.common.swt.Shells;
+import com.diffplug.common.swt.SwtExec;
+import com.diffplug.common.swt.SwtMisc;
+import com.diffplug.common.swt.SwtRx;
+
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
+
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.PublishSubject;
@@ -11,8 +35,15 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.Application;
+import me.antoniocaccamo.player.rx.ApplicationUI;
 import me.antoniocaccamo.player.rx.config.Constants;
-import me.antoniocaccamo.player.rx.event.media.command.*;
+import me.antoniocaccamo.player.rx.event.media.command.CommandEvent;
+import me.antoniocaccamo.player.rx.event.media.command.DeactivateCommandEvent;
+import me.antoniocaccamo.player.rx.event.media.command.PauseCommandEvent;
+import me.antoniocaccamo.player.rx.event.media.command.PlayCommandEvent;
+import me.antoniocaccamo.player.rx.event.media.command.ResumeCommandEvent;
+import me.antoniocaccamo.player.rx.event.media.command.StartCommandEvent;
+import me.antoniocaccamo.player.rx.event.media.command.StopCommandEvent;
 import me.antoniocaccamo.player.rx.event.media.progress.EndedProgressMediaEvent;
 import me.antoniocaccamo.player.rx.event.media.progress.MediaEvent;
 import me.antoniocaccamo.player.rx.event.media.progress.PercentageProgressMediaEvent;
@@ -22,18 +53,6 @@ import me.antoniocaccamo.player.rx.model.resource.LocalResource;
 import me.antoniocaccamo.player.rx.model.sequence.Media;
 import me.antoniocaccamo.player.rx.model.sequence.SequenceLooper;
 import me.antoniocaccamo.player.rx.service.SequenceService;
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.widgets.*;
-
-import javax.validation.constraints.NotNull;
-import java.time.Duration;
-import java.time.LocalTime;
-import java.util.Optional;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author antoniocaccamo on 20/02/2020
@@ -117,6 +136,7 @@ public class TabItemMonitorUI extends CTabItem {
                         .setSize(screen.getSize().toPoint())
                         .setLocation(screen.getLocation().toPoint())
                         //.openOn(getParent().getShell())
+                        .setImage(ApplicationUI.ImageUI)
                         .openOnActive()
         ;
 

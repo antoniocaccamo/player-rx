@@ -29,6 +29,7 @@ import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Decorations;
 import org.eclipse.swt.widgets.Menu;
@@ -47,10 +48,13 @@ import java.util.stream.Collectors;
 /**
  * @author antoniocaccamo on 20/02/2020
  */
- @Slf4j @Singleton
+@Slf4j
+@Singleton
 public class ApplicationUI {
 
-    @Inject
+        public static Image ImageUI;
+
+        @Inject
     private ApplicationContext applicationContext;
 
     @Value("${micronaut.application.name}")
@@ -175,11 +179,11 @@ public class ApplicationUI {
                     );
             menuManager((Shell) cmp);
             try {
-                ((Shell) cmp).setImage(
-                        ImageDescriptors.createManagedImage(
-                                SWTHelper.getImage( getClass().getClassLoader().getResourceAsStream("images/logo.jpg")).getImageData(),
-                                cmp
-                        ));
+                    ApplicationUI.ImageUI = ImageDescriptors.createManagedImage(
+                        SWTHelper.getImage( getClass().getClassLoader().getResourceAsStream("images/logo.jpg")).getImageData(),
+                        cmp
+                );
+                ((Shell) cmp).setImage( ApplicationUI.ImageUI);
             } catch (IOException e) {
                 e.printStackTrace();
             }
