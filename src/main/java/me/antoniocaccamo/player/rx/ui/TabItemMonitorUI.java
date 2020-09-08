@@ -96,6 +96,10 @@ public class TabItemMonitorUI extends CTabItem {
     private Button stopButton;
     private Combo sequenceCombo ;
 
+    private Label labelNomeFile;
+
+	private Disposable endedProgressMediaEventDisposable;
+
     public TabItemMonitorUI(CTabFolder tabFolder, Screen screen, int index) {
         super(tabFolder, SWT.NONE);
 
@@ -128,7 +132,7 @@ public class TabItemMonitorUI extends CTabItem {
 
         // monitor
         monitorUI =
-                Shells.builder(SWT.NONE, cmp -> {
+                Shells.builder(SWT.ICON, cmp -> {
                     Layouts.setGrid(cmp).margin(0).spacing(0);
                     this.screenUI= new ScreenUI(cmp, index, commandEventSubject, mediaEventSubject);
                     Layouts.setGridData( screenUI ).grabAll();
@@ -196,12 +200,13 @@ public class TabItemMonitorUI extends CTabItem {
                         evt -> {
                             progressBar.setMaximum((int) evt.getTotal());
                             progressBar.setSelection( (int) evt.getActual() );
+                            progressBar.setToolTipText(String.format("%d : %d", (int) evt.getActual(), (int) evt.getTotal()));
                             if (log.isDebugEnabled()) log.debug("getIndex() [{}] -  PercentageProgressMediaEvent : : {}", getIndex(),  evt);
                         },
                         t -> log.error("getIndex() [{}] - error occurred on update : {}", getIndex(),  t)
                 );
 
-        Disposable endedProgressMediaEventDisposable =  mediaEventSubject.filter(me -> me instanceof  EndedProgressMediaEvent)
+        endedProgressMediaEventDisposable =  mediaEventSubject.filter(me -> me instanceof  EndedProgressMediaEvent)
                 .observeOn(  SwtExec.async().getRxExecutor().scheduler())
                 .subscribe(
                         evt -> {
@@ -209,13 +214,9 @@ public class TabItemMonitorUI extends CTabItem {
                             progressBar.setSelection( 0 );
                             //selectedSequence.ifPresent( sq -> {
                             Optional<Media> optionalMedia = sequenceLooper.next();
-                            Media media = null;
-                            if ( optionalMedia.isPresent()) {
-                                media = optionalMedia.get();
-                            } else {
-                                media = getWhenNotActiveMedia();
-                            }
+                            Media media = optionalMedia.map(m -> m).orElse(getWhenNotActiveMedia());
                             commandEventSubject.onNext(new PlayCommandEvent(media) );
+                            labelNomeFile.setText(media.toString());                            
                             //});
                         },
                         t -> log.error("getIndex() [{}] - error occurred on update % : {}", getIndex(), t)
@@ -270,12 +271,8 @@ public class TabItemMonitorUI extends CTabItem {
                         sequenceCombo.setText(sq.getName());
                         statusEnumRxBox.set(   status = StatusEnum.PLAYING );
                         Optional<Media> optionalMedia = sequenceLooper.next();
-                        Media media = null;
-                        if ( optionalMedia.isPresent()) {
-                            media = optionalMedia.get();
-                        } else {
-                            media = getWhenNotActiveMedia();
-                        }
+                        Media media = optionalMedia.map(m -> m).orElse(getWhenNotActiveMedia());
+                        labelNomeFile.setText(media.toString());
                         commandEventSubject.onNext(new PlayCommandEvent(media) );
                     });
                 });
@@ -298,7 +295,10 @@ public class TabItemMonitorUI extends CTabItem {
     private Media getWhenNotActiveMedia() {
         return Media.builder()
                 .duration(Duration.ofSeconds(5))
-                .resource(LocalResource.builder().withType(Constants.Resource.Type.WATCH).build())
+                .resource(LocalResource.builder()
+                    .withType(Constants.Resource.Type.WATCH)
+                    .build()
+                )
                 .build();
     }
 
@@ -570,8 +570,11 @@ public class TabItemMonitorUI extends CTabItem {
         label = new Label(mediaGroup, SWT.NONE);
         label.setText("Nome file");
 
-        label = new Label(mediaGroup, SWT.NONE);
-        label.setText("default.xsq");
+        labelNomeFile = new Label(mediaGroup, SWT.NONE);
+        labelNomeFile.setText("");
+        Layouts.setGridData( labelNomeFile )                
+                .grabHorizontal()
+        ;
 
         progressBar = new ProgressBar(mediaGroup, SWT.NONE);
 
@@ -659,7 +662,9 @@ public class TabItemMonitorUI extends CTabItem {
         this.mediaEventSubject.onComplete();
         if ( scheduledFuture != null)
             scheduledFuture.cancel(true);
-        monitorUI.dispose();
+        
+        this.endedProgressMediaEventDisposable.dispose();
+        this.monitorUI.dispose();
         super.dispose();
     }
 

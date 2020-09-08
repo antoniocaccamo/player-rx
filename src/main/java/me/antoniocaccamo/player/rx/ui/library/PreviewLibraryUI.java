@@ -1,11 +1,15 @@
 package me.antoniocaccamo.player.rx.ui.library;
 
+import java.util.concurrent.CountDownLatch;
+
 import com.diffplug.common.rx.RxBox;
 import com.diffplug.common.swt.Layouts;
-import com.diffplug.common.swt.SwtMisc;
-import com.diffplug.common.swt.SwtRx;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.Application;
@@ -13,12 +17,6 @@ import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.model.sequence.Media;
 import me.antoniocaccamo.player.rx.service.SequenceService;
 import me.antoniocaccamo.player.rx.ui.monitor.MonitorBrowserUI;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
  * @author antoniocaccamo on 05/05/2020
