@@ -22,8 +22,6 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class MonitorBrowserUI extends AbstractMonitorUI {
 
-    ;
-
     enum ShowEnum {
         BROWSER("browser"),
         PHOTO ("photo")   ,
@@ -99,6 +97,7 @@ public class MonitorBrowserUI extends AbstractMonitorUI {
 
     @Override
     public void setCurrent(Media media) {
+        /*
         ShowEnum ui = ShowEnum.BROWSER;
         switch (media.getResource().getType()){
             case WEATHER:
@@ -110,6 +109,7 @@ public class MonitorBrowserUI extends AbstractMonitorUI {
             case PHOTO:
                 ui  = ShowEnum.PHOTO;
         }
+        */
         execute(String.format("data.ui = '%s'", media.getResource().getType().name().toLowerCase()));
         super.setCurrent(media);
     }
