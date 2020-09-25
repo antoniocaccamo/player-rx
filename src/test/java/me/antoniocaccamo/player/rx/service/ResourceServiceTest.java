@@ -47,7 +47,7 @@ public class ResourceServiceTest {
         assertTrue(file.exists(), String.format("file not found : %s", file.getAbsoluteFile()));
 
         Optional<Sequence> sequence =
-                legacyService.readSequence(file.getAbsolutePath())
+                legacyService.readLeagacySequence(file.getAbsolutePath())
                 ;
         assertNotNull(sequence.get());
         Sequence sq = sequence.get();

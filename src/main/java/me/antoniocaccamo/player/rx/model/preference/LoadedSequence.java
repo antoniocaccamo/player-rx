@@ -28,6 +28,9 @@ public class LoadedSequence {
     @JsonIgnore
     private Sequence sequence;
 
+    public boolean hasSequence() {return sequence!=null;}
+
+    @Deprecated
     public void setSequence(Sequence sequence) {
         this.sequence = sequence;
         sequence.setLoadedSequence(this);

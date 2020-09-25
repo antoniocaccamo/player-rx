@@ -55,273 +55,226 @@ public class ApplicationUI {
         public static Image ImageUI;
 
         @Inject
-    private ApplicationContext applicationContext;
+        private ApplicationContext applicationContext;
 
-    @Value("${micronaut.application.name}")
-    @NotNull
-    private String appname;
+        @Value("${micronaut.application.name}")
+        @NotNull
+        private String appname;
 
-    @Value("${micronaut.server.port}")
-    @NotNull
-    private int port;
+        @Value("${micronaut.server.port}")
+        @NotNull
+        private int port;
 
-    @Inject
-    private  PreferenceService preferenceService;
+        @Inject
+        private PreferenceService preferenceService;
 
-    @Inject
-    private  InitHelper dbInitHelper;
+        @Inject
+        private InitHelper dbInitHelper;
 
-    private Preference preference;
+        private Preference preference;
 
-    private PublishSubject<ApplicationEvent> applicationEventPublishSubject;
+        private PublishSubject<ApplicationEvent> applicationEventPublishSubject;
 
-    private CTabFolder tabFolder;
+        private CTabFolder tabFolder;
 
-    private CoatMux coatMux;
+        private CoatMux coatMux;
 
-    private AtomicInteger tabFolderIndex;
+        private AtomicInteger tabFolderIndex;
 
-    private CoatMux.Layer<Composite> tabFolderLayer;
+        private CoatMux.Layer<Composite> tabFolderLayer;
 
-    private CoatMux.Layer<Composite> resourceLibraryLayer;
+        private CoatMux.Layer<Composite> resourceLibraryLayer;
 
-//    public ApplicationUI(PreferenceService preferenceService, InitHelper dbInitHelper, String appname) {
-//        this.preferenceService = preferenceService;
-//        this.dbInitHelper = dbInitHelper;
-//        this.appname = appname;
-//    }
+        // public ApplicationUI(PreferenceService preferenceService, InitHelper
+        // dbInitHelper, String appname) {
+        // this.preferenceService = preferenceService;
+        // this.dbInitHelper = dbInitHelper;
+        // this.appname = appname;
+        // }
 
+        @EventListener
+        public void onApplicationEvent(StartApplicationEvent event) {
+                // startup logic here
+                Application.CONTEXT = applicationContext;
+                Application.SERVER_PORT = port;
+                log.info(" show ui");
+                show();
 
-    @EventListener
-    public void onApplicationEvent(StartApplicationEvent event) {
-        // startup logic here
-        Application.CONTEXT = applicationContext;
-        Application.SERVER_PORT    = port;
-        log.info(" show ui");
-        show();
+        }
 
-    }
+        public void show() {
 
+                dbInitHelper.getDefaultSquence();
+                preference = preferenceService.read();
+                applicationEventPublishSubject = PublishSubject.create();
 
-    public void show() {
+                log.info("launching swt");
 
+                Shells.builder(SWT.RESIZE | SWT.ICON | SWT.CLOSE, cmp -> {
+                        Layouts.setGrid(cmp)
+                                .numColumns(1)
+                                .columnsEqualWidth(true)
+                                .horizontalSpacing(0)
+                                .verticalSpacing(0);
 
-        dbInitHelper.getDefaultSquence();
-        preference = preferenceService.read();
-        applicationEventPublishSubject = PublishSubject.create();
+                        toolbarManager(cmp);
+                        coatMux = new CoatMux(cmp, SWT.NONE);
+                        Layouts.setGridData(coatMux).grabAll();
 
-        log.info("launching swt");
+                        tabFolderLayer = coatMux.addCoat(composite -> {
+                                Layouts.setGrid(composite).numColumns(1).columnsEqualWidth(true).horizontalSpacing(0)
+                                                .verticalSpacing(0);
+                                tabFolder = new CTabFolder(composite, SWT.NONE);
+                                Layouts.setGrid(tabFolder);
+                                Layouts.setGridData(tabFolder).grabAll();
+                                return composite;
+                        });
 
-        Shells shells = Shells.builder(SWT.RESIZE | SWT.ICON | SWT.CLOSE, cmp -> {
-            Layouts.setGrid(cmp)
-                    .numColumns(1)
-                    .columnsEqualWidth(true)
-                    .horizontalSpacing(0)
-                    .verticalSpacing(0)
-            ;
+                        resourceLibraryLayer = coatMux.addCoat(cmpResLib -> {
+                                Layouts.setGrid(cmpResLib).horizontalSpacing(0).verticalSpacing(0);
+                                Layouts.setGridData(new LibraryUI(cmpResLib)).grabAll();
+                                return cmpResLib;
+                        });
 
-            toolbarManager(cmp);
-            coatMux = new CoatMux(cmp, SWT.NONE);
-            Layouts.setGridData(coatMux).grabAll();
+                        tabFolderLayer.bringToTop();
 
-            tabFolderLayer = coatMux.addCoat(composite -> {
-                Layouts.setGrid(composite)
-                        .numColumns(1)
-                        .columnsEqualWidth(true)
-                        .horizontalSpacing(0)
-                        .verticalSpacing(0)
-                ;
-                tabFolder = new CTabFolder(composite, SWT.NONE);
-                Layouts.setGrid(tabFolder);
-                Layouts.setGridData(tabFolder).grabAll();
-                return composite;
-            });
+                        tabFolderIndex = new AtomicInteger(0);
 
-            resourceLibraryLayer = coatMux.addCoat(cmpResLib ->{
-                Layouts.setGrid(cmpResLib).horizontalSpacing(0).verticalSpacing(0);
-                Layouts.setGridData(new LibraryUI(cmpResLib)).grabAll();
-                return cmpResLib;
-            });
+                        List<TabItemMonitorUI> monitorUIS = preference
+                                        .getScreens().stream().map(monitorModel -> new TabItemMonitorUI(tabFolder,monitorModel, tabFolderIndex.incrementAndGet()))
+                                        .collect(Collectors.toList());
 
-            tabFolderLayer.bringToTop();
+                        Observable.fromIterable(monitorUIS).subscribeOn(Schedulers.computation()).map(t -> {
+                                log.info("getIndex() [{}] - waiting for all stuff..", t.getIndex());
+                                try {
+                                        t.getScreenUI().getLatch().await();
+                                } catch (InterruptedException e) {
+                                        log.error("", e);
+                                }
+                                return t;
+                        }).observeOn(SwtExec.async().getRxExecutor().scheduler())
+                                        .subscribe(TabItemMonitorUI::applyScreen, Throwable::printStackTrace);
 
-            tabFolderIndex = new AtomicInteger(0);
+                        /*
+                         * Observable.fromArray(tabFolder.getItems()) .map(i -> (TabItemMonitorUI) i)
+                         * .subscribe( tabItemMonitorUI -> tabItemMonitorUI.applyMonitorModel() );
+                         */
 
-            List<TabItemMonitorUI> monitorUIS = preference.getScreens().stream()
-                    .map( monitorModel -> new TabItemMonitorUI(tabFolder, monitorModel, tabFolderIndex.incrementAndGet()) )
-                    .collect(Collectors.toList()
-            );
-
-            Observable.fromIterable(monitorUIS)
-                    .subscribeOn(Schedulers.computation())
-                    .map(t -> {
-                        log.info("getIndex() [{}] - waiting for all stuff..", t.getIndex());
+                        SwtRx.addListener(cmp, SWT.Resize, SWT.Move)
+                                        .subscribe(event -> log.debug("event : {} | cmp size : {} location : {}", event,
+                                                        preference.getSize().fromPoint(cmp.getSize()),
+                                                        preference.getLocation().fromPoint(cmp.getLocation())));
+                        menuManager((Shell) cmp);
                         try {
-                            t.getScreenUI().getLatch().await();
-                        } catch (InterruptedException e) {
-                            log.error("", e);
+                                ApplicationUI.ImageUI = ImageDescriptors.createManagedImage(
+                                                SWTHelper.getImage(getClass().getClassLoader()
+                                                                .getResourceAsStream("images/logo.jpg")).getImageData(),
+                                                cmp);
+                                ((Shell) cmp).setImage(ApplicationUI.ImageUI);
+                        } catch (IOException e) {
+                                e.printStackTrace();
                         }
-                        return t;
-                    })
-                    .observeOn(SwtExec.async().getRxExecutor().scheduler())
-                    .subscribe( TabItemMonitorUI::applyScreen  , Throwable::printStackTrace)
-                    ;
 
-                    /*
-            Observable.fromArray(tabFolder.getItems())
-                    .map(i -> (TabItemMonitorUI) i)
-                    .subscribe( tabItemMonitorUI -> tabItemMonitorUI.applyMonitorModel() );
-                    */
-
-            SwtRx.addListener(cmp, SWT.Resize, SWT.Move)
-                    .subscribe(event ->
-                            log.debug("event : {} | cmp size : {} location : {}", event, preference.getSize().fromPoint(cmp.getSize()), preference.getLocation().fromPoint(cmp.getLocation()))
-                    );
-            menuManager((Shell) cmp);
-            try {
-                    ApplicationUI.ImageUI = ImageDescriptors.createManagedImage(
-                        SWTHelper.getImage( getClass().getClassLoader().getResourceAsStream("images/logo.jpg")).getImageData(),
-                        cmp
-                );
-                ((Shell) cmp).setImage( ApplicationUI.ImageUI);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            SwtRx.addListener(cmp, SWT.Dispose)
-                    .subscribe(event -> dispose() );
-        })
-                .setTitle(String.format("%s : %s", appname,preference.getComputer()))
-                .setSize( preference.getSize().toPoint())
-                .setLocation( preference.getLocation().toPoint() )
-                ;
-
-        shells.openOnDisplayBlocking();
-        log.info("shell closed - > preference : {}", preference);
-    }
-
-    public void dispose() {
-
-
-            log.info("disposing ..");
-            for (CTabItem item : tabFolder.getItems()) {
-                item.getControl().dispose();
-                item.dispose();
-            }
-            Application.CONTEXT.stop();
-            System.exit(0);
-
-    }
-
-
-
-    private void toolbarManager(Composite cmp) {
-        ToolBarManager manager = new ToolBarManager();
-
-        final IAction addMonitor = Actions.builder()
-                //.setImage(ImageDescriptors.createManagedImage(SWTHelper.getImage("images/logo.jpg").getImageData(), cmp).)
-                .setText("Add")
-                .setStyle(Actions.Style.PUSH)
-                .setListener(event -> {
-                    Screen screen = Screen.builder()
-                            .defaultScreen(Constants.Screen.DefaultEnum.N)
-                            .size( ScreenSize.builder().width(Constants.Screen.WIDTH).height(Constants.Screen.HEIGHT).build())
-                            .location(ScreenLocation.builder().top(Constants.Screen.TOP).left(Constants.Screen.LEFT).build() )
-                            .sequence(Constants.Sequence.DefaultSequenceName)
-                            .timing(Constants.TimingEnum.ALL_DAY)
-                            .build();
-                    TabItemMonitorUI cTabItem = new TabItemMonitorUI(tabFolder, screen, tabFolderIndex.getAndIncrement());
-                    tabFolder.setSelection(cTabItem);
-                    cTabItem.applyScreen();
-                    preference.addScreen(screen);
+                        SwtRx.addListener(cmp, SWT.Dispose).subscribe(event -> dispose());
                 })
-                .build()
-                ;
+                .setTitle(String.format("%s : %s", appname, preference.getComputer()))
+                .setSize(preference.getSize().toPoint())
+                .setLocation(preference.getLocation().toPoint())
+                .openOnDisplayBlocking();
+                log.info("shell closed - > preference : {}", preference);
+        }
 
-        final IAction removeMonitor = Actions.builder()
-                //.setImage(ImageDescriptors.createManagedImage(SWTHelper.getImage("images/logo.jpg").getImageData(), cmp).)
-                .setText("Remove")
-                .setStyle(Actions.Style.PUSH)
-                .setListener(evt -> Observable.fromArray(tabFolder.getItems())
-                        .count()
-                        .filter(cnt -> cnt > 1)
-                        .subscribe(cnt -> {
-                            TabItemMonitorUI cTabItem = (TabItemMonitorUI) Observable.fromArray(tabFolder.getItems()).blockingLast();
-                            preference.removeScreen(cTabItem.getScreen());
-                            cTabItem.dispose();
-                            tabFolderIndex.decrementAndGet();
-                        })
-                )
-                .build()
-                ;
+        public void dispose() {
 
-        applicationEventPublishSubject.count()
-                .subscribe( cnt -> removeMonitor.setEnabled( Boolean.valueOf(cnt > 1)));
+                log.info("disposing ..");
+                for (CTabItem item : tabFolder.getItems()) {
+                        item.getControl().dispose();
+                        item.dispose();
+                }
+                Application.CONTEXT.stop();
+                System.exit(0);
 
-        manager.add(addMonitor);
-        manager.add(removeMonitor);
-        manager.add(
-                Actions.builder()
-                        .setListener(event -> tabFolderLayer.bringToTop())
-                        .setText("monitors")
-                        .build()
-        );
-        manager.add(
-                Actions.builder()
-                        .setListener(event -> resourceLibraryLayer.bringToTop())
-                        .setText("resource lib")
-                        .build()
-        );
+        }
 
-        manager.createControl(cmp);
-    }
+        private void toolbarManager(Composite cmp) {
+                ToolBarManager manager = new ToolBarManager();
 
-    private void menuManager(Shell shell) {
-        MenuManager manager = new MenuManager();
+                final IAction addMonitor = Actions.builder()
+                                // .setImage(ImageDescriptors.createManagedImage(SWTHelper.getImage("images/logo.jpg").getImageData(),
+                                // cmp).)
+                                .setText("Add").setStyle(Actions.Style.PUSH).setListener(event -> {
+                                        Screen screen = Screen.builder().defaultScreen(Constants.Screen.DefaultEnum.N)
+                                                        .size(ScreenSize.builder().width(Constants.Screen.WIDTH)
+                                                                        .height(Constants.Screen.HEIGHT).build())
+                                                        .location(ScreenLocation.builder().top(Constants.Screen.TOP)
+                                                                        .left(Constants.Screen.LEFT).build())
+                                                        .sequence(Constants.Sequence.DefaultSequenceName)
+                                                        .timing(Constants.TimingEnum.ALL_DAY).build();
+                                        TabItemMonitorUI cTabItem = new TabItemMonitorUI(tabFolder, screen,
+                                                        tabFolderIndex.getAndIncrement());
+                                        tabFolder.setSelection(cTabItem);
+                                        cTabItem.applyScreen();
+                                        preference.addScreen(screen);
+                                }).build();
 
-        MenuManager file_menu = new MenuManager(LocaleHelper.Application.Menu.File.File);
+                final IAction removeMonitor = Actions.builder()
+                                // .setImage(ImageDescriptors.createManagedImage(SWTHelper.getImage("images/logo.jpg").getImageData(),
+                                // cmp).)
+                                .setText("Remove").setStyle(Actions.Style.PUSH)
+                                .setListener(evt -> Observable.fromArray(tabFolder.getItems()).count()
+                                                .filter(cnt -> cnt > 1).subscribe(cnt -> {
+                                                        TabItemMonitorUI cTabItem = (TabItemMonitorUI) Observable
+                                                                        .fromArray(tabFolder.getItems()).blockingLast();
+                                                        preference.removeScreen(cTabItem.getScreen());
+                                                        cTabItem.dispose();
+                                                        tabFolderIndex.decrementAndGet();
+                                                }))
+                                .build();
 
-//      Save
-        file_menu.add(Actions.builder()
-                .setText(LocaleHelper.Application.Menu.File.Save)
-                .setStyle(Actions.Style.PUSH)
-                .setRunnable(() -> {
-                    try {
-                        preferenceService.save();
-                    } catch (IOException e) {
-                        log.error("error saving prefs", e);
-                    }
-                })
-                .build()
-        );
+                applicationEventPublishSubject.count()
+                                .subscribe(cnt -> removeMonitor.setEnabled(Boolean.valueOf(cnt > 1)));
 
+                manager.add(addMonitor);
+                manager.add(removeMonitor);
+                manager.add(Actions.builder().setListener(event -> tabFolderLayer.bringToTop()).setText("monitors")
+                                .build());
+                manager.add(Actions.builder().setListener(event -> resourceLibraryLayer.bringToTop())
+                                .setText("resource lib").build());
 
-//      Exit
-        file_menu.add(Actions.builder()
-                .setText(  LocaleHelper.Application.Menu.File.Exit )
-                .setStyle(Actions.Style.PUSH)
-                .setRunnable(() -> {
-                    if ( SwtMisc.blockForQuestion(
-                            String.format("%s : %s", appname,preference.getComputer()), LocaleHelper.Application.Menu.File.Exit )
-                    )
-                        dispose();
-                })
-                .build()
-        );
+                manager.createControl(cmp);
+        }
 
+        private void menuManager(Shell shell) {
+                MenuManager manager = new MenuManager();
 
-        //       selection.set(Boolean.TRUE);
+                MenuManager file_menu = new MenuManager(LocaleHelper.Application.Menu.File.File);
 
-        manager.add(file_menu);
+                // Save
+                file_menu.add(Actions.builder().setText(LocaleHelper.Application.Menu.File.Save)
+                                .setStyle(Actions.Style.PUSH).setRunnable(() -> {
+                                        try {
+                                                preferenceService.save();
+                                        } catch (IOException e) {
+                                                log.error("error saving prefs", e);
+                                        }
+                                }).build());
 
-        Menu menu = manager.createMenuBar((Decorations) shell);
+                // Exit
+                file_menu.add(Actions.builder().setText(LocaleHelper.Application.Menu.File.Exit)
+                                .setStyle(Actions.Style.PUSH).setRunnable(() -> {
+                                        if (SwtMisc.blockForQuestion(
+                                                        String.format("%s : %s", appname, preference.getComputer()),
+                                                        LocaleHelper.Application.Menu.File.Exit))
+                                                dispose();
+                                }).build());
 
-        shell.setMenuBar(menu);
-    }
+                // selection.set(Boolean.TRUE);
 
+                manager.add(file_menu);
 
+                Menu menu = manager.createMenuBar((Decorations) shell);
 
-
-
+                shell.setMenuBar(menu);
+        }
 
 }

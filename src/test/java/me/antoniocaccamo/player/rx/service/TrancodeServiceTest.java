@@ -1,25 +1,28 @@
 package me.antoniocaccamo.player.rx.service;
 
-import io.micronaut.context.annotation.Value;
-import io.micronaut.test.annotation.MicronautTest;
-import io.reactivex.Observable;
-import lombok.extern.slf4j.Slf4j;
-import me.antoniocaccamo.player.rx.config.Constants;
-import me.antoniocaccamo.player.rx.model.resource.Resource;
-import me.antoniocaccamo.player.rx.model.resource.LocalResource;
-import org.junit.jupiter.api.Test;
-import ws.schild.jave.*;
-
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Stream;
+
+import org.junit.jupiter.api.Test;
+
+import io.micronaut.context.annotation.Value;
+import io.micronaut.test.annotation.MicronautTest;
+import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.config.Constants;
+import me.antoniocaccamo.player.rx.model.resource.LocalResource;
+import ws.schild.jave.AudioAttributes;
+import ws.schild.jave.Encoder;
+import ws.schild.jave.EncoderException;
+import ws.schild.jave.EncoderProgressListener;
+import ws.schild.jave.EncodingAttributes;
+import ws.schild.jave.MultimediaInfo;
+import ws.schild.jave.MultimediaObject;
+import ws.schild.jave.VideoAttributes;
 
 @MicronautTest  @Slf4j
 class TrancodeServiceTest  {

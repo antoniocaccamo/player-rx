@@ -3,6 +3,7 @@ package me.antoniocaccamo.player.rx.model.sequence;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.model.Model;
 import me.antoniocaccamo.player.rx.model.preference.LoadedSequence;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -46,7 +47,7 @@ public class Sequence implements Cloneable, Playable {
 
     private CopyOnWriteArrayList<Media> medias;
 
-    @JsonIgnore
+    @JsonIgnore @Deprecated
     private LoadedSequence loadedSequence;
 
     @PostConstruct
@@ -144,13 +145,13 @@ public class Sequence implements Cloneable, Playable {
     public void prepareForPlay() { }
 
     public boolean isPlayable(LocalDateTime now) {
-        log.warn("--> to udpate ...");
+        log.warn(Constants.TODO);
         return getMedias() != null ;
     }
 
     @JsonIgnore
     public boolean isAvailable() {
-        log.warn("--> to udpate ...");
+        log.warn(Constants.TODO);
         return true;
     }
 

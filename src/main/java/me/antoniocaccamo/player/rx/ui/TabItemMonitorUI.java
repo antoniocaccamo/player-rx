@@ -15,6 +15,7 @@ import com.diffplug.common.swt.SwtExec;
 import com.diffplug.common.swt.SwtMisc;
 import com.diffplug.common.swt.SwtRx;
 
+import me.antoniocaccamo.player.rx.model.preference.LoadedSequence;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -144,7 +145,10 @@ public class TabItemMonitorUI extends CTabItem {
                         .openOnActive()
         ;
 
-        sequenceLooper.setOptionalSequence(sequenceService.getLoadedSequenceByName( screen.getSequence()));
+        sequenceLooper.setLoadedSequence(
+                sequenceService.getLoadedSequenceByName( screen.getSequence())
+                    .orElse(LoadedSequence.builder().name("NO LOADEDED SEQUENCE").build())
+        );
 
         // create observers
 
@@ -253,8 +257,9 @@ public class TabItemMonitorUI extends CTabItem {
         sequenceCombo.addModifyListener( e -> {
             if ( StringUtils.isEmpty(sequenceCombo.getText()) )
                 return;
-            sequenceLooper.setOptionalSequence(
-                    sequenceService.getLoadedSequenceByName(sequenceCombo.getText())
+            sequenceLooper.setLoadedSequence(
+                    sequenceService.getLoadedSequenceByName( screen.getSequence())
+                            .orElse(LoadedSequence.builder().name("NO LOADEDED SEQUENCE").build())
             );
             screen.setSequence(sequenceCombo.getText());
         });
@@ -265,16 +270,17 @@ public class TabItemMonitorUI extends CTabItem {
                 .observeOn(  SwtExec.async().getRxExecutor().scheduler())
                 .subscribe(startCommandEvent -> {
                     log.info("getIndex() [{}] - startCommandEvent  {}", getIndex(), startCommandEvent);
-                    sequenceLooper.getOptionalSequence().ifPresent( sq -> {
-                        log.info("getIndex() [{}] - start playing sequence : {} ", getIndex(),  sq.getName());
+                    // @TODO : remove getOptionalSequence
+                    if (sequenceLooper.getLoadedSequence().hasSequence() ) {
+                        log.info("getIndex() [{}] - start playing sequence : {} ", getIndex(),  sequenceLooper.getLoadedSequence().getName());
                         running = RunningEnum.Y;
-                        sequenceCombo.setText(sq.getName());
+                        sequenceCombo.setText(sequenceLooper.getLoadedSequence().getName());
                         statusEnumRxBox.set(   status = StatusEnum.PLAYING );
                         Optional<Media> optionalMedia = sequenceLooper.next();
                         Media media = optionalMedia.map(m -> m).orElse(getWhenNotActiveMedia());
                         labelNomeFile.setText(media.toString());
                         commandEventSubject.onNext(new PlayCommandEvent(media) );
-                    });
+                    };
                 });
     }
 
