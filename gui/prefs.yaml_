@@ -1,0 +1,36 @@
+---
+uuid: "ebc4ce7d-98f6-4410-b999-fd1b03735410"
+computer: "antonio"
+size:
+  width: 528
+  height: 704
+location:
+  x: 56
+  y: 750
+sendAllEmail: null
+weatherLatlng: "45.08,7.40"
+screens:
+- defaultScreen: null
+  size:
+    width: 487
+    height: 376
+  location:
+    x: 50
+    y: 250
+  name: null
+  sequence: "test"
+  from: null
+  to: null
+  timing: "ALL_DAY"
+- defaultScreen: null
+  size:
+    width: 200
+    height: 180
+  location:
+    x: 500
+    y: 250
+  name: null
+  sequence: "test"
+  from: null
+  to: null
+  timing: "ALL_DAY"

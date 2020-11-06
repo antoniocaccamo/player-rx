@@ -1,0 +1,24 @@
+﻿---
+name    : test sequence
+location: LOCAL
+medias:
+    - type : IMAGE
+      location: LOCAL
+#      days: YYYYYYY
+      path: "C:\\Windows\\Web\\Screen\\img100.jpg"
+      duration : 5s
+
+    - type : VIDEO
+      location: LOCAL
+#      days: YYYYYYY
+      path: "C:\\Program Files\\WindowsApps\\Microsoft.Windows.Photos_2019.19071.17920.0_x64__8wekyb3d8bbwe\\AppCS\\Assets\\NewsControl_WhatsNewMedia\\620x252_3DModels.mp4"
+
+    - type : VIDEO
+      location : LOCAL
+      path : "C:\\Users\\antonio\\Videos\\big_buck_bunny.mp4"
+        
+    - type : VIDEO
+      location: LOCAL
+#      days: YYYYYYY
+      path: "C:\\Users\\antonio\\Videos\\echo-hereweare.mp4"
+...

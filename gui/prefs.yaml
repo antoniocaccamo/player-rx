@@ -1,0 +1,52 @@
+---
+computer: "antonio"
+size:
+  width: 818
+  height: 691
+location:
+  x: 102
+  y: 1053
+sendAllEmail: null
+weatherLatlng: "45.08,7.40"
+loadedSequences:
+- name: "DEFAULT_SEQUENCE"
+  path: "file:///D:/development/workspaces/antoniocaccamo/player-rx/gui/DEFAULT_SEQUENCE.yaml"
+- name: "TEST_SEQUENCE"
+  path: "file:///D:/development/workspaces/antoniocaccamo/player-rx/gui/test.seq.yaml"
+screens:
+- defaultScreen: "Y"
+  size:
+    width: 400
+    height: 277
+  location:
+    x: 450
+    y: 100
+  name: null
+  sequence: "TEST_SEQUENCE"
+  from: null
+  to: null
+  timing: "ALL_DAY"
+- defaultScreen: "N"
+  size:
+    width: 400
+    height: 280
+  location:
+    x: 100
+    y: 638
+  name: null
+  sequence: "DEFAULT_SEQUENCE"
+  from: null
+  to: null
+  timing: "ALL_DAY"
+- defaultScreen: "N"
+  size:
+    width: 500
+    height: 400
+  location:
+    x: 40
+    y: 100
+  name: null
+  sequence: "DEFAULT_SEQUENCE"
+  from: null
+  to: null
+  timing: "ALL_DAY"

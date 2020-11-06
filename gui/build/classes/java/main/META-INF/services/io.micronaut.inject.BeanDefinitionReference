@@ -1,0 +1,11 @@
+me.antoniocaccamo.player.rx.service.impl.$ResourceServiceImplDefinitionClass
+me.antoniocaccamo.player.rx.service.impl.$PreferenceServiceImplDefinitionClass
+me.antoniocaccamo.player.rx.$ApplicationUIDefinitionClass
+me.antoniocaccamo.player.rx.controller.$IssueControllerDefinitionClass
+me.antoniocaccamo.player.rx.service.impl.$HLSTrancodeServiceImplDefinitionClass
+me.antoniocaccamo.player.rx.service.impl.$SequenceServiceImplDefinitionClass
+me.antoniocaccamo.player.rx.config.$ConstantsDefinitionClass
+me.antoniocaccamo.player.rx.$ApplicationUI$ApplicationEventListener$onApplicationEvent1$InterceptedDefinitionClass
+me.antoniocaccamo.player.rx.helper.$InitHelperDefinitionClass
+me.antoniocaccamo.player.rx.service.impl.$LegacyServiceImplDefinitionClass
+me.antoniocaccamo.player.rx.service.impl.$MediaServiceImplDefinitionClass
