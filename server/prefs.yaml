@@ -10,9 +10,9 @@ sendAllEmail: null
 weatherLatlng: "45.08,7.40"
 loadedSequences:
 - name: "DEFAULT_SEQUENCE"
-  path: "file:///D:/development/workspaces/antoniocaccamo/player-rx/gui/DEFAULT_SEQUENCE.yaml"
+  path: "file:///D:/development/workspaces/antoniocaccamo/player-rx/server/DEFAULT_SEQUENCE.yaml"
 - name: "TEST_SEQUENCE"
-  path: "file:///D:/development/workspaces/antoniocaccamo/player-rx/gui/test.seq.yaml"
+  path: "file:///D:/development/workspaces/antoniocaccamo/player-rx/server/test.seq.yaml"
 screens:
 - defaultScreen: "Y"
   size:
