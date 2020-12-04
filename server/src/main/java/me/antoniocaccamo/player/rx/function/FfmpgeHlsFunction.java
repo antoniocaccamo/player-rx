@@ -9,7 +9,15 @@ import io.reactivex.functions.Function;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
-import ws.schild.jave.*;
+import ws.schild.jave.Encoder;
+import ws.schild.jave.MultimediaObject;
+import ws.schild.jave.encode.AudioAttributes;
+import ws.schild.jave.encode.EncodingAttributes;
+import ws.schild.jave.encode.VideoAttributes;
+import ws.schild.jave.encode.enums.X264_PROFILE;
+import ws.schild.jave.info.MultimediaInfo;
+import ws.schild.jave.progress.EncoderProgressListener;
+
 
 import java.io.File;
 import java.time.Duration;
@@ -59,9 +67,9 @@ public class FfmpgeHlsFunction implements Function<Resource, Resource> {
         audioAttr.setSamplingRate(44100);
         videoAttr.setCodec("libx264");
         videoAttr.setBitRate(4000000);
-        videoAttr.setX264Profile(VideoAttributes.X264_PROFILE.BASELINE);
+        videoAttr.setX264Profile(X264_PROFILE.BASELINE);
         EncodingAttributes encodingAttr = new EncodingAttributes();
-        encodingAttr.setFormat("hls");
+        encodingAttr.setOutputFormat("hls");
         encodingAttr.setAudioAttributes(audioAttr);
         encodingAttr.setVideoAttributes(videoAttr);
         log.info("encoding attributes : {}", encodingAttr.toString());

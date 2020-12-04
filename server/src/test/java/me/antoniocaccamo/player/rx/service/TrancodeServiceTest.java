@@ -1,5 +1,19 @@
 package me.antoniocaccamo.player.rx.service;
 
+import io.micronaut.context.annotation.Value;
+import io.micronaut.test.annotation.MicronautTest;
+import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.config.Constants;
+import me.antoniocaccamo.player.rx.model.resource.LocalResource;
+import org.junit.jupiter.api.Test;
+import ws.schild.jave.*;
+import ws.schild.jave.encode.AudioAttributes;
+import ws.schild.jave.encode.EncodingAttributes;
+import ws.schild.jave.encode.VideoAttributes;
+import ws.schild.jave.encode.enums.X264_PROFILE;
+import ws.schild.jave.info.MultimediaInfo;
+import ws.schild.jave.progress.EncoderProgressListener;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
@@ -7,22 +21,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Stream;
-
-import org.junit.jupiter.api.Test;
-
-import io.micronaut.context.annotation.Value;
-import io.micronaut.test.annotation.MicronautTest;
-import lombok.extern.slf4j.Slf4j;
-import me.antoniocaccamo.player.rx.config.Constants;
-import me.antoniocaccamo.player.rx.model.resource.LocalResource;
-import ws.schild.jave.AudioAttributes;
-import ws.schild.jave.Encoder;
-import ws.schild.jave.EncoderException;
-import ws.schild.jave.EncoderProgressListener;
-import ws.schild.jave.EncodingAttributes;
-import ws.schild.jave.MultimediaInfo;
-import ws.schild.jave.MultimediaObject;
-import ws.schild.jave.VideoAttributes;
 
 @MicronautTest  @Slf4j
 class TrancodeServiceTest  {
@@ -93,13 +91,13 @@ class TrancodeServiceTest  {
         videoAttr.setCodec("libx264");
 
         videoAttr.setBitRate(4000000);
-        videoAttr.setX264Profile(VideoAttributes.X264_PROFILE.BASELINE);
+        videoAttr.setX264Profile(X264_PROFILE.BASELINE);
 
 
 
 
         encodingAttr.setVideoAttributes(videoAttr);
-        encodingAttr.setFormat("hls");
+        encodingAttr.setOutputFormat("hls");
 
         log.info("encoding attributes : {}", encodingAttr.toString());
 
@@ -124,7 +122,7 @@ class TrancodeServiceTest  {
             public void message(String s) {
                 log.info("message : {}", s);
             }
-        })
+        });
 
 
     }

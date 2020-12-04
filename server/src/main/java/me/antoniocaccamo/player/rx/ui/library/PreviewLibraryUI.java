@@ -5,6 +5,10 @@ import java.util.concurrent.CountDownLatch;
 import com.diffplug.common.rx.RxBox;
 import com.diffplug.common.swt.Layouts;
 
+import com.diffplug.common.swt.widgets.FlatBtn;
+import me.antoniocaccamo.player.rx.ApplicationUI;
+import me.antoniocaccamo.player.rx.event.resource.ResourceEvent;
+import me.antoniocaccamo.player.rx.event.resource.SelecteResourceEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -24,9 +28,7 @@ import me.antoniocaccamo.player.rx.ui.monitor.MonitorBrowserUI;
 @Slf4j
 public class PreviewLibraryUI extends Composite {
 
-    private final PublishSubject<Resource> resourcePublishSubject;
-
-    public PreviewLibraryUI(Composite parent, PublishSubject<Resource> resourcePublishSubject) {
+    public PreviewLibraryUI(Composite parent/*, PublishSubject<ResourceEvent> resourcePublishSubject*/) {
         super(parent, SWT.NONE);
 
         Layouts.setGrid(this).numColumns(1).columnsEqualWidth(false).margin(0).spacing(0);
@@ -50,12 +52,14 @@ public class PreviewLibraryUI extends Composite {
 
         RxBox<Boolean> visibleBox = RxBox.of(Boolean.FALSE);
 
-        Button button = new Button(buttoComposite, SWT.PUSH );
+        FlatBtn button = new FlatBtn(buttoComposite, SWT.PUSH );
         button.setText("play");
 
-        this.resourcePublishSubject = resourcePublishSubject;
-
-        this.resourcePublishSubject.subscribe( resource -> {
+        ApplicationUI.RESOURCE_EVENT_BUS
+                .filter(resourceEvent -> resourceEvent instanceof SelecteResourceEvent)
+                .map(resourceEvent -> (SelecteResourceEvent) resourceEvent)
+                .subscribe( sre -> {
+                    Resource resource = sre.getResource();
                     composite.setCurrent(
                             Media.builder()
                                     .resource(resource)

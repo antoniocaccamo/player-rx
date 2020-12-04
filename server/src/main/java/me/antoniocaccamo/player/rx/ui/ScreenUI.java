@@ -5,13 +5,16 @@ import com.diffplug.common.swt.Layouts;
 import com.diffplug.common.swt.SwtExec;
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
+import me.antoniocaccamo.player.rx.ApplicationUI;
 import me.antoniocaccamo.player.rx.config.Constants;
 import me.antoniocaccamo.player.rx.event.media.command.CommandEvent;
 import me.antoniocaccamo.player.rx.event.media.command.PlayCommandEvent;
 import me.antoniocaccamo.player.rx.event.media.progress.*;
+import me.antoniocaccamo.player.rx.event.monitor.MonitorMediaEvent;
 import me.antoniocaccamo.player.rx.model.sequence.Media;
 import me.antoniocaccamo.player.rx.ui.monitor.AbstractMonitorUI;
 import me.antoniocaccamo.player.rx.ui.monitor.MonitorBrowserUI;
+import org.checkerframework.checker.units.qual.A;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
@@ -25,8 +28,8 @@ import java.util.concurrent.CountDownLatch;
 @Slf4j
 public class ScreenUI extends CoatMux {
 
-    private final PublishSubject<CommandEvent> commandEventSubject;
-    private final PublishSubject<MediaEvent>   mediaEventSubject;
+//  private final PublishSubject<CommandEvent> commandEventSubject;
+//  private final PublishSubject<ProgressEvent>   mediaEventSubject;
 
     private final Map<Constants.Resource.Type, Layer<AbstractMonitorUI> > layerMap = new HashMap<>();
     private final int index;
@@ -34,14 +37,18 @@ public class ScreenUI extends CoatMux {
     private  Layer<AbstractMonitorUI> currenLayer;
     private final CountDownLatch latch;
 
-    public ScreenUI(Composite wrapped, int index, PublishSubject<CommandEvent> commandEventSubject, PublishSubject<MediaEvent> mediaEventSubject) {
+    public ScreenUI(Composite wrapped, int index //, PublishSubject<CommandEvent> commandEventSubject, PublishSubject<ProgressEvent> mediaEventSubject
+        ) {
         super(wrapped, SWT.NONE);
         this.index = index;
         latch = new CountDownLatch(1);
         log.info("monitor # {}", getIndex() );
-        this.commandEventSubject = commandEventSubject;
-        this.mediaEventSubject   = mediaEventSubject;
-        this.commandEventSubject
+        //this.commandEventSubject = commandEventSubject;
+        //this.mediaEventSubject   = mediaEventSubject;
+        //commandEventSubject
+        ApplicationUI.MONITOR_MEDIA_EVENT_BUS
+                .filter(mme -> mme.getMonitorId() == getIndex() && mme.getMediaEvent() instanceof CommandEvent)
+                .map(mme -> (CommandEvent) mme.getMediaEvent())
                 .observeOn(  SwtExec.async().getRxExecutor().scheduler())
                 .subscribe(this::manageCommandEvent);
         createSubMonitor();
@@ -180,7 +187,14 @@ public class ScreenUI extends CoatMux {
         currenLayer.getHandle().play();
         currenLayer.bringToTop();
         //log.debug("getIndex() [{}] - showing : {}", getIndex(), currenLayer.getHandle().getClass().getSimpleName());
-        mediaEventSubject.onNext( new StartedProgressMediaEvent(media));
+        ApplicationUI.MONITOR_MEDIA_EVENT_BUS.onNext(
+            MonitorMediaEvent.builder()
+                    .monitorId(getIndex())
+                    .mediaEvent(new StartedProgressMediaEvent(media))
+                    .build()
+        );
+
+        //mediaEventSubject.onNext( new StartedProgressMediaEvent(media));
     }
 
     protected void pause() {
@@ -193,15 +207,27 @@ public class ScreenUI extends CoatMux {
 
 
     public void errorOnPlay(Throwable throwable){
-        this.mediaEventSubject.onNext(
-                new ErrorProgressMediaEvent(currenLayer.getHandle().getCurrent(), throwable)
+        ApplicationUI.MONITOR_MEDIA_EVENT_BUS.onNext(
+                MonitorMediaEvent.builder()
+                        .monitorId(getIndex())
+                        .mediaEvent(new ErrorProgressMediaEvent(currenLayer.getHandle().getCurrent(), throwable))
+                        .build()
         );
+//        this.mediaEventSubject.onNext(
+//                new ErrorProgressMediaEvent(currenLayer.getHandle().getCurrent(), throwable)
+//        );
     }
 
     public void next() {
-        this.mediaEventSubject.onNext(
-                new EndedProgressMediaEvent(currenLayer.getHandle().getCurrent())
+        ApplicationUI.MONITOR_MEDIA_EVENT_BUS.onNext(
+                MonitorMediaEvent.builder()
+                        .monitorId(getIndex())
+                        .mediaEvent(new EndedProgressMediaEvent(currenLayer.getHandle().getCurrent()))
+                        .build()
         );
+//        this.mediaEventSubject.onNext(
+//                new EndedProgressMediaEvent(currenLayer.getHandle().getCurrent())
+//        );
     }
 
     protected void stop() {
@@ -209,8 +235,14 @@ public class ScreenUI extends CoatMux {
     }
 
     public void updatePercentageProgess(long actual, long total){
-        mediaEventSubject
-                .onNext( new PercentageProgressMediaEvent(currenLayer.getHandle().getCurrent(), actual, total));
+        ApplicationUI.MONITOR_MEDIA_EVENT_BUS.onNext(
+                MonitorMediaEvent.builder()
+                        .monitorId(getIndex())
+                        .mediaEvent(new PercentageProgressMediaEvent(currenLayer.getHandle().getCurrent(), actual, total))
+                        .build()
+        );
+//        mediaEventSubject
+//                .onNext( new PercentageProgressMediaEvent(currenLayer.getHandle().getCurrent(), actual, total));
     }
 
     @Override

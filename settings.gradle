@@ -1,4 +1,5 @@
 
-
+// group "player-rx"
+rootProject.name    = 'player-rx'
 include "client"
 include "server"

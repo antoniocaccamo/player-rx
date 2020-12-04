@@ -6,7 +6,7 @@ import me.antoniocaccamo.player.rx.model.sequence.Media;
 /**
  * @author antoniocaccamo on 20/02/2020
  */
-public class ErrorProgressMediaEvent extends MediaEvent {
+public class ErrorProgressMediaEvent extends ProgressEvent {
 
     @Getter
     private final Throwable throwable;

@@ -1,6 +1,7 @@
 package me.antoniocaccamo.player.rx.event.media.progress;
 
 import lombok.Getter;
+import me.antoniocaccamo.player.rx.event.media.MediaEvent;
 import me.antoniocaccamo.player.rx.model.sequence.Media;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -10,9 +11,10 @@ import java.time.LocalDateTime;
 /**
  * @author antoniocaccamo on 20/02/2020
  */
-public abstract class MediaEvent {
+public abstract class ProgressEvent extends MediaEvent {
 
-    private final Media media;
+    @Getter
+    protected final Media media;
 
     @Getter
     protected final MediaEventType type;
@@ -20,7 +22,7 @@ public abstract class MediaEvent {
     @Getter
     protected final LocalDateTime when;
 
-    public MediaEvent(MediaEventType type, Media media) {
+    public ProgressEvent(MediaEventType type, Media media) {
         this.type = type;
         this.media = media;
         when = LocalDateTime.now();

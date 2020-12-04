@@ -5,7 +5,7 @@ import me.antoniocaccamo.player.rx.model.sequence.Media;
 /**
  * @author antoniocaccamo on 20/02/2020
  */
-public class StartedProgressMediaEvent extends MediaEvent {
+public class StartedProgressMediaEvent extends ProgressEvent {
 
     public StartedProgressMediaEvent(Media media) {
         super(MediaEventType.STARTED, media);

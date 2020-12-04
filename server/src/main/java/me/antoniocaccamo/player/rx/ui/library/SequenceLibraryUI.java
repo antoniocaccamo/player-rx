@@ -8,6 +8,9 @@ import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.Application;
+import me.antoniocaccamo.player.rx.ApplicationUI;
+import me.antoniocaccamo.player.rx.event.resource.ResourceEvent;
+import me.antoniocaccamo.player.rx.event.resource.SelecteResourceEvent;
 import me.antoniocaccamo.player.rx.model.preference.LoadedSequence;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.service.SequenceService;
@@ -26,17 +29,16 @@ import java.util.List;
 @Slf4j
 public class SequenceLibraryUI extends Composite {
 
-    private final PublishSubject<Resource> resourcePublishSubject;
     private final SequenceService sequenceService;
     private TreeViewer treeViewer;
     private CTabFolder tabFolder;
 
-    public SequenceLibraryUI(Composite parent, PublishSubject<Resource> resourcePublishSubject) {
+    public SequenceLibraryUI(Composite parent/*, PublishSubject<ResourceEvent> resourcePublishSubject*/) {
         super(parent, SWT.NONE);
 
         Layouts.setGrid(this).numColumns(1).columnsEqualWidth(false).margin(0).spacing(0);
 
-         sequenceService = Application.CONTEXT.getBean(SequenceService.class);
+        sequenceService = Application.CONTEXT.getBean(SequenceService.class);
 
         Group group = new Group(this, SWT.NONE);
         Layouts.setGrid(group).numColumns(1).spacing(0).margin(0);
@@ -47,12 +49,7 @@ public class SequenceLibraryUI extends Composite {
         Layouts.setGridData(group).grabAll();
         Composite composite = new Composite(group, SWT.NONE);
 
-
-        this.resourcePublishSubject = resourcePublishSubject;
-
-
         //createTreeViewer(group, composite);
-
         createTabFolder(group, composite);
     }
 
@@ -65,22 +62,22 @@ public class SequenceLibraryUI extends Composite {
         Layouts.setGrid(tabFolder);
         Layouts.setGridData(tabFolder).grabAll();
 
-        Observable.fromIterable(
-                    sequenceService.getLoadedSequences())
-                    .sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName())
-                )
-                .subscribe(
-                        loadedSequence -> new SequenceLibraryUITabLoadedSequence(tabFolder, loadedSequence),
-                        Throwable::printStackTrace
-                );
+        Observable.fromIterable(sequenceService.getLoadedSequences())
+            .sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()))
+            .subscribe(
+                loadedSequence -> new SequenceLibraryUITabLoadedSequence(tabFolder, loadedSequence),
+                Throwable::printStackTrace
+            );
+        if ( tabFolder.getItemCount() > 0 )
+            tabFolder.setSelection(0);
     }
 
+    @Deprecated
     private void createTabItem(LoadedSequence loadedSequence){
         CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
-
-
     }
 
+    @Deprecated
     private void createTreeViewer(Group group, Composite composite) {
 
         Layouts.setFill(composite);
@@ -116,16 +113,20 @@ public class SequenceLibraryUI extends Composite {
         button.setText("button 03");
 
 
-        this.resourcePublishSubject.subscribe( resource -> {
-            List<Object> mediaList =
-                    Observable.fromIterable(loadedSequenceIterable).flatMap(
-                            loadedSequence -> Observable.fromIterable(loadedSequence.getSequence().getMedias())
-                                    .filter(media -> media.getResource().equals(resource))
-                                    .map(media -> (Object) media)
+        ApplicationUI.RESOURCE_EVENT_BUS
+            .filter(resourceEvent -> resourceEvent instanceof SelecteResourceEvent)
+            .map(resourceEvent -> (SelecteResourceEvent) resourceEvent)
+            .subscribe( sre -> {
+                Resource resource = sre.getResource();
+                List<Object> mediaList = Observable.fromIterable(loadedSequenceIterable)
+                        .flatMap( loadedSequence -> Observable.fromIterable(loadedSequence.getSequence().getMedias())
+                                        .filter(media -> media.getResource().equals(resource))
+                                        .map(media -> (Object) media)
 
-                    ).toList().blockingGet();
-            ViewerMisc.multiSelectionList(treeViewer).set(ImmutableList.builder().addAll(mediaList).build());
-        });
+                        )
+                        .toList().blockingGet();
+                ViewerMisc.multiSelectionList(treeViewer).set(ImmutableList.builder().addAll(mediaList).build());
+            });
 
         DropTarget dt = new DropTarget(treeViewer.getControl(), DND.DROP_MOVE);
         dt.setTransfer(new Transfer[] { TextTransfer.getInstance() });

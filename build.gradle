@@ -1,3 +1,6 @@
+
+
+
 task copyClientResources(dependsOn: ':client:build') { 
     group = 'build'
     description = 'Copy client resources into server'

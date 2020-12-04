@@ -2,9 +2,6 @@ package me.antoniocaccamo.player.rx.controller;
 
 import java.util.function.Predicate;
 
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-
 import io.micronaut.websocket.WebSocketBroadcaster;
 import io.micronaut.websocket.WebSocketSession;
 import io.micronaut.websocket.annotation.OnMessage;

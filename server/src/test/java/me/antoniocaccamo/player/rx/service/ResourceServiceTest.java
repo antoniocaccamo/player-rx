@@ -70,7 +70,7 @@ public class ResourceServiceTest {
 
         sq.getMedias().stream().forEach(media -> resourceCache.put(media.getResource().getHash(),media.getResource()));
 
-        ResourceCollectionWrapprer wrapper = new ResourceCollectionWrapprer();
+        ResourceCollectionWrapprer wrapper =  ResourceCollectionWrapprer.builder().build();
 
         wrapper.setCollection(resourceCache.asMap().values());
 

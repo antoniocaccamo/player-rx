@@ -9,7 +9,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author antoniocaccamo on 20/02/2020
  */
 
-public class PercentageProgressMediaEvent extends MediaEvent {
+public class PercentageProgressMediaEvent extends ProgressEvent {
 
     @Getter  private final long actual;
     @Getter  private final long total;

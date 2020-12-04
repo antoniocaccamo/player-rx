@@ -1,11 +1,11 @@
 ---
 computer: "antonio"
 size:
-  width: 818
-  height: 691
+  width: 887
+  height: 738
 location:
-  x: 102
-  y: 1053
+  x: 103
+  y: 521
 sendAllEmail: null
 weatherLatlng: "45.08,7.40"
 loadedSequences:
@@ -19,7 +19,7 @@ screens:
     width: 400
     height: 277
   location:
-    x: 450
+    x: 472
     y: 100
   name: null
   sequence: "TEST_SEQUENCE"
@@ -32,18 +32,6 @@ screens:
     height: 280
   location:
     x: 100
-    y: 638
-  name: null
-  sequence: "DEFAULT_SEQUENCE"
-  from: null
-  to: null
-  timing: "ALL_DAY"
-- defaultScreen: "N"
-  size:
-    width: 500
-    height: 400
-  location:
-    x: 40
     y: 100
   name: null
   sequence: "DEFAULT_SEQUENCE"

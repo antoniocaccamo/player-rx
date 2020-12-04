@@ -189,6 +189,12 @@ public class Constants {
             return hls;
         }
 
+        static Path getVideoHLSPath(String prefixPath, me.antoniocaccamo.player.rx.model.resource.Resource resource) {
+            String hls = String.format("%s%s%s%s%s", getResourceLocationTypeParentPath(prefixPath, resource), File.separator, "hls", File.separator, "index.m3u8");
+            log.warn("{} : getVideoHLS : {}", TODO, hls);
+            return Paths.get( hls);
+        }
+
         enum Type {
             BLACK,
             BROWSER,

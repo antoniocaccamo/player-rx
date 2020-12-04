@@ -16,8 +16,8 @@ sonarqube {
     }
 }
 
-version "0.1"
-group "player-rx"
+version "0.1.0-SNAPSHOT"
+//group "player-rx"
 
 repositories {
     mavenCentral()
@@ -59,8 +59,8 @@ dependencies {
 
 //    implementation              "net.bramp.ffmpeg:ffmpeg:0.6.2"
 
-    implementation              "ws.schild:jave-core:2.7.3"
-    implementation              "ws.schild:jave-nativebin-win64:2.7.3"
+    implementation              "ws.schild:jave-core:$VER_JAVE"
+    implementation              "ws.schild:jave-nativebin-win64:$VER_JAVE"
 
 
     implementation              'com.fasterxml.jackson.dataformat:jackson-dataformats-text:2.9.8'
@@ -80,12 +80,14 @@ dependencies {
     compileOnly                 "com.google.code.findbugs:jsr305:3.0.2"
     compileOnly                 "com.google.code.findbugs:annotations:3.0.1"
     compileOnly                 "org.projectlombok:lombok:1.18.10"
+
+
     testCompile                 "org.projectlombok:lombok:1.18.10"
 
 //  compile                     "io.micronaut.data:micronaut-data-hibernate-jpa:1.0.0"
 
     compile						"org.webjars.npm:vue:2.6.11"
-    compile group: 'org.webjars', name: 'bootstrap', version: '4.4.1'
+    compile                     group: 'org.webjars', name: 'bootstrap', version: '4.4.1'
 
     compile						"org.webjars.npm:babel__polyfill:7.8.7"
     compile                     "org.webjars.npm:bootstrap-vue:2.9.0"
@@ -94,6 +96,9 @@ dependencies {
     compile 					"org.webjars.npm:axios:0.19.2"
 
     implementation              "org.apache.commons:commons-lang3:3.9"
+    compile                     "javax.xml.bind:jaxb-api:2.3.0"
+    compile                     "com.sun.xml.bind:jaxb-core:2.3.0"
+    compile                     "com.sun.xml.bind:jaxb-impl:2.3.0"
 
     testAnnotationProcessor     "org.projectlombok:lombok:1.18.10"
     testAnnotationProcessor     platform("io.micronaut:micronaut-bom:$micronautVersion")

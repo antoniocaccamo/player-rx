@@ -7,6 +7,9 @@ import com.diffplug.common.swt.jface.ViewerMisc;
 import io.reactivex.subjects.PublishSubject;
 import lombok.extern.slf4j.Slf4j;
 import me.antoniocaccamo.player.rx.Application;
+import me.antoniocaccamo.player.rx.ApplicationUI;
+import me.antoniocaccamo.player.rx.event.resource.ResourceEvent;
+import me.antoniocaccamo.player.rx.event.resource.SelecteResourceEvent;
 import me.antoniocaccamo.player.rx.model.resource.Resource;
 import me.antoniocaccamo.player.rx.service.ResourceService;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -24,11 +27,9 @@ import java.util.Optional;
  */
 @Slf4j
 public class ResourceLibraryUI extends Composite {
-
-    private final PublishSubject<Resource> resourcePublishSubject;
     private final DragSource dragSource;
 
-    public ResourceLibraryUI(Composite parent, PublishSubject<Resource> resourcePublishSubject) {
+    public ResourceLibraryUI(Composite parent/*, PublishSubject<ResourceEvent> resourcePublishSubject*/) {
         super(parent, SWT.NONE);
 
         Layouts.setGrid(this).numColumns(1).columnsEqualWidth(false).margin(0).spacing(0);
@@ -73,9 +74,6 @@ public class ResourceLibraryUI extends Composite {
 
         button = new Button(buttoComposite, SWT.PUSH );
         button.setText("button 03");
-        this.resourcePublishSubject = resourcePublishSubject;
-
-
 
         dragSource= new DragSource(tableViewer.getControl(), DND.DROP_MOVE);
         dragSource.setTransfer(new Transfer[] { TextTransfer.getInstance() });
@@ -94,7 +92,7 @@ public class ResourceLibraryUI extends Composite {
                 .subscribe(
                         or -> or.ifPresent( r-> {
                             log.info("selected : {}", r);
-                            resourcePublishSubject.onNext(r);
+                            ApplicationUI.RESOURCE_EVENT_BUS.onNext(new SelecteResourceEvent(r));
                         })
                 );
 
